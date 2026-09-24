@@ -36,7 +36,7 @@
             @csrf
             <div>
                 <label class="block font-bold text-stone-700 mb-1.5">Email Address</label>
-                <input type="email" name="email" value="{{ old('email', 'admin@urcookies.com') }}" required
+                <input type="email" name="email" value="{{ old('email', 'admin@otherwise.com') }}" required
                     autofocus
                     class="w-full border border-stone-200 p-3 rounded-xl outline-none focus:border-[#8F966C] focus:ring-1 focus:ring-[#8F966C] transition">
             </div>

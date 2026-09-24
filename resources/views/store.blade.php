@@ -1130,10 +1130,10 @@
 
         <!-- ================= RIGHT STATIC BRAND BANNER (50%) ================= -->
         <aside class="hidden lg:block lg:w-1/2 h-full relative overflow-hidden bg-[#DDD5C9]">
-            <img src="{{ asset('images/otherwise-banner.jpg') }}" alt="otherwise - Choose well. Drink well."
+            <img src="{{ asset('images/otherwise-banner-new.jpeg') }}" alt="otherwise - Choose well. Drink well."
                 class="w-full h-full object-cover object-[50%_40%]">
 
-            <a href="https://instagram.com" target="_blank"
+            <a href="https://www.instagram.com/otherwisekw/" target="_blank"
                 class="absolute bottom-8 right-8 rtl:right-auto rtl:left-8 bg-[#394326]/90 hover:bg-[#394326] text-white p-3.5 rounded-2xl shadow-xl hover:scale-110 transition">
                 <i class="fa-brands fa-instagram text-2xl"></i>
             </a>
