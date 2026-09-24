@@ -14,6 +14,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AdminController extends Controller
 {
@@ -130,9 +132,28 @@ class AdminController extends Controller
 
     public function updateOrderStatus(Request $request, Order $order)
     {
-        $request->validate(['order_status' => 'required']);
-        $order->update(['order_status' => $request->order_status]);
-        return back()->with('success', 'Order status updated successfully!');
+        // $request->validate(['order_status' => 'required']);
+        // $order->update(['order_status' => $request->order_status]);
+        // return back()->with('success', 'Order status updated successfully!');
+
+        $request->validate([
+            'order_status' => 'required|string',
+        ]);
+
+        $newStatus = trim($request->input('order_status'));
+
+        // Update whichever column exists directly via DB Query Builder to bypass any model restrictions
+        $updateData = [];
+        if (Schema::hasColumn('orders', 'order_status')) {
+            $updateData['order_status'] = $newStatus;
+        }
+        if (Schema::hasColumn('orders', 'status')) {
+            $updateData['status'] = $newStatus;
+        }
+
+        DB::table('orders')->where('id', $order->id)->update($updateData);
+
+        return back()->with('success', __('Order status updated successfully.'));
     }
 
     // 3. Products Management

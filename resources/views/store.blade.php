@@ -81,8 +81,10 @@
                         </span>
                     </button>
 
-                    <button class="p-2 hover:bg-stone-50 rounded-full"><i
-                            class="fa-solid fa-magnifying-glass text-sm"></i></button>
+                    <button @click="toggleSearch()" class="p-2 hover:bg-stone-50 rounded-full"
+                        :class="searchOpen ? 'text-[#8F966C] bg-stone-50' : ''">
+                        <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                    </button>
 
                     <a href="{{ route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}"
                         class="inline-flex items-center space-x-1.5 rtl:space-x-reverse px-2.5 py-1.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-700 hover:bg-stone-50 transition active:scale-95">
@@ -91,6 +93,21 @@
                     </a>
                 </div>
             </header>
+
+            <!-- Search Bar -->
+            <div x-show="searchOpen" x-cloak class="px-5 py-2.5 bg-stone-50 border-b border-stone-200">
+                <div class="relative">
+                    <i
+                        class="fa-solid fa-magnifying-glass absolute left-3 rtl:left-auto rtl:right-3 top-2.5 text-stone-400 text-xs"></i>
+                    <input type="text" x-model="productSearch" x-ref="searchInput"
+                        placeholder="{{ __('Search products or categories...') }}"
+                        class="w-full bg-white border border-stone-200 rounded-xl py-2 pl-9 pr-8 rtl:pr-9 rtl:pl-8 text-xs outline-none focus:border-[#8F966C]">
+                    <button x-show="productSearch.length > 0" @click="productSearch = ''"
+                        class="absolute right-2.5 rtl:right-auto rtl:left-2.5 top-2 text-stone-400 hover:text-stone-600 text-xs">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
 
             <!-- Delivery / Pickup Context Switcher Bar -->
             <section class="p-4 bg-white border-b border-stone-100"
@@ -133,21 +150,171 @@
                 </div>
             </section>
 
-            <!-- Filter & Sort Tag Button -->
-            <div class="px-5 pt-3 pb-1" x-show="view === 'categories-grid' || view === 'category-products'">
-                <button
-                    class="border border-stone-200 bg-white text-stone-700 px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:border-[#8F966C] transition">
-                    {{ __('Filter & Sort') }}
+            <!-- Filter & Sort Tag Button & Active Status Bar -->
+            <div class="px-5 pt-3 pb-1 flex items-center justify-between"
+                x-show="view === 'categories-grid' || view === 'category-products'">
+                <button @click="showFilterModal = true"
+                    class="border border-stone-200 bg-white text-stone-700 px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:border-[#8F966C] transition flex items-center space-x-1.5 rtl:space-x-reverse"
+                    :class="(selectedSort !== 'default' || maxPriceFilter < 25.000) ?
+                    'border-[#8F966C] text-[#8F966C] bg-[#8F966C]/5' : ''">
+                    <i class="fa-solid fa-sliders text-[10px]"></i>
+                    <span>{{ __('Filter & Sort') }}</span>
+                    <span x-show="selectedSort !== 'default' || maxPriceFilter < 25.000"
+                        class="w-1.5 h-1.5 rounded-full bg-[#8F966C]"></span>
                 </button>
+
+                <button x-show="selectedSort !== 'default' || productSearch !== '' || maxPriceFilter < 25.000"
+                    @click="resetFilters()" class="text-[11px] text-stone-400 hover:text-stone-600 underline">
+                    {{ __('Reset Filters') }}
+                </button>
+            </div>
+
+            <!-- ================= SIDEBAR DRAWER (MATCHES 2ND PIC) ================= -->
+            <div x-show="showFilterModal" x-cloak class="relative z-50">
+                <!-- Backdrop -->
+                <div class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity" x-show="showFilterModal"
+                    @click="showFilterModal = false"></div>
+
+                <!-- Slide-over Drawer Panel -->
+                <div class="fixed inset-y-0 left-0 rtl:left-auto rtl:right-0 w-full max-w-sm sm:max-w-md bg-white shadow-2xl z-50 flex flex-col h-full"
+                    x-show="showFilterModal" x-transition:enter="transition ease-out duration-300 transform"
+                    x-transition:enter-start="-translate-x-full rtl:translate-x-full"
+                    x-transition:enter-end="translate-x-0"
+                    x-transition:leave="transition ease-in duration-200 transform"
+                    x-transition:leave-start="translate-x-0"
+                    x-transition:leave-end="-translate-x-full rtl:translate-x-full">
+
+                    <!-- Header -->
+                    <div class="px-5 py-4 border-b border-stone-200 flex items-center justify-between">
+                        <h3 class="font-extrabold text-sm text-stone-900">{{ __('Filter & Sort') }}</h3>
+                        <button @click="showFilterModal = false"
+                            class="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-400 hover:text-stone-700">
+                            <i class="fa-solid fa-xmark text-sm"></i>
+                        </button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="flex-1 overflow-y-auto custom-scroll p-5 space-y-6 text-xs">
+
+                        <!-- 1. SORT BY GRID -->
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="font-bold text-stone-900 text-xs">{{ __('Sort by') }}</span>
+                                <button type="button" @click="selectedSort = 'default'"
+                                    class="text-[11px] text-stone-400 hover:text-stone-700 font-semibold underline">{{ __('Reset') }}</button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" @click="selectedSort = 'price_asc'"
+                                    :class="selectedSort === 'price_asc' ?
+                                        'border-[#8F966C] bg-[#8F966C]/10 text-[#394326] font-bold ring-1 ring-[#8F966C]' :
+                                        'border-stone-200 text-stone-700 hover:bg-stone-50'"
+                                    class="p-3 border rounded-xl text-left rtl:text-right transition">
+                                    <div class="text-[10px] text-stone-400 uppercase font-bold">{{ __('Price') }}
+                                    </div>
+                                    <div class="text-xs mt-0.5">{{ __('Low to High') }}</div>
+                                </button>
+
+                                <button type="button" @click="selectedSort = 'price_desc'"
+                                    :class="selectedSort === 'price_desc' ?
+                                        'border-[#8F966C] bg-[#8F966C]/10 text-[#394326] font-bold ring-1 ring-[#8F966C]' :
+                                        'border-stone-200 text-stone-700 hover:bg-stone-50'"
+                                    class="p-3 border rounded-xl text-left rtl:text-right transition">
+                                    <div class="text-[10px] text-stone-400 uppercase font-bold">{{ __('Price') }}
+                                    </div>
+                                    <div class="text-xs mt-0.5">{{ __('High to Low') }}</div>
+                                </button>
+
+                                <button type="button" @click="selectedSort = 'name_asc'"
+                                    :class="selectedSort === 'name_asc' ?
+                                        'border-[#8F966C] bg-[#8F966C]/10 text-[#394326] font-bold ring-1 ring-[#8F966C]' :
+                                        'border-stone-200 text-stone-700 hover:bg-stone-50'"
+                                    class="p-3 border rounded-xl text-left rtl:text-right transition">
+                                    <div class="text-[10px] text-stone-400 uppercase font-bold">{{ __('Name') }}
+                                    </div>
+                                    <div class="text-xs mt-0.5">{{ __('A to Z') }}</div>
+                                </button>
+
+                                <button type="button" @click="selectedSort = 'name_desc'"
+                                    :class="selectedSort === 'name_desc' ?
+                                        'border-[#8F966C] bg-[#8F966C]/10 text-[#394326] font-bold ring-1 ring-[#8F966C]' :
+                                        'border-stone-200 text-stone-700 hover:bg-stone-50'"
+                                    class="p-3 border rounded-xl text-left rtl:text-right transition">
+                                    <div class="text-[10px] text-stone-400 uppercase font-bold">{{ __('Name') }}
+                                    </div>
+                                    <div class="text-xs mt-0.5">{{ __('Z to A') }}</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="border-stone-100">
+
+                        <!-- 2. CATEGORIES CHECKLIST -->
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="font-bold text-stone-900 text-xs">{{ __('Categories') }}</span>
+                                <button type="button" @click="applyCategoryFilter(null)"
+                                    class="text-[11px] text-stone-400 hover:text-stone-700 font-semibold underline">{{ __('Clear all') }}</button>
+                            </div>
+                            <div class="space-y-1.5 max-h-56 overflow-y-auto custom-scroll pr-1">
+                                <template x-for="cat in categoriesList" :key="cat.id">
+                                    <label
+                                        class="flex items-center justify-between p-2.5 rounded-xl hover:bg-stone-50 cursor-pointer transition select-none"
+                                        :class="Number(selectedCategoryFilter) === Number(cat.id) ?
+                                            'bg-[#8F966C]/10 text-[#394326] font-bold border border-[#8F966C]/30' :
+                                            'text-stone-700 border border-transparent'">
+                                        <span class="text-xs tracking-wide" x-text="cat.name"></span>
+                                        <input type="radio" name="cat_filter" :value="cat.id"
+                                            :checked="Number(selectedCategoryFilter) === Number(cat.id)"
+                                            @change="applyCategoryFilter(cat.id)"
+                                            class="w-4 h-4 text-[#8F966C] focus:ring-[#8F966C] border-stone-300">
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <hr class="border-stone-100">
+
+                        <!-- 3. MAX PRICE SLIDER -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-stone-900 text-xs">{{ __('Price') }}</span>
+                                <span class="font-extrabold text-xs text-[#8F966C]"
+                                    x-text="`${parseFloat(maxPriceFilter).toFixed(3)} {{ __('KD') }}`"></span>
+                            </div>
+                            <input type="range" min="0" max="25" step="0.250"
+                                :value="maxPriceFilter" @input="maxPriceFilter = parseFloat($event.target.value)"
+                                class="w-full accent-[#8F966C] cursor-pointer h-1.5 bg-stone-200 rounded-lg">
+                            <div class="flex justify-between text-[10px] text-stone-400 mt-1.5">
+                                <span>0.000 KD</span>
+                                <button type="button" @click="maxPriceFilter = 25.000"
+                                    class="hover:text-stone-700 underline font-semibold">
+                                    {{ __('Reset Price') }}
+                                </button>
+                                <span>25.000 KD</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Sticky Apply Footer -->
+                    <div class="p-4 border-t border-stone-200 bg-white">
+                        <button type="button" @click="showFilterModal = false"
+                            class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3.5 rounded-xl text-xs transition active:scale-95 shadow-md flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                            <span>{{ __('Show results') }}</span>
+                            <span x-text="`(${totalFilteredResultsCount})`" class="opacity-80"></span>
+                        </button>
+                    </div>
+
+                </div>
             </div>
 
             <!-- SCROLLABLE BODY AREA -->
             <div class="flex-1 overflow-y-auto custom-scroll p-5 space-y-5">
 
-                <!-- SCREEN 1: CATEGORY TILES GRID -->
+                <!-- SCREEN 1: CATEGORY TILES GRID (Uses displayedCategories) -->
                 <div x-show="view === 'categories-grid'" class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
-                        <template x-for="category in categoriesList" :key="category.id">
+                        <template x-for="category in displayedCategories" :key="category.id">
                             <div @click="openCategory(category)"
                                 class="group cursor-pointer rounded-2xl overflow-hidden border border-stone-200 hover:shadow-md transition">
                                 <div class="relative aspect-[4/3] bg-stone-50 overflow-hidden">
@@ -162,9 +329,14 @@
                             </div>
                         </template>
                     </div>
+
+                    <div x-show="displayedCategories.length === 0" class="text-center py-12 text-stone-400">
+                        <i class="fa-solid fa-magnifying-glass text-3xl mb-2"></i>
+                        <p class="text-xs">{{ __('No categories found matching your price or search filter.') }}</p>
+                    </div>
                 </div>
 
-                <!-- SCREEN 2: PRODUCTS UNDER SELECTED CATEGORY -->
+                <!-- SCREEN 2: PRODUCTS UNDER SELECTED CATEGORY (Uses displayedProducts) -->
                 <div x-show="view === 'category-products'" x-cloak class="space-y-4">
                     <div class="flex items-center space-x-2 rtl:space-x-reverse pb-2 border-b border-stone-100">
                         <button @click="navigate('/')"
@@ -176,7 +348,7 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <template x-for="product in activeCategory?.products" :key="product.id">
+                        <template x-for="product in displayedProducts" :key="product.id">
                             <div
                                 class="border border-stone-200 rounded-2xl p-3 bg-white flex flex-col justify-between hover:shadow-sm">
                                 <div>
@@ -200,6 +372,11 @@
                                 </div>
                             </div>
                         </template>
+                    </div>
+
+                    <div x-show="displayedProducts.length === 0" class="text-center py-12 text-stone-400">
+                        <i class="fa-solid fa-magnifying-glass text-3xl mb-2"></i>
+                        <p class="text-xs">{{ __('No products found within this price range.') }}</p>
                     </div>
                 </div>
 
@@ -792,32 +969,56 @@
                 <!-- SCREEN: KUWAIT ADDRESS DETAILS -->
                 <div x-show="view === 'address'" x-cloak class="space-y-4">
                     <h3 class="font-extrabold text-sm text-stone-900">{{ __('Delivery Address Details') }}</h3>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button @click="address.type = 'Home'"
-                            :class="address.type === 'Home' ? 'bg-[#8F966C] text-white' :
-                                'border border-stone-200 text-stone-600'"
-                            class="py-2 rounded-xl text-xs font-bold">{{ __('Home') }}</button>
-                        <button @click="address.type = 'Apartment'"
-                            :class="address.type === 'Apartment' ? 'bg-[#8F966C] text-white' :
-                                'border border-stone-200 text-stone-600'"
-                            class="py-2 rounded-xl text-xs font-bold">{{ __('Apartment') }}</button>
-                        <button @click="address.type = 'Office'"
-                            :class="address.type === 'Office' ? 'bg-[#8F966C] text-white' :
-                                'border border-stone-200 text-stone-600'"
-                            class="py-2 rounded-xl text-xs font-bold">{{ __('Office') }}</button>
+
+                    <!-- Address Type Selection -->
+                    <div>
+                        <label
+                            class="block font-bold text-stone-700 text-xs mb-1.5">{{ __('Address Type *') }}</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button type="button" @click="address.type = 'Home'"
+                                :class="address.type === 'Home' ? 'bg-[#8F966C] text-white' :
+                                    'border border-stone-200 text-stone-600 hover:bg-stone-50'"
+                                class="py-2 rounded-xl text-xs font-bold transition">{{ __('Home') }}</button>
+                            <button type="button" @click="address.type = 'Apartment'"
+                                :class="address.type === 'Apartment' ? 'bg-[#8F966C] text-white' :
+                                    'border border-stone-200 text-stone-600 hover:bg-stone-50'"
+                                class="py-2 rounded-xl text-xs font-bold transition">{{ __('Apartment') }}</button>
+                            <button type="button" @click="address.type = 'Office'"
+                                :class="address.type === 'Office' ? 'bg-[#8F966C] text-white' :
+                                    'border border-stone-200 text-stone-600 hover:bg-stone-50'"
+                                class="py-2 rounded-xl text-xs font-bold transition">{{ __('Office') }}</button>
+                        </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="text" x-model="address.block" placeholder="{{ __('Block *') }}"
-                            class="border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
-                        <input type="text" x-model="address.street" placeholder="{{ __('Street *') }}"
-                            class="border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
+
+                    <!-- Block & Street Fields with Labels -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-bold text-stone-700 text-xs mb-1">{{ __('Block *') }}</label>
+                            <input type="text" x-model="address.block" placeholder="{{ __('e.g. 1') }}"
+                                class="w-full border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#8F966C] focus:ring-1 focus:ring-[#8F966C] transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-stone-700 text-xs mb-1">{{ __('Street *') }}</label>
+                            <input type="text" x-model="address.street" placeholder="{{ __('e.g. Street 10') }}"
+                                class="w-full border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#8F966C] focus:ring-1 focus:ring-[#8F966C] transition">
+                        </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="text" x-model="address.building"
-                            placeholder="{{ __('Building / House *') }}"
-                            class="border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
-                        <input type="text" x-model="address.paci" placeholder="{{ __('PACI (Optional)') }}"
-                            class="border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
+
+                    <!-- Building & PACI Fields with Labels -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label
+                                class="block font-bold text-stone-700 text-xs mb-1">{{ __('Building / House *') }}</label>
+                            <input type="text" x-model="address.building"
+                                placeholder="{{ __('e.g. Building 12') }}"
+                                class="w-full border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#8F966C] focus:ring-1 focus:ring-[#8F966C] transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-stone-700 text-xs mb-1">{{ __('PACI') }} <span
+                                    class="text-stone-400 font-normal text-[11px]">({{ __('Optional') }})</span></label>
+                            <input type="text" x-model="address.paci" placeholder="{{ __('8-digit number') }}"
+                                class="w-full border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#8F966C] focus:ring-1 focus:ring-[#8F966C] transition">
+                        </div>
                     </div>
                 </div>
 
@@ -953,6 +1154,50 @@
                 selectedPickupStore: null,
                 deliveryFee: 0.950,
 
+                // Search & Filter State
+                searchOpen: false,
+                productSearch: '',
+                showFilterModal: false,
+                selectedSort: 'default',
+                selectedCategoryFilter: null,
+                maxPriceFilter: 25.000,
+
+                toggleSearch() {
+                    this.searchOpen = !this.searchOpen;
+                    if (this.searchOpen) {
+                        this.$nextTick(() => {
+                            if (this.$refs.searchInput) this.$refs.searchInput.focus();
+                        });
+                    }
+                },
+
+                resetFilters() {
+                    this.selectedSort = 'default';
+                    this.selectedCategoryFilter = null;
+                    this.maxPriceFilter = 25.000;
+                    this.productSearch = '';
+                },
+
+                applyCategoryFilter(catId) {
+                    if (!catId) {
+                        this.selectedCategoryFilter = null;
+                        this.navigate('/');
+                        return;
+                    }
+                    this.selectedCategoryFilter = Number(catId);
+                    const targetCat = this.categoriesList.find(c => Number(c.id) === Number(catId));
+                    if (targetCat) {
+                        this.openCategory(targetCat);
+                    }
+                },
+
+                get totalFilteredResultsCount() {
+                    if (this.view === 'category-products') {
+                        return this.displayedProducts.length;
+                    }
+                    return this.displayedCategories.length;
+                },
+
                 get currentLocationName() {
                     if (this.method === 'delivery') {
                         return this.selectedDeliveryArea ? this.selectedDeliveryArea.name :
@@ -976,6 +1221,80 @@
                 categoriesList: @json($categories),
                 governoratesList: @json($governoratesList),
                 storesList: @json($storesList),
+
+                // Dynamic Categories Filter
+                get displayedCategories() {
+                    let list = [...this.categoriesList];
+                    const query = this.productSearch.toLowerCase().trim();
+                    const max = Number(this.maxPriceFilter) || 25.000;
+
+                    // Price Filter on Categories Grid
+                    if (max < 25.000) {
+                        list = list.filter(cat => {
+                            if (!cat.products || cat.products.length === 0) return false;
+                            return cat.products.some(p => {
+                                const price = parseFloat(p.base_price);
+                                return !isNaN(price) && price <= max;
+                            });
+                        });
+                    }
+
+                    // Text Search
+                    if (query) {
+                        list = list.filter(cat => {
+                            const matchCat = cat.name.toLowerCase().includes(query);
+                            const matchProd = (cat.products || []).some(p => p.name.toLowerCase().includes(
+                                query));
+                            return matchCat || matchProd;
+                        });
+                    }
+
+                    // Sort
+                    if (this.selectedSort === 'name_asc') {
+                        list.sort((a, b) => a.name.localeCompare(b.name));
+                    } else if (this.selectedSort === 'name_desc') {
+                        list.sort((a, b) => b.name.localeCompare(a.name));
+                    }
+
+                    return list;
+                },
+
+                // Dynamic Products Filter (CORRECTED)
+                get displayedProducts() {
+                    if (!this.activeCategory || !this.activeCategory.products) return [];
+                    let list = [...this.activeCategory.products];
+                    const query = this.productSearch.toLowerCase().trim();
+                    const max = Number(this.maxPriceFilter) || 25.000;
+
+                    // 1. Max Price Filter
+                    if (max < 25.000) {
+                        list = list.filter(p => {
+                            const price = parseFloat(p.base_price);
+                            return !isNaN(price) && price <= max;
+                        });
+                    }
+
+                    // 2. Text Search Filter
+                    if (query) {
+                        list = list.filter(p =>
+                            p.name.toLowerCase().includes(query) ||
+                            (p.description && p.description.toLowerCase().includes(query))
+                        );
+                    }
+
+                    // 3. Sorting
+                    if (this.selectedSort === 'price_asc') {
+                        list.sort((a, b) => (parseFloat(a.base_price) || 0) - (parseFloat(b.base_price) || 0));
+                    } else if (this.selectedSort === 'price_desc') {
+                        list.sort((a, b) => (parseFloat(b.base_price) || 0) - (parseFloat(a.base_price) || 0));
+                    } else if (this.selectedSort === 'name_asc') {
+                        list.sort((a, b) => a.name.localeCompare(b.name));
+                    } else if (this.selectedSort === 'name_desc') {
+                        list.sort((a, b) => b.name.localeCompare(a.name));
+                    }
+
+                    return list;
+                },
 
                 areaSearch: '',
                 activeGovId: null,
@@ -1096,11 +1415,13 @@
 
                     if (!clean || clean === '') {
                         this.view = 'categories-grid';
+                        this.selectedCategoryFilter = null;
                         this.setPageTitle('{{ __('otherwise') }}');
                     } else if (parts[0] === 'category' && parts[1]) {
                         const foundCat = this.categoriesList.find(c => c.slug === parts[1]);
                         if (foundCat) {
                             this.activeCategory = foundCat;
+                            this.selectedCategoryFilter = Number(foundCat.id);
                             this.view = 'category-products';
                             this.setPageTitle(foundCat.name);
                         } else {
@@ -1159,6 +1480,7 @@
 
                 openCategory(cat) {
                     this.activeCategory = cat;
+                    this.selectedCategoryFilter = Number(cat.id);
                     this.navigate('/category/' + cat.slug, cat.name);
                 },
 

@@ -2,7 +2,16 @@
 @section('title', __('Products & Addons'))
 
 @section('content')
-    <div class="space-y-6">
+    <div class="space-y-6" x-data="{
+        deleteModalOpen: false,
+        deleteUrl: '',
+        productName: '',
+        openDeleteModal(url, name) {
+            this.deleteUrl = url;
+            this.productName = name;
+            this.deleteModalOpen = true;
+        }
+    }">
         <!-- Header Summary & Action Bar -->
         <div
             class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm">
@@ -18,7 +27,7 @@
             </div>
 
             <a href="{{ route('admin.products.create') }}"
-                class="inline-flex items-center space-x-2 rtl:space-x-reverse bg-[#8F966C] hover:bg-[#8F966C] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition active:scale-95">
+                class="inline-flex items-center space-x-2 rtl:space-x-reverse bg-[#8F966C] hover:bg-[#7B825B] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition active:scale-95">
                 <i class="fa-solid fa-plus text-[11px]"></i>
                 <span>{{ __('Add New Product') }}</span>
             </a>
@@ -125,17 +134,13 @@
                                             <span>{{ __('Edit') }}</span>
                                         </a>
 
-                                        <!-- Delete Button -->
-                                        <form action="{{ route('admin.products.delete', $p->id) }}" method="POST"
-                                            class="inline-block"
-                                            onsubmit="return confirm('{{ __('Are you sure you want to delete') }} {{ $p->display_name }}?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" title="{{ __('Delete') }}"
-                                                class="inline-flex items-center px-2 py-1.5 rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition text-[11px]">
-                                                <i class="fa-solid fa-trash-can text-[11px]"></i>
-                                            </button>
-                                        </form>
+                                        <!-- Delete Button with Popup Trigger -->
+                                        <button type="button"
+                                            @click="openDeleteModal('{{ route('admin.products.delete', $p->id) }}', '{{ addslashes($p->display_name) }}')"
+                                            title="{{ __('Delete') }}"
+                                            class="inline-flex items-center px-2 py-1.5 rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition text-[11px]">
+                                            <i class="fa-solid fa-trash-can text-[11px]"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -161,6 +166,55 @@
                     {{ $products->links() }}
                 </div>
             @endif
+        </div>
+
+        <!-- Styled Confirmation Modal -->
+        <div x-show="deleteModalOpen" x-cloak class="relative z-50">
+            <!-- Background Backdrop -->
+            <div class="fixed inset-0 bg-stone-900/40 backdrop-blur-xs transition-opacity" x-show="deleteModalOpen"
+                x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="deleteModalOpen = false">
+            </div>
+
+            <!-- Modal Window -->
+            <div class="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-stone-200/80 text-center space-y-4"
+                    x-show="deleteModalOpen" x-transition:enter="ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95">
+
+                    <div
+                        class="w-12 h-12 rounded-full bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center mx-auto text-lg">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+
+                    <div class="space-y-1">
+                        <h3 class="font-extrabold text-stone-900 text-sm">{{ __('Confirm Deletion') }}</h3>
+                        <p class="text-xs text-stone-500">
+                            {{ __('Are you sure you want to delete') }} <strong class="text-stone-800"
+                                x-text="productName"></strong>? {{ __('This action cannot be undone.') }}
+                        </p>
+                    </div>
+
+                    <div class="flex items-center space-x-2 rtl:space-x-reverse pt-2">
+                        <button type="button" @click="deleteModalOpen = false"
+                            class="flex-1 py-2.5 px-4 rounded-xl border border-stone-200 text-stone-600 text-xs font-bold hover:bg-stone-50 transition">
+                            {{ __('Cancel') }}
+                        </button>
+
+                        <form :action="deleteUrl" method="POST" class="flex-1 m-0">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                class="w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition shadow-sm active:scale-95">
+                                {{ __('Yes, Delete') }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @endsection

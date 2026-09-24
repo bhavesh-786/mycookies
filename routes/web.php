@@ -49,16 +49,20 @@ Route::get('/lang/{locale}', function ($locale) {
 })->name('lang.switch');
 
 // Public Admin Auth Routes
-Route::prefix('backend')->name('admin.')->group(function () {
-    Route::get('/login', [AdminController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AdminController::class, 'login'])->name('login.submit');
-    Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
+Route::prefix('backend')->group(function () {
+    // Other admin routes with admin. prefix
+    Route::name('admin.')->group(function () {
+        Route::get('/login', [AdminController::class, 'showLoginForm'])->name('login');
+        Route::post('/login', [AdminController::class, 'login'])->name('login.submit');
+        Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
 
-    // Forgot & Reset Password
-    Route::get('/forgot-password', [AdminController::class, 'showForgotPasswordForm'])->name('password.request');
-    Route::post('/forgot-password', [AdminController::class, 'sendResetLinkEmail'])->name('password.email');
+        Route::get('/forgot-password', [AdminController::class, 'showForgotPasswordForm'])->name('password.request');
+        Route::post('/forgot-password', [AdminController::class, 'sendResetLinkEmail'])->name('password.email');
+        Route::post('/reset-password', [AdminController::class, 'resetPassword'])->name('password.update');
+    });
+
+    // Name this specifically 'password.reset' so default Laravel mailer finds it
     Route::get('/reset-password/{token}', [AdminController::class, 'showResetPasswordForm'])->name('password.reset');
-    Route::post('/reset-password', [AdminController::class, 'resetPassword'])->name('password.update');
 });
 
 // Protected Admin Panel Routes (Requires Login)
@@ -68,7 +72,7 @@ Route::prefix('backend')->name('admin.')->middleware('auth')->group(function () 
     // Orders
     Route::get('/orders', [AdminController::class, 'orders'])->name('orders.index');
     Route::post('/orders/{order}/status', [AdminController::class, 'updateOrderStatus'])->name('orders.status');
-
+    Route::post('/admin/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.status');
 
     // Products
     Route::get('/products', [AdminController::class, 'products'])->name('products.index');
