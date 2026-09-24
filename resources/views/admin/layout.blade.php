@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', __('Admin Panel')) - {{ __('MY Cookies') }}</title>
+    <title>{{ config('app.name', 'otherwise') }} - {{ __('Choose well.') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -50,13 +50,13 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse">
                         <div
-                            class="bg-[#b5122b] text-white font-black px-3 py-1.5 rounded-xl text-sm shadow-sm tracking-wider">
-                            MY
+                            class="w-10 h-10 bg-[#8F966C] text-white flex items-center justify-center font-black rounded-xl text-sm uppercase">
+                            OW
                         </div>
                         <div>
-                            <h2 class="font-extrabold text-sm tracking-wide leading-tight">{{ __('MY Cookies') }}</h2>
-                            <span
-                                class="text-[10px] text-stone-400 font-semibold tracking-wider uppercase">{{ __('Admin Workspace') }}</span>
+                            <h1 class="font-extrabold text-sm text-white tracking-tight leading-tight">
+                                {{ __('otherwise') }}</h1>
+                            <p class="text-[11px] text-stone-400 font-medium">{{ __('Choose well.') }}</p>
                         </div>
                     </div>
 
@@ -70,13 +70,13 @@
                 <!-- Navigation Links -->
                 <nav class="space-y-1.5 text-xs font-semibold">
                     <a href="{{ route('admin.dashboard') }}"
-                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'bg-[#b5122b] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
                         <i class="fa-solid fa-chart-pie w-4 text-center"></i>
                         <span>{{ __('Dashboard') }}</span>
                     </a>
 
                     <a href="{{ route('admin.orders.index') }}"
-                        class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.orders.*') ? 'bg-[#b5122b] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.orders.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
                         <div class="flex items-center space-x-3 rtl:space-x-reverse">
                             <i class="fa-solid fa-receipt w-4 text-center"></i>
                             <span>{{ __('Orders') }}</span>
@@ -89,13 +89,13 @@
                     </a>
 
                     <a href="{{ route('admin.products.index') }}"
-                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.products.*') ? 'bg-[#b5122b] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.products.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
                         <i class="fa-solid fa-cookie w-4 text-center"></i>
                         <span>{{ __('Products & Addons') }}</span>
                     </a>
 
                     <a href="{{ route('admin.categories.index') }}"
-                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.categories.*') ? 'bg-[#b5122b] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.categories.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
                         <i class="fa-solid fa-layer-group w-4 text-center"></i>
                         <span>{{ __('Categories') }}</span>
                     </a>
@@ -144,7 +144,7 @@
                     <!-- Branch Badge -->
                     <div
                         class="hidden sm:flex items-center space-x-1.5 rtl:space-x-reverse text-xs bg-stone-100 text-stone-600 px-3 py-1.5 rounded-full font-bold border border-stone-200/70">
-                        <i class="fa-solid fa-location-dot text-[#b5122b] text-[11px]"></i>
+                        <i class="fa-solid fa-location-dot text-[#8F966C] text-[11px]"></i>
                         <span>{{ __('Kuwait City') }}</span>
                     </div>
 
@@ -154,7 +154,7 @@
                         <i class="fa-solid fa-bell text-sm"></i>
                         @if (isset($pendingOrdersCount) && $pendingOrdersCount > 0)
                             <span
-                                class="absolute -top-1 -right-1 rtl:right-auto rtl:-left-1 bg-[#b5122b] text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse shadow-sm">
+                                class="absolute -top-1 -right-1 rtl:right-auto rtl:-left-1 bg-[#8F966C] text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse shadow-sm">
                                 {{ $pendingOrdersCount > 9 ? '9+' : $pendingOrdersCount }}
                             </span>
                         @endif
@@ -173,7 +173,7 @@
                     <form action="{{ route('admin.logout') }}" method="POST" class="inline-block">
                         @csrf
                         <button type="submit" title="{{ __('Sign Out') }}"
-                            class="inline-flex items-center space-x-1.5 rtl:space-x-reverse px-2.5 sm:px-3 py-1.5 rounded-xl text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 font-bold text-xs transition active:scale-95">
+                            class="inline-flex items-center space-x-1.5 rtl:space-x-reverse px-2.5 sm:px-3 py-1.5 rounded-xl text-rose-600 bg-[#8F966C]/10 hover:bg-rose-100 border border-rose-100 font-bold text-xs transition active:scale-95">
                             <i class="fa-solid fa-arrow-right-from-bracket text-xs rtl:rotate-180"></i>
                             <span class="hidden sm:inline">{{ __('Logout') }}</span>
                         </button>
@@ -193,7 +193,7 @@
 
                 @if (session('error'))
                     <div
-                        class="mb-5 bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-2xl text-xs font-bold flex items-center shadow-xs">
+                        class="mb-5 bg-[#8F966C]/10 border border-rose-200 text-rose-800 px-4 py-3 rounded-2xl text-xs font-bold flex items-center shadow-xs">
                         <i class="fa-solid fa-circle-exclamation mr-2 rtl:mr-0 rtl:ml-2 text-rose-600 text-sm"></i>
                         <span>{{ session('error') }}</span>
                     </div>

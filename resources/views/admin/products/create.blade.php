@@ -14,9 +14,9 @@
                 <!-- Category -->
                 <div class="sm:col-span-2">
                     <label class="block font-bold text-stone-700 mb-1.5">{{ __('Category') }} <span
-                            class="text-[#b5122b]">*</span></label>
+                            class="text-[#8F966C]">*</span></label>
                     <select name="category_id" required
-                        class="w-full border border-stone-200 p-2.5 rounded-xl bg-white outline-none focus:border-[#b5122b]">
+                        class="w-full border border-stone-200 p-2.5 rounded-xl bg-white outline-none focus:border-[#8F966C]">
                         @foreach ($categories as $cat)
                             <option value="{{ $cat->id }}">{{ $cat->display_name }}</option>
                         @endforeach
@@ -29,10 +29,10 @@
                 <!-- English Name -->
                 <div>
                     <label class="block font-bold text-stone-700 mb-1.5">{{ __('Product Name (English)') }} <span
-                            class="text-[#b5122b]">*</span></label>
+                            class="text-[#8F966C]">*</span></label>
                     <input type="text" name="name" value="{{ old('name') }}" required
                         placeholder="e.g. Milk Cookies"
-                        class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#b5122b]">
+                        class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#8F966C]">
                     @error('name')
                         <p class="text-rose-600 text-[11px] mt-1">{{ $message }}</p>
                     @enderror
@@ -43,7 +43,7 @@
                     <label class="block font-bold text-stone-700 mb-1.5">{{ __('Product Name (Arabic)') }}</label>
                     <input type="text" name="name_ar" dir="rtl" value="{{ old('name_ar') }}"
                         placeholder="مثال: كوكيز بالحليب"
-                        class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#b5122b]">
+                        class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#8F966C]">
                     @error('name_ar')
                         <p class="text-rose-600 text-[11px] mt-1">{{ $message }}</p>
                     @enderror
@@ -56,7 +56,7 @@
                     <div class="relative">
                         <input type="number" step="0.001" name="base_price" value="{{ old('base_price') }}"
                             placeholder="e.g. 3.750"
-                            class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#b5122b]">
+                            class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#8F966C]">
                         <span
                             class="absolute right-3 rtl:right-auto rtl:left-3 top-2.5 text-stone-400 font-bold">{{ __('KD') }}</span>
                     </div>
@@ -80,7 +80,7 @@
                     <label class="block font-bold text-stone-700 mb-1.5">{{ __('Or Image URL') }}</label>
                     <input type="url" name="image_url" value="{{ old('image_url') }}"
                         placeholder="https://images.unsplash.com/..."
-                        class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#b5122b]">
+                        class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#8F966C]">
                     @error('image_url')
                         <p class="text-rose-600 text-[11px] mt-1">{{ $message }}</p>
                     @enderror
@@ -90,14 +90,14 @@
                 <div>
                     <label class="block font-bold text-stone-700 mb-1.5">{{ __('Description (English)') }}</label>
                     <textarea name="description" rows="2" placeholder="Freshly baked warm cookies..."
-                        class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#b5122b]">{{ old('description') }}</textarea>
+                        class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#8F966C]">{{ old('description') }}</textarea>
                 </div>
 
                 <!-- Arabic Description -->
                 <div>
                     <label class="block font-bold text-stone-700 mb-1.5">{{ __('Description (Arabic)') }}</label>
                     <textarea name="description_ar" dir="rtl" rows="2" placeholder="كوكيز طازجة ومحضرة يومياً..."
-                        class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#b5122b]">{{ old('description_ar') }}</textarea>
+                        class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#8F966C]">{{ old('description_ar') }}</textarea>
                 </div>
             </div>
         </div>
@@ -126,19 +126,19 @@
                             <div>
                                 <input type="text" :name="`groups[${gIdx}][name]`" x-model="group.name"
                                     placeholder="{{ __('Group Name (EN)') }}"
-                                    class="w-full border border-stone-200 font-bold p-2 rounded-lg bg-white outline-none focus:border-[#b5122b]"
+                                    class="w-full border border-stone-200 font-bold p-2 rounded-lg bg-white outline-none focus:border-[#8F966C]"
                                     required>
                             </div>
                             <!-- Group Name (AR) -->
                             <div>
                                 <input type="text" :name="`groups[${gIdx}][name_ar]`" x-model="group.name_ar"
                                     dir="rtl" placeholder="{{ __('Group Name (AR)') }}"
-                                    class="w-full border border-stone-200 font-bold p-2 rounded-lg bg-white outline-none focus:border-[#b5122b]">
+                                    class="w-full border border-stone-200 font-bold p-2 rounded-lg bg-white outline-none focus:border-[#8F966C]">
                             </div>
                             <!-- Group Type -->
                             <div>
                                 <select :name="`groups[${gIdx}][type]`" x-model="group.type"
-                                    class="w-full border border-stone-200 p-2 rounded-lg bg-white outline-none focus:border-[#b5122b]">
+                                    class="w-full border border-stone-200 p-2 rounded-lg bg-white outline-none focus:border-[#8F966C]">
                                     <option value="radio">{{ __('Single Choice (Radio)') }}</option>
                                     <option value="checkbox">{{ __('Multiple Choice (Checkbox)') }}</option>
                                 </select>
@@ -148,7 +148,7 @@
                                 <label
                                     class="flex items-center space-x-1.5 rtl:space-x-reverse font-bold text-stone-700 cursor-pointer select-none">
                                     <input type="checkbox" :name="`groups[${gIdx}][is_required]`" value="1"
-                                        x-model="group.is_required" class="text-[#b5122b] rounded focus:ring-0">
+                                        x-model="group.is_required" class="text-[#8F966C] rounded focus:ring-0">
                                     <span>{{ __('Required') }}</span>
                                 </label>
                                 <button type="button" @click="removeGroup(gIdx)"
@@ -164,7 +164,7 @@
                                 <span
                                     class="text-[11px] font-extrabold uppercase text-stone-400">{{ __('Options') }}</span>
                                 <button type="button" @click="addOption(gIdx)"
-                                    class="text-xs font-bold text-[#b5122b] hover:underline flex items-center space-x-1 rtl:space-x-reverse">
+                                    class="text-xs font-bold text-[#8F966C] hover:underline flex items-center space-x-1 rtl:space-x-reverse">
                                     <i class="fa-solid fa-plus text-[10px]"></i>
                                     <span>{{ __('Add Option') }}</span>
                                 </button>
@@ -176,11 +176,11 @@
                                         class="flex items-center space-x-2 rtl:space-x-reverse bg-white p-2 border border-stone-200 rounded-lg shadow-sm">
                                         <input type="text" :name="`groups[${gIdx}][options][${oIdx}][name]`"
                                             x-model="opt.name" placeholder="{{ __('Option (EN)') }}"
-                                            class="flex-1 text-xs p-1 border-b border-stone-200 outline-none focus:border-[#b5122b]"
+                                            class="flex-1 text-xs p-1 border-b border-stone-200 outline-none focus:border-[#8F966C]"
                                             required>
                                         <input type="text" :name="`groups[${gIdx}][options][${oIdx}][name_ar]`"
                                             x-model="opt.name_ar" dir="rtl" placeholder="{{ __('Option (AR)') }}"
-                                            class="flex-1 text-xs p-1 border-b border-stone-200 outline-none focus:border-[#b5122b]">
+                                            class="flex-1 text-xs p-1 border-b border-stone-200 outline-none focus:border-[#8F966C]">
                                         <div
                                             class="flex items-center border-l rtl:border-l-0 rtl:border-r border-stone-200 px-2">
                                             <span
@@ -188,7 +188,7 @@
                                             <input type="number" step="0.001"
                                                 :name="`groups[${gIdx}][options][${oIdx}][price]`" x-model="opt.price"
                                                 placeholder="0.000"
-                                                class="w-16 text-xs p-1 border-0 outline-none font-bold text-[#b5122b]"
+                                                class="w-16 text-xs p-1 border-0 outline-none font-bold text-[#8F966C]"
                                                 required>
                                         </div>
                                         <button type="button" @click="removeOption(gIdx, oIdx)"
@@ -207,7 +207,7 @@
         <!-- Actions -->
         <div class="flex items-center space-x-3 rtl:space-x-reverse">
             <button type="submit"
-                class="bg-[#b5122b] hover:bg-rose-900 text-white font-extrabold px-6 py-3 rounded-xl text-xs shadow-sm transition active:scale-95">
+                class="bg-[#8F966C] hover:bg-[#8F966C] text-white font-extrabold px-6 py-3 rounded-xl text-xs shadow-sm transition active:scale-95">
                 {{ __('Save & Publish Product') }}
             </button>
             <a href="{{ route('admin.products.index') }}"

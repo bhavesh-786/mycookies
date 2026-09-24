@@ -42,10 +42,10 @@
                     <!-- English Name -->
                     <div>
                         <label class="block font-bold text-stone-700 mb-1.5">
-                            {{ __('Category Name (English)') }} <span class="text-[#b5122b]">*</span>
+                            {{ __('Category Name (English)') }} <span class="text-[#8F966C]">*</span>
                         </label>
                         <input type="text" name="name" value="{{ old('name', $category->name) }}" required
-                            class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#b5122b] focus:ring-1 focus:ring-[#b5122b] transition text-stone-900">
+                            class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#8F966C] focus:ring-1 focus:ring-[#8F966C] transition text-stone-900">
                         @error('name')
                             <p class="text-rose-600 text-[11px] mt-1">{{ $message }}</p>
                         @enderror
@@ -58,7 +58,7 @@
                         </label>
                         <input type="text" name="name_ar" dir="rtl"
                             value="{{ old('name_ar', $category->name_ar) }}" placeholder="مثال: كوكيز"
-                            class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#b5122b] focus:ring-1 focus:ring-[#b5122b] transition text-stone-900">
+                            class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#8F966C] focus:ring-1 focus:ring-[#8F966C] transition text-stone-900">
                         @error('name_ar')
                             <p class="text-rose-600 text-[11px] mt-1">{{ $message }}</p>
                         @enderror
@@ -81,7 +81,7 @@
                     <input type="url" name="image_url"
                         value="{{ old('image_url', Str::startsWith($category->image, 'http') && !Str::contains($category->image, '/storage/') ? $category->image : '') }}"
                         placeholder="https://images.unsplash.com/..."
-                        class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#b5122b] focus:ring-1 focus:ring-[#b5122b] transition text-stone-900">
+                        class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#8F966C] focus:ring-1 focus:ring-[#8F966C] transition text-stone-900">
                     @error('image_url')
                         <p class="text-rose-600 text-[11px] mt-1">{{ $message }}</p>
                     @enderror
@@ -90,7 +90,7 @@
                 <!-- Action Buttons -->
                 <div class="flex items-center space-x-3 rtl:space-x-reverse pt-4 border-t border-stone-100">
                     <button type="submit"
-                        class="bg-[#b5122b] hover:bg-rose-900 text-white font-extrabold px-6 py-2.5 rounded-xl shadow-sm transition active:scale-95">
+                        class="bg-[#8F966C] hover:bg-[#8F966C] text-white font-extrabold px-6 py-2.5 rounded-xl shadow-sm transition active:scale-95">
                         {{ __('Update Category') }}
                     </button>
                     <a href="{{ route('admin.categories.index') }}"

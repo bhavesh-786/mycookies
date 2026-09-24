@@ -18,7 +18,7 @@
             </div>
 
             <a href="{{ route('admin.products.create') }}"
-                class="inline-flex items-center space-x-2 rtl:space-x-reverse bg-[#b5122b] hover:bg-[#970e23] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition active:scale-95">
+                class="inline-flex items-center space-x-2 rtl:space-x-reverse bg-[#8F966C] hover:bg-[#8F966C] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition active:scale-95">
                 <i class="fa-solid fa-plus text-[11px]"></i>
                 <span>{{ __('Add New Product') }}</span>
             </a>
@@ -52,7 +52,7 @@
                                         </div>
                                         <div>
                                             <span
-                                                class="font-extrabold text-stone-900 group-hover:text-[#b5122b] transition">{{ $p->display_name }}</span>
+                                                class="font-extrabold text-stone-900 group-hover:text-[#8F966C] transition">{{ $p->display_name }}</span>
                                             <p class="text-[11px] text-stone-400 line-clamp-1 max-w-xs mt-0.5">
                                                 {{ $p->display_description ?? __('No description provided.') }}</p>
                                         </div>
@@ -91,7 +91,7 @@
                                                     <span
                                                         class="font-black text-stone-800 uppercase">{{ $grp->display_name }}</span>
                                                     <span
-                                                        class="text-[9px] px-1.5 py-0.5 font-bold uppercase rounded mx-1 {{ $grp->is_required ? 'bg-rose-50 text-[#b5122b] border border-rose-200' : 'bg-stone-100 text-stone-500' }}">
+                                                        class="text-[9px] px-1.5 py-0.5 font-bold uppercase rounded mx-1 {{ $grp->is_required ? 'bg-rose-50 text-[#8F966C] border border-rose-200' : 'bg-stone-100 text-stone-500' }}">
                                                         {{ $grp->is_required ? __('Required') : __('Optional') }}
                                                     </span>
                                                     <div class="text-stone-500 text-[11px] mt-0.5">

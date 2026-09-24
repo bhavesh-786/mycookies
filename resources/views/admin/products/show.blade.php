@@ -28,7 +28,7 @@
             </div>
 
             <a href="{{ route('admin.products.edit', $product->id) }}"
-                class="inline-flex items-center space-x-1.5 bg-[#b5122b] hover:bg-rose-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm active:scale-95">
+                class="inline-flex items-center space-x-1.5 bg-[#8F966C] hover:bg-rose-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm active:scale-95">
                 <i class="fa-solid fa-pen-to-square text-[11px]"></i>
                 <span>Edit Product</span>
             </a>
@@ -49,7 +49,7 @@
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 pb-4 border-b border-stone-100 text-xs">
                         <div>
                             <span class="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Base Price</span>
-                            <div class="text-lg font-black text-[#b5122b] mt-0.5">
+                            <div class="text-lg font-black text-[#8F966C] mt-0.5">
                                 {{ $product->base_price !== null ? number_format($product->base_price, 3) . ' KD' : 'Price on selection' }}
                             </div>
                         </div>
@@ -131,7 +131,7 @@
                                 <span class="font-bold text-stone-600" dir="rtl">({{ $group->name_ar }})</span>
                             @endif
                             <span
-                                class="px-2 py-0.5 rounded text-[10px] font-bold {{ $group->is_required ? 'bg-rose-50 text-[#b5122b] border border-rose-200' : 'bg-stone-200 text-stone-600' }}">
+                                class="px-2 py-0.5 rounded text-[10px] font-bold {{ $group->is_required ? 'bg-rose-50 text-[#8F966C] border border-rose-200' : 'bg-stone-200 text-stone-600' }}">
                                 {{ $group->is_required ? 'Required' : 'Optional' }}
                             </span>
                         </div>
@@ -160,7 +160,7 @@
                                     </div>
                                 </div>
                                 <div
-                                    class="font-black text-[#b5122b] text-[13px] whitespace-nowrap pl-3 border-l border-stone-100">
+                                    class="font-black text-[#8F966C] text-[13px] whitespace-nowrap pl-3 border-l border-stone-100">
                                     + {{ number_format($opt->price, 3) }} <span
                                         class="text-[10px] text-stone-400 font-bold">KD</span>
                                 </div>

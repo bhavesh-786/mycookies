@@ -18,7 +18,7 @@
             </div>
 
             <a href="{{ route('admin.categories.create') }}"
-                class="inline-flex items-center space-x-2 rtl:space-x-reverse bg-[#b5122b] hover:bg-[#970e23] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition active:scale-95">
+                class="inline-flex items-center space-x-2 rtl:space-x-reverse bg-[#8F966C] hover:bg-[#8F966C] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition active:scale-95">
                 <i class="fa-solid fa-plus text-[11px]"></i>
                 <span>{{ __('Create New Category') }}</span>
             </a>
@@ -31,7 +31,7 @@
             <div class="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-sm space-y-4">
                 <div class="flex items-center space-x-2.5 rtl:space-x-reverse pb-3 border-b border-stone-100">
                     <div
-                        class="w-8 h-8 rounded-lg bg-rose-50 text-[#b5122b] flex items-center justify-center text-xs shrink-0">
+                        class="w-8 h-8 rounded-lg bg-rose-50 text-[#8F966C] flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-layer-group"></i>
                     </div>
                     <div>
@@ -47,10 +47,10 @@
                     <!-- English Name -->
                     <div>
                         <label class="block font-bold text-stone-700 mb-1">
-                            {{ __('Category Name (English)') }} <span class="text-[#b5122b]">*</span>
+                            {{ __('Category Name (English)') }} <span class="text-[#8F966C]">*</span>
                         </label>
                         <input type="text" name="name" required placeholder="e.g. COOKIES"
-                            class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#b5122b] focus:ring-1 focus:ring-[#b5122b] transition text-stone-900">
+                            class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#8F966C] focus:ring-1 focus:ring-[#8F966C] transition text-stone-900">
                     </div>
 
                     <!-- Arabic Name -->
@@ -59,7 +59,7 @@
                             {{ __('اسم القسم (بالعربية)') }}
                         </label>
                         <input type="text" name="name_ar" dir="rtl" placeholder="مثال: كوكيز"
-                            class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#b5122b] focus:ring-1 focus:ring-[#b5122b] transition text-stone-900">
+                            class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#8F966C] focus:ring-1 focus:ring-[#8F966C] transition text-stone-900">
                     </div>
 
                     <!-- Dual Image Upload: File -->
@@ -73,7 +73,7 @@
                     <div>
                         <label class="block font-bold text-stone-700 mb-1">{{ __('Or Image URL') }}</label>
                         <input type="url" name="image_url" placeholder="https://..."
-                            class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#b5122b] focus:ring-1 focus:ring-[#b5122b] transition text-stone-900">
+                            class="w-full border border-stone-200 p-2.5 rounded-xl outline-none focus:border-[#8F966C] focus:ring-1 focus:ring-[#8F966C] transition text-stone-900">
                     </div>
 
                     <button type="submit"
@@ -111,7 +111,7 @@
                                             </div>
                                             <div>
                                                 <span
-                                                    class="font-extrabold text-stone-900 group-hover:text-[#b5122b] transition">
+                                                    class="font-extrabold text-stone-900 group-hover:text-[#8F966C] transition">
                                                     {{ $cat->display_name }}
                                                 </span>
                                                 @if (app()->getLocale() === 'ar' && !empty($cat->name))

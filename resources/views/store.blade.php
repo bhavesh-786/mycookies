@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title x-text="pageTitle">{{ __('MY Cookies') }}</title>
+    <title x-text="pageTitle">{{ __('otherwise') }}</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -49,15 +49,16 @@
                 class="px-5 py-3 border-b border-stone-100 flex items-center justify-between bg-white sticky top-0 z-20">
                 <div class="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer" @click="navigate('/')">
                     <div
-                        class="w-9 h-9 bg-[#b5122b] text-white flex items-center justify-center font-black rounded-lg text-sm tracking-wider">
-                        MY
+                        class="w-9 h-9 bg-[#8F966C] text-white flex items-center justify-center font-black rounded-lg text-xs tracking-wider uppercase">
+                        OW
                     </div>
                     <div>
                         <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                            <h1 class="font-extrabold text-sm text-stone-900 leading-none">{{ __('MY Cookies') }}</h1>
+                            <h1 class="font-extrabold text-sm text-stone-900 leading-none tracking-tight">
+                                {{ __('otherwise') }}</h1>
                             <i class="fa-solid fa-circle-info text-stone-400 text-xs"></i>
                         </div>
-                        <p class="text-[11px] text-stone-400 font-medium mt-0.5">{{ __('yes , it\'s MY cookies') }}</p>
+                        <p class="text-[11px] text-stone-400 font-medium mt-0.5">{{ __('Choose well.') }}</p>
                         <div
                             class="flex items-center space-x-1.5 rtl:space-x-reverse mt-0.5 text-[11px] text-emerald-600 font-semibold">
                             <i class="fa-solid fa-credit-card text-[10px]"></i>
@@ -76,14 +77,13 @@
                     <button @click="navigate('/cart')" class="relative p-2 hover:bg-stone-50 rounded-full">
                         <i class="fa-solid fa-bag-shopping text-sm"></i>
                         <span x-show="cart.length > 0" x-text="cartCount"
-                            class="absolute top-0 right-0 rtl:right-auto rtl:left-0 bg-[#b5122b] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                            class="absolute top-0 right-0 rtl:right-auto rtl:left-0 bg-[#8F966C] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                         </span>
                     </button>
 
                     <button class="p-2 hover:bg-stone-50 rounded-full"><i
                             class="fa-solid fa-magnifying-glass text-sm"></i></button>
 
-                    <!-- Language Switcher -->
                     <a href="{{ route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}"
                         class="inline-flex items-center space-x-1.5 rtl:space-x-reverse px-2.5 py-1.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-700 hover:bg-stone-50 transition active:scale-95">
                         <i class="fa-solid fa-globe text-stone-400"></i>
@@ -97,12 +97,12 @@
                 x-show="['categories-grid', 'category-products'].includes(view)">
                 <div class="flex max-w-[280px] mx-auto border border-stone-200 rounded-lg overflow-hidden p-0.5 mb-3">
                     <button @click="setMethod('delivery')"
-                        :class="method === 'delivery' ? 'bg-[#b5122b] text-white font-bold' : 'text-stone-600'"
+                        :class="method === 'delivery' ? 'bg-[#8F966C] text-white font-bold shadow-xs' : 'text-stone-600'"
                         class="flex-1 py-1.5 text-xs text-center transition rounded-md">
                         {{ __('Delivery') }}
                     </button>
                     <button @click="setMethod('pickup')"
-                        :class="method === 'pickup' ? 'bg-[#b5122b] text-white font-bold' : 'text-stone-600'"
+                        :class="method === 'pickup' ? 'bg-[#8F966C] text-white font-bold shadow-xs' : 'text-stone-600'"
                         class="flex-1 py-1.5 text-xs text-center transition rounded-md">
                         {{ __('Pickup') }}
                     </button>
@@ -119,7 +119,7 @@
                         <div class="flex items-center space-x-2 rtl:space-x-reverse">
                             <strong class="text-stone-800" x-text="currentLocationName"></strong>
                             <button @click="navigate('/select-location')"
-                                class="text-[#b5122b] font-semibold hover:underline">{{ __('Edit') }}</button>
+                                class="text-[#8F966C] font-semibold hover:underline">{{ __('Edit') }}</button>
                         </div>
                     </div>
                     <div class="flex justify-between items-center text-stone-600">
@@ -136,7 +136,7 @@
             <!-- Filter & Sort Tag Button -->
             <div class="px-5 pt-3 pb-1" x-show="view === 'categories-grid' || view === 'category-products'">
                 <button
-                    class="border border-stone-200 bg-white text-stone-700 px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:border-stone-400 transition">
+                    class="border border-stone-200 bg-white text-stone-700 px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:border-[#8F966C] transition">
                     {{ __('Filter & Sort') }}
                 </button>
             </div>
@@ -155,7 +155,7 @@
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                 </div>
                                 <div class="p-3 bg-white">
-                                    <h3 class="font-extrabold text-xs uppercase tracking-wide text-stone-900 group-hover:text-[#b5122b] transition"
+                                    <h3 class="font-extrabold text-xs uppercase tracking-wide text-stone-900 group-hover:text-[#8F966C] transition"
                                         x-text="category.name">
                                     </h3>
                                 </div>
@@ -190,11 +190,11 @@
                                         x-text="product.description"></p>
                                 </div>
                                 <div class="mt-3 pt-2">
-                                    <div class="text-xs font-bold text-[#b5122b] mb-1.5"
+                                    <div class="text-xs font-bold text-[#8F966C] mb-1.5"
                                         x-text="product.base_price ? `${parseFloat(product.base_price).toFixed(3)} {{ __('KD') }}` : '{{ __('Price on selection') }}'">
                                     </div>
                                     <button @click="openCustomizer(product)"
-                                        class="w-full border border-[#b5122b] text-[#b5122b] hover:bg-[#b5122b] hover:text-white text-xs font-bold py-1.5 rounded-lg transition active:scale-95">
+                                        class="w-full border border-[#8F966C] text-[#8F966C] hover:bg-[#8F966C] hover:text-white text-xs font-bold py-1.5 rounded-lg transition active:scale-95">
                                         {{ __('+ Add') }}
                                     </button>
                                 </div>
@@ -223,10 +223,10 @@
                         <span class="font-bold text-xs text-stone-700">{{ __('Quantity') }}</span>
                         <div class="flex items-center space-x-3 rtl:space-x-reverse">
                             <button @click="itemQuantity > 1 ? itemQuantity-- : null; recalcCustomizerPrice()"
-                                class="w-7 h-7 rounded-lg bg-white border border-stone-200 font-bold text-xs">-</button>
+                                class="w-7 h-7 rounded-lg bg-white border border-stone-200 font-bold text-xs hover:border-[#8F966C]">-</button>
                             <span class="text-xs font-extrabold w-4 text-center" x-text="itemQuantity"></span>
                             <button @click="itemQuantity++; recalcCustomizerPrice()"
-                                class="w-7 h-7 rounded-lg bg-white border border-stone-200 font-bold text-xs">+</button>
+                                class="w-7 h-7 rounded-lg bg-white border border-stone-200 font-bold text-xs hover:border-[#8F966C]">+</button>
                         </div>
                     </div>
 
@@ -238,7 +238,7 @@
                                     </h4>
                                     <div class="flex items-center space-x-2 rtl:space-x-reverse mt-1">
                                         <span
-                                            :class="group.is_required ? 'bg-[#b5122b] text-white' :
+                                            :class="group.is_required ? 'bg-[#8F966C] text-white' :
                                                 'bg-stone-200 text-stone-600'"
                                             class="px-2 py-0.5 rounded text-[10px] font-bold"
                                             x-text="group.is_required ? '{{ __('Required') }}' : '{{ __('Optional') }}'">
@@ -262,7 +262,7 @@
                                                 .id),
                                             'cursor-pointer hover:border-stone-300 bg-white': !isOptionDisabled(group,
                                                 opt.id),
-                                            'border-[#b5122b] bg-rose-50/20': isOptionSelected(group.id, opt.id)
+                                            'border-[#8F966C] bg-[#8F966C]/10': isOptionSelected(group.id, opt.id)
                                         }"
                                         class="flex items-center justify-between p-3 rounded-xl border border-stone-200 transition select-none">
 
@@ -272,13 +272,13 @@
                                                 :checked="isOptionSelected(group.id, opt.id)"
                                                 :disabled="isOptionDisabled(group, opt.id)"
                                                 @change="toggleOption(group, opt)"
-                                                class="w-4 h-4 text-[#b5122b] focus:ring-[#b5122b]"
+                                                class="w-4 h-4 text-[#8F966C] focus:ring-[#8F966C]"
                                                 :class="group.type === 'radio' ? '' : 'rounded'">
                                             <span class="text-xs font-semibold text-stone-800"
                                                 x-text="opt.name"></span>
                                         </div>
 
-                                        <span class="text-xs font-bold text-[#b5122b]"
+                                        <span class="text-xs font-bold text-[#8F966C]"
                                             x-text="parseFloat(opt.price) > 0 ? `+ ${parseFloat(opt.price).toFixed(3)} {{ __('KD') }}` : `0.000 {{ __('KD') }}`">
                                         </span>
                                     </label>
@@ -318,17 +318,17 @@
                                             </p>
                                         </template>
                                     </div>
-                                    <span class="inline-block mt-2 font-extrabold text-xs text-[#b5122b]"
+                                    <span class="inline-block mt-2 font-extrabold text-xs text-[#8F966C]"
                                         x-text="`${item.total_price.toFixed(3)} {{ __('KD') }}`"></span>
                                 </div>
                                 <div class="flex items-center space-x-3 rtl:space-x-reverse">
                                     <div class="flex items-center space-x-1.5 rtl:space-x-reverse">
                                         <button @click="decreaseQty(idx)"
-                                            class="w-6 h-6 rounded-lg bg-stone-100 border flex items-center justify-center font-bold text-xs">-</button>
+                                            class="w-6 h-6 rounded-lg bg-stone-100 border flex items-center justify-center font-bold text-xs hover:border-[#8F966C]">-</button>
                                         <span class="text-xs font-bold text-stone-700 w-4 text-center"
                                             x-text="item.quantity"></span>
                                         <button @click="increaseQty(idx)"
-                                            class="w-6 h-6 rounded-lg bg-stone-100 border flex items-center justify-center font-bold text-xs">+</button>
+                                            class="w-6 h-6 rounded-lg bg-stone-100 border flex items-center justify-center font-bold text-xs hover:border-[#8F966C]">+</button>
                                     </div>
                                     <button @click="removeItem(idx)"
                                         class="text-stone-300 hover:text-rose-600 transition p-1">
@@ -358,10 +358,10 @@
                         <input type="text" x-model="areaSearch"
                             :placeholder="method === 'delivery' ? '{{ __('Search area...') }}' :
                                 '{{ __('Search store branch...') }}'"
-                            class="w-full border border-stone-200 rounded-xl py-2 pl-9 pr-3 rtl:pr-9 rtl:pl-3 text-xs outline-none focus:border-[#b5122b]">
+                            class="w-full border border-stone-200 rounded-xl py-2 pl-9 pr-3 rtl:pr-9 rtl:pl-3 text-xs outline-none focus:border-[#8F966C]">
                     </div>
 
-                    <!-- 1. DELIVERY MODE: Governorates Collapsed by Default; clicking one expands its areas (NO PRICES DISPLAYED) -->
+                    <!-- 1. DELIVERY MODE -->
                     <div x-show="method === 'delivery'" class="space-y-3">
                         <template x-for="gov in filteredGovernorates" :key="gov.id">
                             <div class="border border-stone-200 rounded-xl overflow-hidden bg-white shadow-xs">
@@ -376,9 +376,9 @@
                                     class="p-2 space-y-1 divide-y divide-stone-100 border-t border-stone-100">
                                     <template x-for="area in gov.filteredAreas" :key="area.id">
                                         <button type="button" @click="setDeliveryArea(area.name, area.delivery_fee)"
-                                            class="w-full text-left rtl:text-right py-2.5 px-3 rounded-lg text-xs hover:bg-rose-50 hover:text-[#b5122b] flex items-center transition"
+                                            class="w-full text-left rtl:text-right py-2.5 px-3 rounded-lg text-xs hover:bg-[#8F966C]/10 hover:text-[#394326] flex items-center transition"
                                             :class="selectedDeliveryArea?.name === area.name ?
-                                                'bg-rose-50 text-[#b5122b] font-bold' : 'text-stone-700'">
+                                                'bg-[#8F966C]/15 text-[#394326] font-bold' : 'text-stone-700'">
                                             <span x-text="area.name"></span>
                                         </button>
                                     </template>
@@ -391,17 +391,17 @@
                         </template>
                     </div>
 
-                    <!-- 2. PICKUP MODE: Clean, Direct List of Store Branches (NO DUPLICATES, NO PRICES) -->
+                    <!-- 2. PICKUP MODE -->
                     <div x-show="method === 'pickup'" class="space-y-2.5">
                         <template x-for="st in filteredStores" :key="st.id">
                             <button type="button" @click="setStorePickup(st.name)"
-                                class="w-full text-left rtl:text-right p-4 rounded-xl border border-stone-200 hover:border-[#b5122b] hover:bg-rose-50/10 transition bg-white flex justify-between items-center"
-                                :class="selectedPickupStore?.name === st.name ? 'border-[#b5122b] bg-rose-50/20' : ''">
+                                class="w-full text-left rtl:text-right p-4 rounded-xl border border-stone-200 hover:border-[#8F966C] hover:bg-[#8F966C]/5 transition bg-white flex justify-between items-center"
+                                :class="selectedPickupStore?.name === st.name ? 'border-[#8F966C] bg-[#8F966C]/10' : ''">
                                 <div>
                                     <h4 class="font-bold text-xs text-stone-900" x-text="st.name"></h4>
                                     <p class="text-[11px] text-stone-400 mt-1" x-text="st.description"></p>
                                 </div>
-                                <i class="fa-solid fa-store text-stone-300 text-sm"></i>
+                                <i class="fa-solid fa-store text-[#8F966C] text-sm"></i>
                             </button>
                         </template>
                         <div x-show="filteredStores.length === 0"
@@ -409,7 +409,6 @@
                             {{ __('No store branches available') }}
                         </div>
                     </div>
-
                 </div>
 
                 <!-- SCREEN: MY ORDERS & TRACKING DETAILS WITH 5-MIN CANCELLATION -->
@@ -423,7 +422,7 @@
                     </div>
 
                     <div x-show="ordersLoading" class="text-center py-10 text-stone-400 text-xs">
-                        <i class="fa-solid fa-circle-notch fa-spin text-xl mb-2 text-[#b5122b]"></i>
+                        <i class="fa-solid fa-circle-notch fa-spin text-xl mb-2 text-[#8F966C]"></i>
                         <p>{{ __('Loading orders...') }}</p>
                     </div>
 
@@ -461,17 +460,17 @@
                                     <div
                                         class="flex items-center justify-between text-[10px] font-bold text-stone-500 mb-1">
                                         <span
-                                            :class="ord.status !== 'cancelled' ? 'text-[#b5122b]' : ''">{{ __('Placed') }}</span>
+                                            :class="ord.status !== 'cancelled' ? 'text-[#8F966C]' : ''">{{ __('Placed') }}</span>
                                         <span
                                             :class="['preparing', 'shipped', 'delivered'].includes(ord.status) ?
-                                                'text-[#b5122b]' : ''">{{ __('Preparing') }}</span>
+                                                'text-[#8F966C]' : ''">{{ __('Preparing') }}</span>
                                         <span
-                                            :class="['shipped', 'delivered'].includes(ord.status) ? 'text-[#b5122b]' : ''">{{ __('Out for delivery') }}</span>
+                                            :class="['shipped', 'delivered'].includes(ord.status) ? 'text-[#8F966C]' : ''">{{ __('Out for delivery') }}</span>
                                         <span
                                             :class="ord.status === 'delivered' ? 'text-emerald-600' : ''">{{ __('Delivered') }}</span>
                                     </div>
                                     <div class="w-full bg-stone-100 h-1.5 rounded-full overflow-hidden">
-                                        <div class="h-full bg-[#b5122b] transition-all duration-500"
+                                        <div class="h-full bg-[#8F966C] transition-all duration-500"
                                             :style="{
                                                 width: ord.status === 'cancelled' ? '0%' : (ord
                                                     .status === 'delivered' ? '100%' : (ord
@@ -507,7 +506,7 @@
                                 <div class="border-t border-stone-100 pt-2.5 flex items-center justify-between">
                                     <div>
                                         <span class="text-[11px] text-stone-400 block">{{ __('Total Amount') }}</span>
-                                        <strong class="text-xs font-extrabold text-[#b5122b]"
+                                        <strong class="text-xs font-extrabold text-[#8F966C]"
                                             x-text="`${parseFloat(ord.total).toFixed(3)} {{ __('KD') }}`"></strong>
                                     </div>
 
@@ -526,7 +525,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN: CHECKOUT DETAILS[cite: 6] -->
+                <!-- SCREEN: CHECKOUT DETAILS -->
                 <div x-show="view === 'checkout-details'" x-cloak class="space-y-5">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2 border-b border-stone-100">
                         <button @click="navigate('/cart')"
@@ -538,29 +537,29 @@
 
                     <div class="text-center py-2 space-y-3">
                         <div
-                            class="w-16 h-16 mx-auto bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl shadow-xs">
+                            class="w-16 h-16 mx-auto bg-[#8F966C]/15 text-[#394326] rounded-2xl flex items-center justify-center text-2xl shadow-xs">
                             <i class="fa-regular fa-address-card"></i>
                         </div>
                         <h3 class="font-extrabold text-sm text-stone-900">{{ __('Contact Information') }}</h3>
 
                         <div class="max-w-xs mx-auto space-y-2 text-left rtl:text-right text-xs text-stone-600 pt-1">
                             <div class="flex items-center space-x-2.5 rtl:space-x-reverse">
-                                <i class="fa-solid fa-check text-[#b5122b] text-[10px]"></i>
+                                <i class="fa-solid fa-check text-[#8F966C] text-[10px]"></i>
                                 <span>{{ __('Save your addresses') }}</span>
                             </div>
                             <div class="flex items-center space-x-2.5 rtl:space-x-reverse">
-                                <i class="fa-solid fa-check text-[#b5122b] text-[10px]"></i>
+                                <i class="fa-solid fa-check text-[#8F966C] text-[10px]"></i>
                                 <span>{{ __('Save your contact information') }}</span>
                             </div>
                             <div class="flex items-center space-x-2.5 rtl:space-x-reverse">
-                                <i class="fa-solid fa-check text-[#b5122b] text-[10px]"></i>
+                                <i class="fa-solid fa-check text-[#8F966C] text-[10px]"></i>
                                 <span>{{ __('One-tap re-ordering') }}</span>
                             </div>
                         </div>
 
                         <div class="pt-2">
                             <button @click="navigate('/profile/email-signin')"
-                                class="w-full max-w-xs mx-auto bg-[#b5122b] hover:bg-rose-900 text-white font-extrabold py-3 rounded-xl text-xs shadow transition active:scale-95 block">
+                                class="w-full max-w-xs mx-auto bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3 rounded-xl text-xs shadow transition active:scale-95 block">
                                 {{ __('SIGN UP') }}
                             </button>
                         </div>
@@ -579,13 +578,13 @@
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Name *') }}</label>
                             <input type="text" x-model="customer.name" placeholder="John Doe"
-                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#b5122b]">
+                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         </div>
                         <div>
                             <label
                                 class="block font-bold text-stone-700 mb-1">{{ __('Email (for invoice) *') }}</label>
                             <input type="email" x-model="customer.email" placeholder="example@email.com"
-                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#b5122b]">
+                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         </div>
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Phone (+965) *') }}</label>
@@ -593,7 +592,7 @@
                                 <span
                                     class="inline-flex items-center px-3 rounded-l-xl rtl:rounded-l-none rtl:rounded-r-xl border border-r-0 rtl:border-r rtl:border-l-0 border-stone-200 bg-stone-50 text-stone-500 text-xs font-bold">+965</span>
                                 <input type="tel" x-model="customer.phone" placeholder="965..."
-                                    class="w-full border border-stone-200 rounded-r-xl rtl:rounded-r-none rtl:rounded-l-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#b5122b]">
+                                    class="w-full border border-stone-200 rounded-r-xl rtl:rounded-r-none rtl:rounded-l-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                             </div>
                         </div>
                         <button @click="proceedGuestToAddress()"
@@ -603,7 +602,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN: PROFILE & MENU DRAWER[cite: 4, 14] -->
+                <!-- SCREEN: PROFILE & MENU DRAWER -->
                 <div x-show="view === 'profile-menu'" x-cloak class="space-y-6">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2 border-b border-stone-100">
                         <button @click="navigate('/')"
@@ -626,49 +625,48 @@
                                     <p class="text-stone-500 text-[11px]" x-text="currentUser.phone || '+965...'"></p>
                                 </div>
                             </div>
-                            <button @click="signOut()" class="text-[#b5122b] text-xs font-semibold hover:underline">
+                            <button @click="signOut()" class="text-[#8F966C] text-xs font-semibold hover:underline">
                                 {{ __('Sign out') }}
                             </button>
                         </div>
                     </template>
 
-                    <!-- Profile Menu List (With "My Orders" Included)[cite: 14] -->
+                    <!-- Menu list with restored "My orders" -->
                     <div class="space-y-1">
                         <div class="text-[11px] font-extrabold text-stone-400 uppercase tracking-wider mb-2">
                             {{ __('Menu') }}
                         </div>
                         <div class="divide-y divide-stone-100 border-t border-b border-stone-100 text-xs">
                             <button @click="navigate('/cart')"
-                                class="w-full flex items-center justify-between py-3.5 text-stone-700 hover:text-[#b5122b] transition">
+                                class="w-full flex items-center justify-between py-3.5 text-stone-700 hover:text-[#8F966C] transition">
                                 <div class="flex items-center space-x-3 rtl:space-x-reverse">
                                     <i class="fa-solid fa-cart-shopping text-stone-400 w-4 text-center"></i>
                                     <span class="font-medium">{{ __('My cart') }}</span>
                                 </div>
-                                <span x-show="cart.length > 0" class="w-2 h-2 rounded-full bg-[#b5122b]"></span>
+                                <span x-show="cart.length > 0" class="w-2 h-2 rounded-full bg-[#8F966C]"></span>
                             </button>
 
                             <button @click="navigate('/')"
-                                class="w-full flex items-center space-x-3 rtl:space-x-reverse py-3.5 text-stone-700 hover:text-[#b5122b] transition">
-                                <i class="fa-solid fa-cookie text-stone-400 w-4 text-center"></i>
+                                class="w-full flex items-center space-x-3 rtl:space-x-reverse py-3.5 text-stone-700 hover:text-[#8F966C] transition">
+                                <i class="fa-solid fa-mug-hot text-stone-400 w-4 text-center"></i>
                                 <span class="font-medium">{{ __('Menu') }}</span>
                             </button>
 
-                            <!-- RESTORED MY ORDERS ITEM -->
                             <button @click="navigate('/profile/orders')"
-                                class="w-full flex items-center space-x-3 rtl:space-x-reverse py-3.5 text-stone-700 hover:text-[#b5122b] transition">
+                                class="w-full flex items-center space-x-3 rtl:space-x-reverse py-3.5 text-stone-700 hover:text-[#8F966C] transition">
                                 <i class="fa-regular fa-clock text-stone-400 w-4 text-center"></i>
                                 <span class="font-medium">{{ __('My orders') }}</span>
                             </button>
 
                             <button @click="view = 'address'"
-                                class="w-full flex items-center space-x-3 rtl:space-x-reverse py-3.5 text-stone-700 hover:text-[#b5122b] transition">
+                                class="w-full flex items-center space-x-3 rtl:space-x-reverse py-3.5 text-stone-700 hover:text-[#8F966C] transition">
                                 <i class="fa-solid fa-map-location-dot text-stone-400 w-4 text-center"></i>
                                 <span class="font-medium">{{ __('Delivery addresses') }}</span>
                             </button>
 
                             <template x-if="isAuthenticated">
                                 <button @click="deleteAccount()"
-                                    class="w-full flex items-center space-x-3 rtl:space-x-reverse py-3.5 text-[#b5122b] hover:opacity-80 transition font-medium">
+                                    class="w-full flex items-center space-x-3 rtl:space-x-reverse py-3.5 text-rose-600 hover:opacity-80 transition font-medium">
                                     <i class="fa-solid fa-trash-can w-4 text-center"></i>
                                     <span>{{ __('Delete account') }}</span>
                                 </button>
@@ -709,7 +707,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN: TABBED EMAIL SIGNIN / REGISTER[cite: 6] -->
+                <!-- SCREEN: TABBED EMAIL SIGNIN / REGISTER -->
                 <div x-show="view === 'email-signin'" x-cloak class="space-y-5">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2 border-b border-stone-100">
                         <button @click="navigate('/profile')"
@@ -722,12 +720,12 @@
 
                     <div class="flex border border-stone-200 rounded-xl overflow-hidden p-0.5">
                         <button @click="authTab = 'login'"
-                            :class="authTab === 'login' ? 'bg-[#b5122b] text-white font-bold' : 'text-stone-600'"
+                            :class="authTab === 'login' ? 'bg-[#8F966C] text-white font-bold' : 'text-stone-600'"
                             class="flex-1 py-2 text-xs transition rounded-lg">
                             {{ __('Login') }}
                         </button>
                         <button @click="authTab = 'register'"
-                            :class="authTab === 'register' ? 'bg-[#b5122b] text-white font-bold' : 'text-stone-600'"
+                            :class="authTab === 'register' ? 'bg-[#8F966C] text-white font-bold' : 'text-stone-600'"
                             class="flex-1 py-2 text-xs transition rounded-lg">
                             {{ __('Register') }}
                         </button>
@@ -743,7 +741,7 @@
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Email *') }}</label>
                             <input type="email" x-model="authForm.email" placeholder="example@email.com"
-                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#b5122b]">
+                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         </div>
                         <div>
                             <div class="flex justify-between items-center mb-1">
@@ -752,11 +750,11 @@
                                     class="text-[10px] text-stone-400 hover:text-stone-600 uppercase font-bold">{{ __('Forgot Password?') }}</a>
                             </div>
                             <input type="password" x-model="authForm.password" placeholder="••••••••"
-                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#b5122b]">
+                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         </div>
 
                         <button @click="submitSignIn()"
-                            class="w-full bg-[#b5122b] hover:bg-rose-900 text-white font-extrabold py-3 rounded-xl text-xs transition active:scale-95 shadow">
+                            class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3 rounded-xl text-xs transition active:scale-95 shadow">
                             {{ __('Login') }}
                         </button>
                     </div>
@@ -766,26 +764,26 @@
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Full Name *') }}</label>
                             <input type="text" x-model="regForm.name" placeholder="John Doe"
-                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#b5122b]">
+                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         </div>
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Email *') }}</label>
                             <input type="email" x-model="regForm.email" placeholder="example@email.com"
-                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#b5122b]">
+                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         </div>
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Phone (+965) *') }}</label>
                             <input type="tel" x-model="regForm.phone" placeholder="965..."
-                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#b5122b]">
+                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         </div>
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Password *') }}</label>
                             <input type="password" x-model="regForm.password" placeholder="••••••••"
-                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#b5122b]">
+                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         </div>
 
                         <button @click="submitSignUp()"
-                            class="w-full bg-[#b5122b] hover:bg-rose-900 text-white font-extrabold py-3 rounded-xl text-xs transition active:scale-95 shadow">
+                            class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3 rounded-xl text-xs transition active:scale-95 shadow">
                             {{ __('Register') }}
                         </button>
                     </div>
@@ -796,30 +794,30 @@
                     <h3 class="font-extrabold text-sm text-stone-900">{{ __('Delivery Address Details') }}</h3>
                     <div class="grid grid-cols-3 gap-2">
                         <button @click="address.type = 'Home'"
-                            :class="address.type === 'Home' ? 'bg-[#b5122b] text-white' :
+                            :class="address.type === 'Home' ? 'bg-[#8F966C] text-white' :
                                 'border border-stone-200 text-stone-600'"
                             class="py-2 rounded-xl text-xs font-bold">{{ __('Home') }}</button>
                         <button @click="address.type = 'Apartment'"
-                            :class="address.type === 'Apartment' ? 'bg-[#b5122b] text-white' :
+                            :class="address.type === 'Apartment' ? 'bg-[#8F966C] text-white' :
                                 'border border-stone-200 text-stone-600'"
                             class="py-2 rounded-xl text-xs font-bold">{{ __('Apartment') }}</button>
                         <button @click="address.type = 'Office'"
-                            :class="address.type === 'Office' ? 'bg-[#b5122b] text-white' :
+                            :class="address.type === 'Office' ? 'bg-[#8F966C] text-white' :
                                 'border border-stone-200 text-stone-600'"
                             class="py-2 rounded-xl text-xs font-bold">{{ __('Office') }}</button>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="text" x-model="address.block" placeholder="{{ __('Block *') }}"
-                            class="border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-[#b5122b]">
+                            class="border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         <input type="text" x-model="address.street" placeholder="{{ __('Street *') }}"
-                            class="border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-[#b5122b]">
+                            class="border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="text" x-model="address.building"
                             placeholder="{{ __('Building / House *') }}"
-                            class="border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-[#b5122b]">
+                            class="border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         <input type="text" x-model="address.paci" placeholder="{{ __('PACI (Optional)') }}"
-                            class="border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-[#b5122b]">
+                            class="border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                     </div>
                 </div>
 
@@ -830,7 +828,8 @@
                         <label
                             class="flex items-center justify-between p-3.5 border rounded-xl cursor-pointer hover:border-stone-300">
                             <div class="flex items-center space-x-3 rtl:space-x-reverse">
-                                <input type="radio" value="knet" x-model="paymentMethod" class="text-[#b5122b]">
+                                <input type="radio" value="knet" x-model="paymentMethod"
+                                    class="text-[#8F966C] focus:ring-[#8F966C]">
                                 <span class="text-xs font-bold">{{ __('Debit Card (KNET)') }}</span>
                             </div>
                             <i class="fa-regular fa-credit-card text-stone-400"></i>
@@ -838,7 +837,8 @@
                         <label
                             class="flex items-center justify-between p-3.5 border rounded-xl cursor-pointer hover:border-stone-300">
                             <div class="flex items-center space-x-3 rtl:space-x-reverse">
-                                <input type="radio" value="cash" x-model="paymentMethod" class="text-[#b5122b]">
+                                <input type="radio" value="cash" x-model="paymentMethod"
+                                    class="text-[#8F966C] focus:ring-[#8F966C]">
                                 <span class="text-xs font-bold">{{ __('Cash on Delivery') }}</span>
                             </div>
                             <i class="fa-solid fa-money-bill-wave text-stone-400"></i>
@@ -858,7 +858,7 @@
                         </div>
                         <div class="flex justify-between text-sm font-extrabold text-stone-900 border-t pt-2">
                             <span>{{ __('Total') }}</span>
-                            <span class="text-[#b5122b]"
+                            <span class="text-[#8F966C]"
                                 x-text="`${calculateGrandTotal().toFixed(3)} {{ __('KD') }}`"></span>
                         </div>
                     </div>
@@ -867,14 +867,14 @@
                 <!-- SCREEN: CONFIRMATION -->
                 <div x-show="view === 'success'" x-cloak class="text-center py-16 space-y-3">
                     <div
-                        class="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto text-2xl mb-2">
+                        class="w-16 h-16 bg-[#8F966C]/20 text-[#394326] rounded-full flex items-center justify-center mx-auto text-2xl mb-2">
                         <i class="fa-solid fa-check"></i>
                     </div>
                     <h2 class="font-extrabold text-base text-stone-900">{{ __('Order Confirmed!') }}</h2>
                     <p class="text-xs text-stone-400">{{ __('Reference:') }} <strong class="text-stone-800"
                             x-text="placedOrderNo"></strong></p>
                     <button @click="navigate('/')"
-                        class="mt-4 bg-[#b5122b] text-white px-6 py-2.5 rounded-xl font-bold text-xs">{{ __('Back to Menu') }}</button>
+                        class="mt-4 bg-[#8F966C] hover:bg-[#7B825B] text-white px-6 py-2.5 rounded-xl font-bold text-xs">{{ __('Back to Menu') }}</button>
                 </div>
 
             </div>
@@ -884,7 +884,7 @@
                 x-show="view !== 'success' && view !== 'profile-menu' && view !== 'email-signin' && view !== 'my-orders'">
                 <template x-if="(view === 'categories-grid' || view === 'category-products') && cart.length > 0">
                     <button @click="navigate('/cart')"
-                        class="w-full bg-[#b5122b] text-white font-extrabold py-3.5 px-4 rounded-xl flex items-center justify-between text-xs transition shadow-md active:scale-95">
+                        class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3.5 px-4 rounded-xl flex items-center justify-between text-xs transition shadow-md active:scale-95">
                         <span class="bg-black/20 px-2 py-0.5 rounded-md" x-text="cartCount"></span>
                         <span>{{ __('Review Order') }}</span>
                         <span x-text="`${calculateSubtotal().toFixed(3)} {{ __('KD') }}`"></span>
@@ -893,7 +893,7 @@
 
                 <template x-if="view === 'customizer'">
                     <button @click="commitAddonToCart()" :disabled="!canAddToCart()"
-                        :class="canAddToCart() ? 'bg-[#b5122b] text-white active:scale-95' :
+                        :class="canAddToCart() ? 'bg-[#8F966C] hover:bg-[#7B825B] text-white active:scale-95' :
                             'bg-stone-300 text-stone-500 cursor-not-allowed'"
                         class="w-full py-3.5 px-4 rounded-xl font-extrabold text-xs flex items-center justify-between transition">
                         <span
@@ -904,7 +904,7 @@
 
                 <template x-if="view === 'cart' && cart.length > 0">
                     <button @click="navigate(isAuthenticated ? '/checkout/address' : '/checkout/details')"
-                        class="w-full bg-[#b5122b] text-white font-extrabold py-3.5 rounded-xl text-xs transition active:scale-95">
+                        class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3.5 rounded-xl text-xs transition active:scale-95">
                         {{ __('Go to checkout') }} (<span
                             x-text="`${calculateSubtotal().toFixed(3)} {{ __('KD') }}`"></span>)
                     </button>
@@ -912,14 +912,14 @@
 
                 <template x-if="view === 'address'">
                     <button @click="view = 'checkout'"
-                        class="w-full bg-[#b5122b] text-white font-extrabold py-3.5 rounded-xl text-xs transition active:scale-95">
+                        class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3.5 rounded-xl text-xs transition active:scale-95">
                         {{ __('Next') }}
                     </button>
                 </template>
 
                 <template x-if="view === 'checkout'">
                     <button @click="placeOrderNow()"
-                        class="w-full bg-[#b5122b] text-white font-extrabold py-3.5 rounded-xl text-xs transition active:scale-95">
+                        class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3.5 rounded-xl text-xs transition active:scale-95">
                         {{ __('Place Order') }} (<span
                             x-text="`${calculateGrandTotal().toFixed(3)} {{ __('KD') }}`"></span>)
                     </button>
@@ -928,12 +928,12 @@
         </main>
 
         <!-- ================= RIGHT STATIC BRAND BANNER (50%) ================= -->
-        <aside class="hidden lg:block lg:w-1/2 h-full relative overflow-hidden bg-stone-900">
-            <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=1200"
-                class="w-full h-full object-cover opacity-95">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+        <aside class="hidden lg:block lg:w-1/2 h-full relative overflow-hidden bg-[#DDD5C9]">
+            <img src="{{ asset('images/otherwise-banner.jpg') }}" alt="otherwise - Choose well. Drink well."
+                class="w-full h-full object-cover object-[50%_40%]">
+
             <a href="https://instagram.com" target="_blank"
-                class="absolute bottom-8 right-8 rtl:right-auto rtl:left-8 bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white p-3.5 rounded-2xl shadow-xl hover:scale-110 transition">
+                class="absolute bottom-8 right-8 rtl:right-auto rtl:left-8 bg-[#394326]/90 hover:bg-[#394326] text-white p-3.5 rounded-2xl shadow-xl hover:scale-110 transition">
                 <i class="fa-brands fa-instagram text-2xl"></i>
             </a>
         </aside>
@@ -946,7 +946,6 @@
                 view: 'categories-grid',
                 method: 'delivery',
 
-                // Isolated states for Delivery vs Pickup
                 selectedDeliveryArea: {
                     name: '{{ app()->getLocale() === 'ar' ? 'أبو حليفة' : 'Abu Halifa' }}',
                     fee: 0.950
@@ -964,10 +963,10 @@
                     }
                 },
 
-                // Persistent Cart with LocalStorage
-                cart: JSON.parse(localStorage.getItem('ur_cookies_cart') || '[]'),
+                // Cart local persistence
+                cart: JSON.parse(localStorage.getItem('otherwise_cart') || '[]'),
                 saveCart() {
-                    localStorage.setItem('ur_cookies_cart', JSON.stringify(this.cart));
+                    localStorage.setItem('otherwise_cart', JSON.stringify(this.cart));
                 },
 
                 get cartCount() {
@@ -981,7 +980,6 @@
                 areaSearch: '',
                 activeGovId: null,
 
-                // Orders History & Tracking
                 customerOrdersList: [],
                 ordersLoading: false,
                 cancelInterval: null,
@@ -1037,9 +1035,8 @@
                 itemQuantity: 1,
                 userSelections: {},
                 customizerPrice: 0.000,
-                pageTitle: '{{ __('MY Cookies') }}',
+                pageTitle: '{{ __('otherwise') }}',
 
-                // Authentication state
                 isAuthenticated: {{ $currentUser ? 'true' : 'false' }},
                 currentUser: @json($currentUser ?? ['name' => '', 'email' => '', 'phone' => '']),
                 authError: '',
@@ -1072,7 +1069,6 @@
                 paymentMethod: 'knet',
                 placedOrderNo: '',
 
-                // ------------------ ROUTER & TAB TITLES ------------------
                 initRouter() {
                     if (this.storesList && this.storesList.length > 0 && !this.selectedPickupStore) {
                         this.selectedPickupStore = {
@@ -1100,7 +1096,7 @@
 
                     if (!clean || clean === '') {
                         this.view = 'categories-grid';
-                        this.setPageTitle('{{ __('MY Cookies') }}');
+                        this.setPageTitle('{{ __('otherwise') }}');
                     } else if (parts[0] === 'category' && parts[1]) {
                         const foundCat = this.categoriesList.find(c => c.slug === parts[1]);
                         if (foundCat) {
@@ -1221,8 +1217,6 @@
                 // ------------------ ORDERS HISTORY & 5-MIN CANCEL ------------------
                 fetchCustomerOrders() {
                     this.ordersLoading = true;
-
-                    // Use current user email/phone or customer form values
                     const email = this.currentUser?.email || this.customer?.email || '';
                     const phone = this.currentUser?.phone || this.customer?.phone || '';
 
@@ -1241,8 +1235,7 @@
                             this.ordersLoading = false;
                             this.startCancelCountdown();
                         })
-                        .catch(err => {
-                            console.error('Failed to load orders:', err);
+                        .catch(() => {
                             this.ordersLoading = false;
                         });
                 },
@@ -1393,7 +1386,7 @@
                                 email: '',
                                 phone: ''
                             };
-                            this.navigate('/', '{{ __('MY Cookies') }}');
+                            this.navigate('/', '{{ __('otherwise') }}');
                         });
                 },
 
@@ -1414,7 +1407,7 @@
                                     email: '',
                                     phone: ''
                                 };
-                                this.navigate('/', '{{ __('MY Cookies') }}');
+                                this.navigate('/', '{{ __('otherwise') }}');
                             });
                     }
                 },
@@ -1572,7 +1565,7 @@
                             if (res.success) {
                                 this.placedOrderNo = res.order_number;
                                 this.cart = [];
-                                localStorage.removeItem('ur_cookies_cart');
+                                localStorage.removeItem('otherwise_cart');
                                 this.view = 'success';
                                 this.setPageTitle('{{ __('Order Confirmed!') }}');
                                 window.history.pushState({}, '', '/');
