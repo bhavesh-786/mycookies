@@ -40,9 +40,42 @@
                     <thead>
                         <tr
                             class="bg-stone-50/75 border-b border-stone-200 text-stone-500 font-bold text-[11px] uppercase tracking-wider">
-                            <th class="py-3.5 px-5">{{ __('Product') }}</th>
+                            <!-- SORT BY PRODUCT -->
+                            <th class="py-3.5 px-5">
+                                <a href="{{ request()->fullUrlWithQuery([
+                                    'sort_by' => 'name',
+                                    'sort_dir' => request('sort_by') === 'name' && request('sort_dir') === 'asc' ? 'desc' : 'asc',
+                                ]) }}"
+                                    class="inline-flex items-center space-x-1.5 rtl:space-x-reverse hover:text-[#8F966C] transition">
+                                    <span>{{ __('Product') }}</span>
+                                    <span class="inline-flex flex-col text-[8px] leading-[6px]">
+                                        <i
+                                            class="fa-solid fa-caret-up {{ request('sort_by') === 'name' && request('sort_dir') === 'asc' ? 'text-[#8F966C]' : 'text-stone-300' }}"></i>
+                                        <i
+                                            class="fa-solid fa-caret-down {{ request('sort_by') === 'name' && request('sort_dir') === 'desc' ? 'text-[#8F966C]' : 'text-stone-300' }}"></i>
+                                    </span>
+                                </a>
+                            </th>
+
                             <th class="py-3.5 px-4">{{ __('Category') }}</th>
-                            <th class="py-3.5 px-4">{{ __('Base Price') }}</th>
+
+                            <!-- SORT BY BASE PRICE -->
+                            <th class="py-3.5 px-4">
+                                <a href="{{ request()->fullUrlWithQuery([
+                                    'sort_by' => 'price',
+                                    'sort_dir' => request('sort_by') === 'price' && request('sort_dir') === 'asc' ? 'desc' : 'asc',
+                                ]) }}"
+                                    class="inline-flex items-center space-x-1.5 rtl:space-x-reverse hover:text-[#8F966C] transition">
+                                    <span>{{ __('Base Price') }}</span>
+                                    <span class="inline-flex flex-col text-[8px] leading-[6px]">
+                                        <i
+                                            class="fa-solid fa-caret-up {{ request('sort_by') === 'price' && request('sort_dir') === 'asc' ? 'text-[#8F966C]' : 'text-stone-300' }}"></i>
+                                        <i
+                                            class="fa-solid fa-caret-down {{ request('sort_by') === 'price' && request('sort_dir') === 'desc' ? 'text-[#8F966C]' : 'text-stone-300' }}"></i>
+                                    </span>
+                                </a>
+                            </th>
+
                             <th class="py-3.5 px-4">{{ __('Add-on Groups & Modifiers') }}</th>
                             <th class="py-3.5 px-5 text-right rtl:text-left">{{ __('Actions') }}</th>
                         </tr>
@@ -163,7 +196,7 @@
 
             @if ($products->hasPages())
                 <div class="p-4 border-t border-stone-200 bg-stone-50/50">
-                    {{ $products->links() }}
+                    {{ $products->appends(request()->query())->links() }}
                 </div>
             @endif
         </div>

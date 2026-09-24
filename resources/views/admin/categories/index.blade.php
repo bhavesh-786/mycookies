@@ -19,7 +19,8 @@
                 <div class="flex items-center space-x-2 rtl:space-x-reverse">
                     <span
                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-100 text-stone-700">
-                        {{ $categories->count() }} {{ __('Total Categories') }}
+                        {{ $categories instanceof \Illuminate\Pagination\LengthAwarePaginator ? $categories->total() : $categories->count() }}
+                        {{ __('Total Categories') }}
                     </span>
                 </div>
                 <p class="text-xs text-stone-500">
@@ -100,7 +101,22 @@
                         <thead>
                             <tr
                                 class="bg-stone-50/75 border-b border-stone-200 text-stone-500 font-bold text-[11px] uppercase tracking-wider">
-                                <th class="py-3.5 px-5">{{ __('Category') }}</th>
+                                <!-- SORT BY CATEGORY NAME -->
+                                <th class="py-3.5 px-5">
+                                    <a href="{{ request()->fullUrlWithQuery([
+                                        'sort_by' => 'name',
+                                        'sort_dir' => request('sort_by') === 'name' && request('sort_dir') === 'asc' ? 'desc' : 'asc',
+                                    ]) }}"
+                                        class="inline-flex items-center space-x-1.5 rtl:space-x-reverse hover:text-[#8F966C] transition">
+                                        <span>{{ __('Category') }}</span>
+                                        <span class="inline-flex flex-col text-[8px] leading-[6px]">
+                                            <i
+                                                class="fa-solid fa-caret-up {{ request('sort_by') === 'name' && request('sort_dir') === 'asc' ? 'text-[#8F966C]' : 'text-stone-300' }}"></i>
+                                            <i
+                                                class="fa-solid fa-caret-down {{ request('sort_by') === 'name' && request('sort_dir') === 'desc' ? 'text-[#8F966C]' : 'text-stone-300' }}"></i>
+                                        </span>
+                                    </a>
+                                </th>
                                 <th class="py-3.5 px-4">{{ __('Slug') }}</th>
                                 <th class="py-3.5 px-4 text-center">{{ __('Products') }}</th>
                                 <th class="py-3.5 px-5 text-right rtl:text-left">{{ __('Actions') }}</th>
@@ -196,6 +212,12 @@
                         </tbody>
                     </table>
                 </div>
+
+                @if (method_exists($categories, 'hasPages') && $categories->hasPages())
+                    <div class="p-4 border-t border-stone-200 bg-stone-50/50">
+                        {{ $categories->appends(request()->query())->links() }}
+                    </div>
+                @endif
             </div>
 
         </div>

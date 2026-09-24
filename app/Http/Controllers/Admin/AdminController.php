@@ -157,9 +157,29 @@ class AdminController extends Controller
     }
 
     // 3. Products Management
-    public function products()
+    public function products(Request $request)
     {
-        $products = Product::with(['category', 'addonGroups.options'])->latest()->paginate(10);
+        //$products = Product::with(['category', 'addonGroups.options'])->latest()->paginate(10);
+        //return view('admin.products.index', compact('products'));
+
+        $query = Product::with(['category', 'addonGroups.options']);
+
+        $sortBy = $request->query('sort_by');
+        $sortDir = strtolower($request->query('sort_dir')) === 'desc' ? 'desc' : 'asc';
+
+        if ($sortBy === 'price') {
+            // Sorts by base_price (places null values at the end)
+            $query->orderByRaw("base_price IS NULL, base_price {$sortDir}");
+        } elseif ($sortBy === 'name') {
+            $localeCol = app()->getLocale() === 'ar' ? 'name_ar' : 'name_en';
+            $column = Schema::hasColumn('products', $localeCol) ? $localeCol : 'name';
+            $query->orderBy($column, $sortDir);
+        } else {
+            $query->latest();
+        }
+
+        $products = $query->paginate(15);
+
         return view('admin.products.index', compact('products'));
     }
 
@@ -338,9 +358,23 @@ class AdminController extends Controller
     }
 
     // 4. Categories Management
-    public function categories()
+    public function categories(Request $request)
     {
-        $categories = Category::withCount('products')->get();
+        $query = Category::withCount('products');
+
+        $sortBy = $request->query('sort_by');
+        $sortDir = strtolower($request->query('sort_dir')) === 'desc' ? 'desc' : 'asc';
+
+        if ($sortBy === 'name') {
+            $localeCol = app()->getLocale() === 'ar' ? 'name_ar' : 'name';
+            $column = \Illuminate\Support\Facades\Schema::hasColumn('categories', $localeCol) ? $localeCol : 'name';
+            $query->orderBy($column, $sortDir);
+        } else {
+            $query->latest();
+        }
+
+        $categories = $query->paginate(10);
+
         return view('admin.categories.index', compact('categories'));
     }
 
