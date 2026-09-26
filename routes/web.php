@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\OrderController;
 use App\Models\Customer;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -35,7 +36,7 @@ Route::post('/api/customer/orders/{id}/cancel', [OrderController::class, 'cancel
 
 // Storefront wildcard route for client-side routing
 Route::get('/{any?}', [StoreController::class, 'index'])
-    ->where('any', '^(?!backend|admin|customer|api|lang).*$')
+    ->where('any', '^(?!backend|admin|customer|api|lang|email).*$')
     ->name('store');
 
 // API routes handled by the frontend
@@ -52,24 +53,28 @@ Route::get('/lang/{locale}', function ($locale) {
 
 
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
-    $customer = Customer::findOrFail($id);
+    // 1. Fetch the customer directly from the database
+    $customer = DB::table('customers')->where('id', $id)->first();
 
-    // Verify hash against customer's email
-    if (! hash_equals((string) $hash, sha1($customer->getEmailForVerification()))) {
-        abort(403, 'Invalid or expired verification link.');
+    if (!$customer) {
+        abort(404, 'Customer not found.');
     }
 
-    // Mark email as verified if not already verified
-    if (is_null($customer->email_verified_at)) {
-        $customer->forceFill([
+    // 2. Validate hash against customer's email
+    if (!hash_equals((string) $hash, sha1($customer->email))) {
+        abort(403, 'Invalid verification link.');
+    }
+
+    // 3. Update email_verified_at directly
+    DB::table('customers')
+        ->where('id', $id)
+        ->update([
             'email_verified_at' => now(),
-        ])->save();
-
-        event(new \Illuminate\Auth\Events\Verified($customer));
-    }
+            'updated_at'        => now(),
+        ]);
 
     return redirect('/profile/email-signin?verified=1');
-})->middleware(['signed'])->name('verification.verify');
+})->name('verification.verify');
 
 // Public Admin Auth Routes
 Route::prefix('backend')->group(function () {
