@@ -909,8 +909,19 @@
                     </div>
 
                     <template x-if="authError">
-                        <div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold"
-                            x-text="authError"></div>
+                        <div
+                            class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center space-x-2 rtl:space-x-reverse">
+                            <i class="fa-solid fa-circle-exclamation shrink-0"></i>
+                            <span x-text="authError"></span>
+                        </div>
+                    </template>
+
+                    <template x-if="authSuccess">
+                        <div
+                            class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center space-x-2 rtl:space-x-reverse">
+                            <i class="fa-solid fa-circle-check shrink-0"></i>
+                            <span x-text="authSuccess"></span>
+                        </div>
                     </template>
 
                     <!-- Login Tab View -->
@@ -1359,6 +1370,7 @@
                 isAuthenticated: {{ $currentUser ? 'true' : 'false' }},
                 currentUser: @json($currentUser ?? ['name' => '', 'email' => '', 'phone' => '']),
                 authError: '',
+                authSuccess: '',
                 authTab: 'login',
                 guestExpanded: false,
 
@@ -1608,10 +1620,53 @@
                             alert(err.message);
                         });
                 },
+                authSuccess: '',
 
                 // ------------------ AUTH LOGIC ------------------
+                // submitSignIn() {
+                //     this.authError = '';
+                //     if (!this.authForm.email || !this.authForm.password) {
+                //         this.authError = '{{ __('Please fill all required fields') }}';
+                //         return;
+                //     }
+
+                //     fetch('{{ route('customer.login') }}', {
+                //             method: 'POST',
+                //             headers: {
+                //                 'Content-Type': 'application/json',
+                //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                //                 'Accept': 'application/json'
+                //             },
+                //             body: JSON.stringify(this.authForm)
+                //         })
+                //         .then(async res => {
+                //             const data = await res.json();
+                //             if (!res.ok) throw new Error(data.message || 'Login failed');
+                //             return data;
+                //         })
+                //         .then(data => {
+                //             if (data.success) {
+                //                 this.currentUser = data.user;
+                //                 this.customer.name = data.user.name;
+                //                 this.customer.email = data.user.email;
+                //                 this.customer.phone = data.user.phone;
+                //                 this.isAuthenticated = true;
+                //                 this.authForm = {
+                //                     email: '',
+                //                     password: ''
+                //                 };
+                //                 this.navigate('/profile', '{{ __('Profile') }}');
+                //             }
+                //         })
+                //         .catch(err => {
+                //             this.authError = err.message;
+                //         });
+                // },
+
                 submitSignIn() {
                     this.authError = '';
+                    this.authSuccess = '';
+
                     if (!this.authForm.email || !this.authForm.password) {
                         this.authError = '{{ __('Please fill all required fields') }}';
                         return;
@@ -1694,7 +1749,9 @@
 
                 submitSignUp() {
                     this.authError = '';
-                    if (!this.regForm.name || !this.regForm.email || !this.regForm.password) {
+                    this.authSuccess = '';
+
+                    if (!this.regForm.name || !this.regForm.email || !this.regForm.phone || !this.regForm.password) {
                         this.authError = '{{ __('Please fill all required fields') }}';
                         return;
                     }
@@ -1710,22 +1767,26 @@
                         })
                         .then(async res => {
                             const data = await res.json();
-                            if (!res.ok) throw new Error(data.message || 'Registration failed');
+                            if (!res.ok) {
+                                // Handle unique validation errors from Laravel
+                                if (data.errors) {
+                                    const firstError = Object.values(data.errors)[0][0];
+                                    throw new Error(firstError);
+                                }
+                                throw new Error(data.message || 'Registration failed');
+                            }
                             return data;
                         })
                         .then(data => {
                             if (data.requires_verify) {
-                                // Reset the registration form
                                 this.regForm = {
                                     name: '',
                                     email: '',
                                     phone: '',
                                     password: ''
                                 };
-                                // Switch to the login tab
                                 this.authTab = 'login';
-                                // Show the verification notice to the user
-                                alert(data.message);
+                                this.authSuccess = data.message;
                             }
                         })
                         .catch(err => {

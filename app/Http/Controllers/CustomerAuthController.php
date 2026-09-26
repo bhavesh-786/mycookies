@@ -73,9 +73,12 @@ class CustomerAuthController extends Controller
     {
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:customers,email', // change to 'users,email' if using users table
-            'phone'    => 'required|string|max:20',
+            'email'    => 'required|email|max:255|unique:customers,email',
+            'phone'    => 'required|string|max:20|unique:customers,phone',
             'password' => 'required|string|min:6',
+        ], [
+            'email.unique' => __('This email address is already registered.'),
+            'phone.unique' => __('This phone number is already registered.'),
         ]);
 
         $customer = Customer::create([
