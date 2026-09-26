@@ -5,6 +5,8 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\OrderController;
+use App\Models\Customer;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 
 /*
@@ -47,6 +49,23 @@ Route::get('/lang/{locale}', function ($locale) {
     }
     return back();
 })->name('lang.switch');
+
+
+Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
+    // Find customer by ID (adjust model if using User)
+    $customer = Customer::findOrFail($id);
+
+    if (! hash_equals((string) $hash, sha1($customer->getEmailForVerification()))) {
+        abort(403, 'Invalid verification link.');
+    }
+
+    if (! $customer->hasVerifiedEmail()) {
+        $customer->markEmailAsVerified();
+        event(new \Illuminate\Auth\Events\Verified($customer));
+    }
+
+    return redirect('/profile/email-signin')->with('verified', true);
+})->middleware(['signed'])->name('verification.verify');
 
 // Public Admin Auth Routes
 Route::prefix('backend')->group(function () {

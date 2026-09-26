@@ -1650,6 +1650,48 @@
                         });
                 },
 
+                // submitSignUp() {
+                //     this.authError = '';
+                //     if (!this.regForm.name || !this.regForm.email || !this.regForm.password) {
+                //         this.authError = '{{ __('Please fill all required fields') }}';
+                //         return;
+                //     }
+
+                //     fetch('{{ route('customer.register') }}', {
+                //             method: 'POST',
+                //             headers: {
+                //                 'Content-Type': 'application/json',
+                //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                //                 'Accept': 'application/json'
+                //             },
+                //             body: JSON.stringify(this.regForm)
+                //         })
+                //         .then(async res => {
+                //             const data = await res.json();
+                //             if (!res.ok) throw new Error(data.message || 'Registration failed');
+                //             return data;
+                //         })
+                //         .then(data => {
+                //             if (data.success) {
+                //                 this.currentUser = data.user;
+                //                 this.customer.name = data.user.name;
+                //                 this.customer.email = data.user.email;
+                //                 this.customer.phone = data.user.phone;
+                //                 this.isAuthenticated = true;
+                //                 this.regForm = {
+                //                     name: '',
+                //                     email: '',
+                //                     phone: '',
+                //                     password: ''
+                //                 };
+                //                 this.navigate('/profile', '{{ __('Profile') }}');
+                //             }
+                //         })
+                //         .catch(err => {
+                //             this.authError = err.message;
+                //         });
+                // },
+
                 submitSignUp() {
                     this.authError = '';
                     if (!this.regForm.name || !this.regForm.email || !this.regForm.password) {
@@ -1672,19 +1714,18 @@
                             return data;
                         })
                         .then(data => {
-                            if (data.success) {
-                                this.currentUser = data.user;
-                                this.customer.name = data.user.name;
-                                this.customer.email = data.user.email;
-                                this.customer.phone = data.user.phone;
-                                this.isAuthenticated = true;
+                            if (data.requires_verify) {
+                                // Reset the registration form
                                 this.regForm = {
                                     name: '',
                                     email: '',
                                     phone: '',
                                     password: ''
                                 };
-                                this.navigate('/profile', '{{ __('Profile') }}');
+                                // Switch to the login tab
+                                this.authTab = 'login';
+                                // Show the verification notice to the user
+                                alert(data.message);
                             }
                         })
                         .catch(err => {
