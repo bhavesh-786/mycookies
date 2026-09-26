@@ -7,6 +7,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class CustomerAuthController extends Controller
 {
@@ -143,6 +144,32 @@ class CustomerAuthController extends Controller
         return response()->json([
             'success' => false,
             'message' => __('Invalid email or password.'),
+        ], 422);
+    }
+
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:customers,email',
+        ], [
+            'email.exists' => __('We could not find an account with that email address.'),
+        ]);
+
+        // Send password reset link using Laravel's password broker
+        $status = Password::broker('customers')->sendResetLink(
+            $request->only('email')
+        );
+
+        if ($status === Password::RESET_LINK_SENT) {
+            return response()->json([
+                'success' => true,
+                'message' => __($status),
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => __($status),
         ], 422);
     }
 

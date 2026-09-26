@@ -150,6 +150,91 @@
                 </div>
             </section>
 
+            <!-- ================= MOBILE HERO SLIDER FROM PRODUCTS (lg:hidden) ================= -->
+            <div class="block lg:hidden px-4 pt-3 pb-1" x-show="view === 'categories-grid'" x-data="{
+                activeSlide: 0,
+                timer: null,
+                get featuredSlides() {
+                    // Collect all products with images from all categories (up to 5 items)
+                    const items = [];
+                    this.categoriesList.forEach(cat => {
+                        (cat.products || []).forEach(prod => {
+                            if (prod.image && items.length < 5) {
+                                items.push({
+                                    id: prod.id,
+                                    name: prod.name,
+                                    slug: prod.slug,
+                                    image: prod.image,
+                                    base_price: prod.base_price,
+                                    product: prod
+                                });
+                            }
+                        });
+                    });
+                    return items;
+                },
+                startAutoSlide() {
+                    if (this.timer) clearInterval(this.timer);
+                    this.timer = setInterval(() => {
+                        if (this.featuredSlides.length > 1) {
+                            this.activeSlide = (this.activeSlide + 1) % this.featuredSlides.length;
+                        }
+                    }, 4000);
+                },
+                init() {
+                    this.startAutoSlide();
+                }
+            }">
+
+                <template x-if="featuredSlides.length > 0">
+                    <div
+                        class="relative w-full aspect-[21/9] sm:aspect-[2.5/1] rounded-2xl overflow-hidden shadow-sm bg-stone-100 group select-none">
+                        <!-- Slides Container -->
+                        <template x-for="(item, i) in featuredSlides" :key="item.id">
+                            <div x-show="activeSlide === i" @click="openCustomizer(item.product)"
+                                x-transition:enter="transition ease-out duration-500"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-300"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95" class="absolute inset-0 cursor-pointer">
+
+                                <!-- Product Image -->
+                                <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
+
+                                <!-- Gradient Overlay & Info Pill -->
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-3.5">
+                                    <div class="flex items-center justify-between text-white">
+                                        <div>
+                                            <h4 class="font-extrabold text-xs tracking-wide leading-tight drop-shadow-xs"
+                                                x-text="item.name"></h4>
+                                            <span
+                                                class="text-[11px] font-bold text-[#8F966C] bg-white/90 px-2 py-0.5 rounded-md mt-1 inline-block"
+                                                x-text="item.base_price ? `${parseFloat(item.base_price).toFixed(3)} {{ __('KD') }}` : '{{ __('Customizable') }}'"></span>
+                                        </div>
+                                        <span
+                                            class="w-7 h-7 rounded-full bg-white/20 backdrop-blur-xs flex items-center justify-center text-xs">
+                                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Navigation Indicator Dots -->
+                        <div class="absolute bottom-2 inset-x-0 flex justify-center space-x-1.5 rtl:space-x-reverse z-10"
+                            x-show="featuredSlides.length > 1">
+                            <template x-for="(item, i) in featuredSlides" :key="i">
+                                <button type="button" @click.stop="activeSlide = i; startAutoSlide()"
+                                    class="h-1.5 rounded-full transition-all duration-300"
+                                    :class="activeSlide === i ? 'w-5 bg-[#8F966C]' : 'w-1.5 bg-white/70'"></button>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
             <!-- Filter & Sort Tag Button & Active Status Bar -->
             <div class="px-5 pt-3 pb-1 flex items-center justify-between"
                 x-show="view === 'categories-grid' || view === 'category-products'">
@@ -892,10 +977,12 @@
                             <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
                         </button>
                         <h2 class="font-extrabold text-sm text-stone-900"
-                            x-text="authTab === 'login' ? '{{ __('Login') }}' : '{{ __('Register') }}'"></h2>
+                            x-text="authTab === 'forgot' ? '{{ __('Forgot Password') }}' : (authTab === 'login' ? '{{ __('Login') }}' : '{{ __('Register') }}')">
+                        </h2>
                     </div>
 
-                    <div class="flex border border-stone-200 rounded-xl overflow-hidden p-0.5">
+                    <div class="flex border border-stone-200 rounded-xl overflow-hidden p-0.5"
+                        x-show="authTab !== 'forgot'">
                         <button @click="authTab = 'login'"
                             :class="authTab === 'login' ? 'bg-[#8F966C] text-white font-bold' : 'text-stone-600'"
                             class="flex-1 py-2 text-xs transition rounded-lg">
@@ -934,8 +1021,10 @@
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <label class="font-bold text-stone-700">{{ __('Password *') }}</label>
-                                <a href="#"
-                                    class="text-[10px] text-stone-400 hover:text-stone-600 uppercase font-bold">{{ __('Forgot Password?') }}</a>
+                                <button type="button" @click="authTab = 'forgot'"
+                                    class="text-[10px] text-stone-400 hover:text-[#8F966C] uppercase font-bold transition">
+                                    {{ __('Forgot Password?') }}
+                                </button>
                             </div>
                             <input type="password" x-model="authForm.password" placeholder="••••••••"
                                 class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
@@ -990,6 +1079,39 @@
                                 </span>
                             </template>
                         </button>
+                    </div>
+
+                    <!-- Forgot Password Tab View -->
+                    <div x-show="authTab === 'forgot'" class="space-y-3 pt-2 text-xs">
+                        <p class="text-stone-500 text-[11px] leading-relaxed">
+                            {{ __('Enter your registered email address and we will send you a link to reset your password.') }}
+                        </p>
+
+                        <div>
+                            <label class="block font-bold text-stone-700 mb-1">{{ __('Email *') }}</label>
+                            <input type="email" x-model="forgotEmail" placeholder="example@email.com"
+                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
+                        </div>
+
+                        <button @click="submitForgotPassword()" :disabled="authLoading"
+                            class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3 rounded-xl text-xs transition active:scale-95 shadow flex items-center justify-center space-x-2 rtl:space-x-reverse disabled:opacity-75 disabled:cursor-not-allowed">
+                            <template x-if="!authLoading">
+                                <span>{{ __('Send Reset Link') }}</span>
+                            </template>
+                            <template x-if="authLoading">
+                                <span class="flex items-center space-x-2 rtl:space-x-reverse">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
+                                    <span>otherwise choose well...</span>
+                                </span>
+                            </template>
+                        </button>
+
+                        <div class="text-center pt-2">
+                            <button type="button" @click="authTab = 'login'"
+                                class="text-xs text-stone-500 hover:text-stone-800 underline font-semibold">
+                                {{ __('Back to Login') }}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -1387,6 +1509,7 @@
                 currentUser: @json($currentUser ?? ['name' => '', 'email' => '', 'phone' => '']),
                 authError: '',
                 authSuccess: '',
+                forgotEmail: '',
                 authTab: 'login',
                 guestExpanded: false,
                 authLoading: false,
@@ -1821,6 +1944,45 @@
                                 this.authTab = 'login';
                                 this.authSuccess = data.message;
                             }
+                        })
+                        .catch(err => {
+                            this.authError = err.message;
+                        })
+                        .finally(() => {
+                            this.authLoading = false;
+                        });
+                },
+
+                submitForgotPassword() {
+                    this.authError = '';
+                    this.authSuccess = '';
+
+                    if (!this.forgotEmail) {
+                        this.authError = '{{ __('Please enter your email address') }}';
+                        return;
+                    }
+
+                    this.authLoading = true;
+
+                    fetch('{{ route('customer.password.email') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                email: this.forgotEmail
+                            })
+                        })
+                        .then(async res => {
+                            const data = await res.json();
+                            if (!res.ok) throw new Error(data.message || 'Unable to send reset link');
+                            return data;
+                        })
+                        .then(data => {
+                            this.authSuccess = data.message;
+                            this.forgotEmail = '';
                         })
                         .catch(err => {
                             this.authError = err.message;
