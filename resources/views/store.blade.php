@@ -155,7 +155,6 @@
                 activeSlide: 0,
                 timer: null,
                 get featuredSlides() {
-                    // Collect all products with images from all categories (up to 5 items)
                     const items = [];
                     this.categoriesList.forEach(cat => {
                         (cat.products || []).forEach(prod => {
@@ -199,10 +198,8 @@
                                 x-transition:leave-start="opacity-100 scale-100"
                                 x-transition:leave-end="opacity-0 scale-95" class="absolute inset-0 cursor-pointer">
 
-                                <!-- Product Image -->
                                 <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
 
-                                <!-- Gradient Overlay & Info Pill -->
                                 <div
                                     class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-3.5">
                                     <div class="flex items-center justify-between text-white">
@@ -256,11 +253,9 @@
 
             <!-- ================= SIDEBAR DRAWER (MATCHES 2ND PIC) ================= -->
             <div x-show="showFilterModal" x-cloak class="relative z-50">
-                <!-- Backdrop -->
                 <div class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity" x-show="showFilterModal"
                     @click="showFilterModal = false"></div>
 
-                <!-- Slide-over Drawer Panel -->
                 <div class="fixed inset-y-0 left-0 rtl:left-auto rtl:right-0 w-full max-w-sm sm:max-w-md bg-white shadow-2xl z-50 flex flex-col h-full"
                     x-show="showFilterModal" x-transition:enter="transition ease-out duration-300 transform"
                     x-transition:enter-start="-translate-x-full rtl:translate-x-full"
@@ -269,7 +264,6 @@
                     x-transition:leave-start="translate-x-0"
                     x-transition:leave-end="-translate-x-full rtl:translate-x-full">
 
-                    <!-- Header -->
                     <div class="px-5 py-4 border-b border-stone-200 flex items-center justify-between">
                         <h3 class="font-extrabold text-sm text-stone-900">{{ __('Filter & Sort') }}</h3>
                         <button @click="showFilterModal = false"
@@ -278,9 +272,7 @@
                         </button>
                     </div>
 
-                    <!-- Body -->
                     <div class="flex-1 overflow-y-auto custom-scroll p-5 space-y-6 text-xs">
-
                         <!-- 1. SORT BY GRID -->
                         <div>
                             <div class="flex items-center justify-between mb-3">
@@ -378,10 +370,8 @@
                                 <span>25.000 KD</span>
                             </div>
                         </div>
-
                     </div>
 
-                    <!-- Sticky Apply Footer -->
                     <div class="p-4 border-t border-stone-200 bg-white">
                         <button type="button" @click="showFilterModal = false"
                             class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3.5 rounded-xl text-xs transition active:scale-95 shadow-md flex items-center justify-center space-x-2 rtl:space-x-reverse">
@@ -389,14 +379,13 @@
                             <span x-text="`(${totalFilteredResultsCount})`" class="opacity-80"></span>
                         </button>
                     </div>
-
                 </div>
             </div>
 
             <!-- SCROLLABLE BODY AREA -->
             <div class="flex-1 overflow-y-auto custom-scroll p-5 space-y-5">
 
-                <!-- SCREEN 1: CATEGORY TILES GRID (Uses displayedCategories) -->
+                <!-- SCREEN 1: CATEGORY TILES GRID -->
                 <div x-show="view === 'categories-grid'" class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
                         <template x-for="category in displayedCategories" :key="category.id">
@@ -421,7 +410,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN 2: PRODUCTS UNDER SELECTED CATEGORY (Uses displayedProducts) -->
+                <!-- SCREEN 2: PRODUCTS UNDER SELECTED CATEGORY -->
                 <div x-show="view === 'category-products'" x-cloak class="space-y-4">
                     <div class="flex items-center space-x-2 rtl:space-x-reverse pb-2 border-b border-stone-100">
                         <button @click="navigate('/')"
@@ -697,7 +686,6 @@
                     <div x-show="!ordersLoading && customerOrdersList.length > 0" class="space-y-3.5">
                         <template x-for="ord in customerOrdersList" :key="ord.id">
                             <div class="border border-stone-200 rounded-2xl p-4 bg-white shadow-xs space-y-3">
-                                <!-- Order Header -->
                                 <div class="flex items-start justify-between border-b border-stone-100 pb-2.5">
                                     <div>
                                         <div class="font-extrabold text-xs text-stone-900 tracking-wide"
@@ -717,7 +705,6 @@
                                     </span>
                                 </div>
 
-                                <!-- Progress Step Bar -->
                                 <div class="py-1">
                                     <div
                                         class="flex items-center justify-between text-[10px] font-bold text-stone-500 mb-1">
@@ -743,7 +730,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Items -->
                                 <div class="divide-y divide-stone-50 text-xs">
                                     <template x-for="item in ord.items" :key="item.id">
                                         <div class="py-1.5 flex justify-between items-start">
@@ -764,7 +750,6 @@
                                     </template>
                                 </div>
 
-                                <!-- Summary & 5-Minute Cancel Button -->
                                 <div class="border-t border-stone-100 pt-2.5 flex items-center justify-between">
                                     <div>
                                         <span class="text-[11px] text-stone-400 block">{{ __('Total Amount') }}</span>
@@ -893,7 +878,7 @@
                         </div>
                     </template>
 
-                    <!-- Menu list with restored "My orders" -->
+                    <!-- Menu list -->
                     <div class="space-y-1">
                         <div class="text-[11px] font-extrabold text-stone-400 uppercase tracking-wider mb-2">
                             {{ __('Menu') }}
@@ -969,7 +954,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN: TABBED EMAIL SIGNIN / REGISTER -->
+                <!-- SCREEN: TABBED EMAIL SIGNIN / REGISTER / FORGOT / RESET PASSWORD -->
                 <div x-show="view === 'email-signin'" x-cloak class="space-y-5">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2 border-b border-stone-100">
                         <button @click="navigate('/profile')"
@@ -977,12 +962,13 @@
                             <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
                         </button>
                         <h2 class="font-extrabold text-sm text-stone-900"
-                            x-text="authTab === 'forgot' ? '{{ __('Forgot Password') }}' : (authTab === 'login' ? '{{ __('Login') }}' : '{{ __('Register') }}')">
+                            x-text="authTab === 'reset-password' ? '{{ __('Reset Password') }}' : (authTab === 'forgot' ? '{{ __('Forgot Password') }}' : (authTab === 'login' ? '{{ __('Login') }}' : '{{ __('Register') }}'))">
                         </h2>
                     </div>
 
+                    <!-- Tab Switcher (Hidden when on forgot or reset-password screens) -->
                     <div class="flex border border-stone-200 rounded-xl overflow-hidden p-0.5"
-                        x-show="authTab !== 'forgot'">
+                        x-show="authTab !== 'forgot' && authTab !== 'reset-password'">
                         <button @click="authTab = 'login'"
                             :class="authTab === 'login' ? 'bg-[#8F966C] text-white font-bold' : 'text-stone-600'"
                             class="flex-1 py-2 text-xs transition rounded-lg">
@@ -1121,14 +1107,19 @@
                         </p>
 
                         <div>
+                            <label class="block font-bold text-stone-700 mb-1">{{ __('Email') }}</label>
+                            <input type="email" x-model="resetForm.email" readonly disabled
+                                class="w-full border border-stone-200 bg-stone-50 rounded-xl px-3.5 py-2.5 text-xs text-stone-500 outline-none">
+                        </div>
+
+                        <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('New Password *') }}</label>
                             <input type="password" x-model="resetForm.password" placeholder="••••••••"
                                 class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         </div>
 
                         <div>
-                            <label
-                                class="block font-bold text-stone-700 mb-1">{{ __('Confirm New Password *') }}</label>
+                            <label class="block font-bold text-stone-700 mb-1">{{ __('Confirm New Password *') }}</label>
                             <input type="password" x-model="resetForm.password_confirmation" placeholder="••••••••"
                                 class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         </div>
@@ -1152,10 +1143,8 @@
                 <div x-show="view === 'address'" x-cloak class="space-y-4">
                     <h3 class="font-extrabold text-sm text-stone-900">{{ __('Delivery Address Details') }}</h3>
 
-                    <!-- Address Type Selection -->
                     <div>
-                        <label
-                            class="block font-bold text-stone-700 text-xs mb-1.5">{{ __('Address Type *') }}</label>
+                        <label class="block font-bold text-stone-700 text-xs mb-1.5">{{ __('Address Type *') }}</label>
                         <div class="grid grid-cols-3 gap-2">
                             <button type="button" @click="address.type = 'Home'"
                                 :class="address.type === 'Home' ? 'bg-[#8F966C] text-white' :
@@ -1172,7 +1161,6 @@
                         </div>
                     </div>
 
-                    <!-- Block & Street Fields with Labels -->
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block font-bold text-stone-700 text-xs mb-1">{{ __('Block *') }}</label>
@@ -1186,13 +1174,10 @@
                         </div>
                     </div>
 
-                    <!-- Building & PACI Fields with Labels -->
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label
-                                class="block font-bold text-stone-700 text-xs mb-1">{{ __('Building / House *') }}</label>
-                            <input type="text" x-model="address.building"
-                                placeholder="{{ __('e.g. Building 12') }}"
+                            <label class="block font-bold text-stone-700 text-xs mb-1">{{ __('Building / House *') }}</label>
+                            <input type="text" x-model="address.building" placeholder="{{ __('e.g. Building 12') }}"
                                 class="w-full border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#8F966C] focus:ring-1 focus:ring-[#8F966C] transition">
                         </div>
                         <div>
@@ -1410,7 +1395,6 @@
                     const query = this.productSearch.toLowerCase().trim();
                     const max = Number(this.maxPriceFilter) || 25.000;
 
-                    // Price Filter on Categories Grid
                     if (max < 25.000) {
                         list = list.filter(cat => {
                             if (!cat.products || cat.products.length === 0) return false;
@@ -1421,7 +1405,6 @@
                         });
                     }
 
-                    // Text Search
                     if (query) {
                         list = list.filter(cat => {
                             const matchCat = cat.name.toLowerCase().includes(query);
@@ -1431,7 +1414,6 @@
                         });
                     }
 
-                    // Sort
                     if (this.selectedSort === 'name_asc') {
                         list.sort((a, b) => a.name.localeCompare(b.name));
                     } else if (this.selectedSort === 'name_desc') {
@@ -1441,14 +1423,13 @@
                     return list;
                 },
 
-                // Dynamic Products Filter (CORRECTED)
+                // Dynamic Products Filter
                 get displayedProducts() {
                     if (!this.activeCategory || !this.activeCategory.products) return [];
                     let list = [...this.activeCategory.products];
                     const query = this.productSearch.toLowerCase().trim();
                     const max = Number(this.maxPriceFilter) || 25.000;
 
-                    // 1. Max Price Filter
                     if (max < 25.000) {
                         list = list.filter(p => {
                             const price = parseFloat(p.base_price);
@@ -1456,7 +1437,6 @@
                         });
                     }
 
-                    // 2. Text Search Filter
                     if (query) {
                         list = list.filter(p =>
                             p.name.toLowerCase().includes(query) ||
@@ -1464,7 +1444,6 @@
                         );
                     }
 
-                    // 3. Sorting
                     if (this.selectedSort === 'price_asc') {
                         list.sort((a, b) => (parseFloat(a.base_price) || 0) - (parseFloat(b.base_price) || 0));
                     } else if (this.selectedSort === 'price_desc') {
@@ -1546,6 +1525,7 @@
                 authTab: 'login',
                 guestExpanded: false,
                 authLoading: false,
+
                 authForm: {
                     email: '',
                     password: ''
@@ -1578,17 +1558,13 @@
                 placedOrderNo: '',
 
                 initRouter() {
-
                     const urlParams = new URLSearchParams(window.location.search);
                     if (urlParams.get('verified') === '1') {
                         this.view = 'email-signin';
                         this.authTab = 'login';
                         this.authSuccess = '{{ __('Email verified successfully! You can now log in.') }}';
-
-                        // Clean URL query parameters
                         window.history.replaceState({}, document.title, window.location.pathname);
                     }
-
 
                     if (urlParams.get('token') && urlParams.get('email')) {
                         this.view = 'email-signin';
@@ -1674,6 +1650,13 @@
                         } else if (parts[1] === 'email-signin') {
                             this.view = 'email-signin';
                             this.setPageTitle('{{ __('Login') }}');
+                        } else if (parts[1] === 'reset-password') {
+                            this.view = 'email-signin';
+                            this.authTab = 'reset-password';
+                            this.setPageTitle('{{ __('Reset Password') }}');
+                            const urlParams = new URLSearchParams(window.location.search);
+                            if (urlParams.get('token')) this.resetForm.token = urlParams.get('token');
+                            if (urlParams.get('email')) this.resetForm.email = decodeURIComponent(urlParams.get('email'));
                         } else {
                             this.view = 'profile-menu';
                             this.setPageTitle('{{ __('Profile') }}');
@@ -1816,49 +1799,8 @@
                             alert(err.message);
                         });
                 },
-                authSuccess: '',
 
                 // ------------------ AUTH LOGIC ------------------
-                // submitSignIn() {
-                //     this.authError = '';
-                //     if (!this.authForm.email || !this.authForm.password) {
-                //         this.authError = '{{ __('Please fill all required fields') }}';
-                //         return;
-                //     }
-
-                //     fetch('{{ route('customer.login') }}', {
-                //             method: 'POST',
-                //             headers: {
-                //                 'Content-Type': 'application/json',
-                //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                //                 'Accept': 'application/json'
-                //             },
-                //             body: JSON.stringify(this.authForm)
-                //         })
-                //         .then(async res => {
-                //             const data = await res.json();
-                //             if (!res.ok) throw new Error(data.message || 'Login failed');
-                //             return data;
-                //         })
-                //         .then(data => {
-                //             if (data.success) {
-                //                 this.currentUser = data.user;
-                //                 this.customer.name = data.user.name;
-                //                 this.customer.email = data.user.email;
-                //                 this.customer.phone = data.user.phone;
-                //                 this.isAuthenticated = true;
-                //                 this.authForm = {
-                //                     email: '',
-                //                     password: ''
-                //                 };
-                //                 this.navigate('/profile', '{{ __('Profile') }}');
-                //             }
-                //         })
-                //         .catch(err => {
-                //             this.authError = err.message;
-                //         });
-                // },
-
                 submitSignIn() {
                     this.authError = '';
                     this.authSuccess = '';
@@ -1902,50 +1844,8 @@
                         })
                         .finally(() => {
                             this.authLoading = false;
-                        });;
+                        });
                 },
-
-                // submitSignUp() {
-                //     this.authError = '';
-                //     if (!this.regForm.name || !this.regForm.email || !this.regForm.password) {
-                //         this.authError = '{{ __('Please fill all required fields') }}';
-                //         return;
-                //     }
-
-                //     fetch('{{ route('customer.register') }}', {
-                //             method: 'POST',
-                //             headers: {
-                //                 'Content-Type': 'application/json',
-                //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                //                 'Accept': 'application/json'
-                //             },
-                //             body: JSON.stringify(this.regForm)
-                //         })
-                //         .then(async res => {
-                //             const data = await res.json();
-                //             if (!res.ok) throw new Error(data.message || 'Registration failed');
-                //             return data;
-                //         })
-                //         .then(data => {
-                //             if (data.success) {
-                //                 this.currentUser = data.user;
-                //                 this.customer.name = data.user.name;
-                //                 this.customer.email = data.user.email;
-                //                 this.customer.phone = data.user.phone;
-                //                 this.isAuthenticated = true;
-                //                 this.regForm = {
-                //                     name: '',
-                //                     email: '',
-                //                     phone: '',
-                //                     password: ''
-                //                 };
-                //                 this.navigate('/profile', '{{ __('Profile') }}');
-                //             }
-                //         })
-                //         .catch(err => {
-                //             this.authError = err.message;
-                //         });
-                // },
 
                 submitSignUp() {
                     this.authError = '';
@@ -1970,7 +1870,6 @@
                         .then(async res => {
                             const data = await res.json();
                             if (!res.ok) {
-                                // Handle unique validation errors from Laravel
                                 if (data.errors) {
                                     const firstError = Object.values(data.errors)[0][0];
                                     throw new Error(firstError);
