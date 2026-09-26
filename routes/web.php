@@ -52,19 +52,23 @@ Route::get('/lang/{locale}', function ($locale) {
 
 
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
-    // Find customer by ID (adjust model if using User)
     $customer = Customer::findOrFail($id);
 
+    // Verify hash against customer's email
     if (! hash_equals((string) $hash, sha1($customer->getEmailForVerification()))) {
-        abort(403, 'Invalid verification link.');
+        abort(403, 'Invalid or expired verification link.');
     }
 
-    if (! $customer->hasVerifiedEmail()) {
-        $customer->markEmailAsVerified();
+    // Mark email as verified if not already verified
+    if (is_null($customer->email_verified_at)) {
+        $customer->forceFill([
+            'email_verified_at' => now(),
+        ])->save();
+
         event(new \Illuminate\Auth\Events\Verified($customer));
     }
 
-    return redirect('/profile/email-signin')->with('verified', true);
+    return redirect('/profile/email-signin?verified=1');
 })->middleware(['signed'])->name('verification.verify');
 
 // Public Admin Auth Routes

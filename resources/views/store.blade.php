@@ -1401,6 +1401,17 @@
                 placedOrderNo: '',
 
                 initRouter() {
+
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('verified') === '1') {
+                        this.view = 'email-signin';
+                        this.authTab = 'login';
+                        this.authSuccess = '{{ __('Email verified successfully! You can now log in.') }}';
+
+                        // Clean URL query parameters
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+
                     if (this.storesList && this.storesList.length > 0 && !this.selectedPickupStore) {
                         this.selectedPickupStore = {
                             name: this.storesList[0].name,
