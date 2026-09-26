@@ -30,7 +30,8 @@ Route::prefix('customer')->name('customer.')->group(function () {
     Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
     Route::post('/delete-account', [CustomerAuthController::class, 'deleteAccount'])->name('deleteAccount');
 });
-Route::post('/customer/forgot-password', [App\Http\Controllers\CustomerAuthController::class, 'sendResetLinkEmail'])->name('customer.password.email');
+Route::post('/customer/forgot-password', [CustomerAuthController::class, 'sendResetLinkEmail'])->name('customer.password.email');
+Route::post('/customer/reset-password', [CustomerAuthController::class, 'resetPassword'])->name('customer.password.update');
 Route::post('/api/orders/place', [OrderController::class, 'placeOrder'])->name('orders.place');
 Route::get('/api/customer/orders', [OrderController::class, 'customerOrders'])->name('orders.customer');
 Route::post('/api/customer/orders/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('orders.cancel');

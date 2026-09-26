@@ -1113,6 +1113,39 @@
                             </button>
                         </div>
                     </div>
+
+                    <!-- Customer Reset Password Tab View -->
+                    <div x-show="authTab === 'reset-password'" class="space-y-3 pt-2 text-xs">
+                        <p class="text-stone-500 text-[11px] leading-relaxed">
+                            {{ __('Enter your new password below.') }}
+                        </p>
+
+                        <div>
+                            <label class="block font-bold text-stone-700 mb-1">{{ __('New Password *') }}</label>
+                            <input type="password" x-model="resetForm.password" placeholder="••••••••"
+                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
+                        </div>
+
+                        <div>
+                            <label
+                                class="block font-bold text-stone-700 mb-1">{{ __('Confirm New Password *') }}</label>
+                            <input type="password" x-model="resetForm.password_confirmation" placeholder="••••••••"
+                                class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
+                        </div>
+
+                        <button @click="submitPasswordReset()" :disabled="authLoading"
+                            class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3 rounded-xl text-xs transition active:scale-95 shadow flex items-center justify-center space-x-2 rtl:space-x-reverse disabled:opacity-75 disabled:cursor-not-allowed">
+                            <template x-if="!authLoading">
+                                <span>{{ __('Update Password') }}</span>
+                            </template>
+                            <template x-if="authLoading">
+                                <span class="flex items-center space-x-2 rtl:space-x-reverse">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
+                                    <span>otherwise choose well...</span>
+                                </span>
+                            </template>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- SCREEN: KUWAIT ADDRESS DETAILS -->
@@ -1523,7 +1556,12 @@
                     phone: '',
                     password: ''
                 },
-
+                resetForm: {
+                    token: '',
+                    email: '',
+                    password: '',
+                    password_confirmation: ''
+                },
                 customer: {
                     name: '{{ $currentUser['name'] ?? '' }}',
                     email: '{{ $currentUser['email'] ?? '' }}',
@@ -1549,6 +1587,14 @@
 
                         // Clean URL query parameters
                         window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('token') && urlParams.get('email')) {
+                        this.view = 'email-signin';
+                        this.authTab = 'reset-password';
+                        this.resetForm.token = urlParams.get('token');
+                        this.resetForm.email = decodeURIComponent(urlParams.get('email'));
                     }
 
                     if (this.storesList && this.storesList.length > 0 && !this.selectedPickupStore) {
@@ -1983,6 +2029,55 @@
                         .then(data => {
                             this.authSuccess = data.message;
                             this.forgotEmail = '';
+                        })
+                        .catch(err => {
+                            this.authError = err.message;
+                        })
+                        .finally(() => {
+                            this.authLoading = false;
+                        });
+                },
+
+                submitPasswordReset() {
+                    this.authError = '';
+                    this.authSuccess = '';
+
+                    if (!this.resetForm.password || !this.resetForm.password_confirmation) {
+                        this.authError = '{{ __('Please fill all required fields') }}';
+                        return;
+                    }
+
+                    if (this.resetForm.password !== this.resetForm.password_confirmation) {
+                        this.authError = '{{ __('Passwords do not match') }}';
+                        return;
+                    }
+
+                    this.authLoading = true;
+
+                    fetch('{{ route('customer.password.update') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(this.resetForm)
+                        })
+                        .then(async res => {
+                            const data = await res.json();
+                            if (!res.ok) throw new Error(data.message || 'Failed to reset password');
+                            return data;
+                        })
+                        .then(data => {
+                            this.authSuccess = data.message;
+                            this.authTab = 'login';
+                            this.resetForm = {
+                                token: '',
+                                email: '',
+                                password: '',
+                                password_confirmation: ''
+                            };
+                            window.history.replaceState({}, document.title, '/profile/email-signin');
                         })
                         .catch(err => {
                             this.authError = err.message;

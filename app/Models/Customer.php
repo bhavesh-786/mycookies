@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -32,5 +33,30 @@ class Customer extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Send the password reset notification for storefront customer.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $resetUrl = url('/profile/reset-password?token=' . $token . '&email=' . urlencode($this->getEmailForPasswordReset()));
+
+        $this->notify(new class($resetUrl) extends ResetPassword {
+            public $url;
+
+            public function __construct($url)
+            {
+                $this->url = $url;
+            }
+
+            protected function resetUrl($notifiable)
+            {
+                return $this->url;
+            }
+        });
     }
 }
