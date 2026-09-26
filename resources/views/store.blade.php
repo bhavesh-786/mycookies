@@ -1589,7 +1589,7 @@
                         window.history.replaceState({}, document.title, window.location.pathname);
                     }
 
-                    const urlParams = new URLSearchParams(window.location.search);
+
                     if (urlParams.get('token') && urlParams.get('email')) {
                         this.view = 'email-signin';
                         this.authTab = 'reset-password';
