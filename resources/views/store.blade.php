@@ -941,9 +941,17 @@
                                 class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         </div>
 
-                        <button @click="submitSignIn()"
-                            class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3 rounded-xl text-xs transition active:scale-95 shadow">
-                            {{ __('Login') }}
+                        <button @click="submitSignIn()" :disabled="authLoading"
+                            class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3 rounded-xl text-xs transition active:scale-95 shadow flex items-center justify-center space-x-2 rtl:space-x-reverse disabled:opacity-75 disabled:cursor-not-allowed">
+                            <template x-if="!authLoading">
+                                <span>{{ __('Login') }}</span>
+                            </template>
+                            <template x-if="authLoading">
+                                <span class="flex items-center space-x-2 rtl:space-x-reverse">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
+                                    <span>otherwise choose well...</span>
+                                </span>
+                            </template>
                         </button>
                     </div>
 
@@ -970,9 +978,17 @@
                                 class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:ring-1 focus:ring-[#8F966C]">
                         </div>
 
-                        <button @click="submitSignUp()"
-                            class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3 rounded-xl text-xs transition active:scale-95 shadow">
-                            {{ __('Register') }}
+                        <button @click="submitSignUp()" :disabled="authLoading"
+                            class="w-full bg-[#8F966C] hover:bg-[#7B825B] text-white font-extrabold py-3 rounded-xl text-xs transition active:scale-95 shadow flex items-center justify-center space-x-2 rtl:space-x-reverse disabled:opacity-75 disabled:cursor-not-allowed">
+                            <template x-if="!authLoading">
+                                <span>{{ __('Register') }}</span>
+                            </template>
+                            <template x-if="authLoading">
+                                <span class="flex items-center space-x-2 rtl:space-x-reverse">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
+                                    <span>otherwise choose well...</span>
+                                </span>
+                            </template>
                         </button>
                     </div>
                 </div>
@@ -1373,7 +1389,7 @@
                 authSuccess: '',
                 authTab: 'login',
                 guestExpanded: false,
-
+                authLoading: false,
                 authForm: {
                     email: '',
                     password: ''
@@ -1682,6 +1698,7 @@
                         this.authError = '{{ __('Please fill all required fields') }}';
                         return;
                     }
+                    this.authLoading = true;
 
                     fetch('{{ route('customer.login') }}', {
                             method: 'POST',
@@ -1713,7 +1730,10 @@
                         })
                         .catch(err => {
                             this.authError = err.message;
-                        });
+                        })
+                        .finally(() => {
+                            this.authLoading = false;
+                        });;
                 },
 
                 // submitSignUp() {
@@ -1767,6 +1787,8 @@
                         return;
                     }
 
+                    this.authLoading = true;
+
                     fetch('{{ route('customer.register') }}', {
                             method: 'POST',
                             headers: {
@@ -1802,6 +1824,9 @@
                         })
                         .catch(err => {
                             this.authError = err.message;
+                        })
+                        .finally(() => {
+                            this.authLoading = false;
                         });
                 },
 
