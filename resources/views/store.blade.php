@@ -37,7 +37,9 @@
         }
 
         .no-scrollbar::-webkit-scrollbar {
-            display: none;
+            display: none !important;
+            height: 0 !important;
+            width: 0 !important;
         }
 
         .no-scrollbar {
@@ -48,23 +50,6 @@
         [x-cloak] {
             display: none !important;
         }
-
-        /* Ambient subtle pulse */
-        @keyframes subtle-float {
-
-            0%,
-            100% {
-                transform: translateY(0px);
-            }
-
-            50% {
-                transform: translateY(-4px);
-            }
-        }
-
-        .animate-subtle-float {
-            animation: subtle-float 4s ease-in-out infinite;
-        }
     </style>
 </head>
 
@@ -74,12 +59,13 @@
 
     <div class="flex h-screen w-full overflow-hidden">
         <!-- ================= LEFT INTERACTIVE PANEL (50%) ================= -->
+        <!-- Added min-w-0, shrink-0 and overflow-hidden to permanently eliminate bleed-through -->
         <main
-            class="w-full lg:w-1/2 flex flex-col h-full bg-[#FCFBF9] border-r rtl:border-r-0 rtl:border-l border-stone-200/80 relative z-10 shadow-sm min-w-0">
+            class="w-full lg:w-1/2 flex flex-col h-full bg-[#FCFBF9] border-r rtl:border-r-0 rtl:border-l border-stone-200/80 relative z-10 shadow-sm min-w-0 overflow-hidden">
 
             <!-- Sticky Header -->
             <header
-                class="px-4 sm:px-5 py-3 border-b border-stone-200/70 flex items-center justify-between bg-white/95 backdrop-blur-md sticky top-0 z-30 transition-all shrink-0">
+                class="px-4 sm:px-6 py-3 border-b border-stone-200/70 flex items-center justify-between bg-white/95 backdrop-blur-md sticky top-0 z-30 transition-all shrink-0">
                 <div class="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer group min-w-0"
                     @click="navigate('/')">
                     <div
@@ -89,7 +75,7 @@
                     <div class="min-w-0">
                         <div class="flex items-center space-x-2 rtl:space-x-reverse">
                             <h1
-                                class="font-black text-sm tracking-tight text-[#24261F] group-hover:text-[#747D52] transition truncate">
+                                class="font-black text-sm sm:text-base tracking-tight text-[#24261F] group-hover:text-[#747D52] transition truncate">
                                 {{ __('otherwise') }}
                             </h1>
                             <span
@@ -113,7 +99,7 @@
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-1 sm:space-x-1.5 rtl:space-x-reverse shrink-0">
+                <div class="flex items-center space-x-1 sm:space-x-2 rtl:space-x-reverse shrink-0">
                     <button @click="toggleSearch()"
                         class="w-9 h-9 flex items-center justify-center hover:bg-stone-100 rounded-xl transition text-stone-600 active:scale-95"
                         :class="searchOpen ? 'text-[#747D52] bg-[#747D52]/10' : ''" title="Search">
@@ -146,7 +132,7 @@
             <!-- Search Bar -->
             <div x-show="searchOpen" x-cloak x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
-                class="px-4 sm:px-5 py-2.5 bg-stone-50/90 border-b border-stone-200/70 shrink-0">
+                class="px-4 sm:px-6 py-2.5 bg-stone-50/90 border-b border-stone-200/70 shrink-0">
                 <div class="relative">
                     <i
                         class="fa-solid fa-magnifying-glass absolute left-3.5 rtl:left-auto rtl:right-3.5 top-3 text-stone-400 text-xs"></i>
@@ -209,11 +195,22 @@
                 </div>
             </section>
 
-            <!-- ================= HORIZONTAL QUICK-CATEGORY BAR (FIXED OVERFLOW & FADE MASK) ================= -->
-            <div class="relative w-full border-b border-stone-200/60 bg-[#FCFBF9] shrink-0"
-                x-show="view === 'categories-grid' || view === 'category-products'">
-                <div
-                    class="px-4 sm:px-5 py-2.5 flex items-center space-x-2 rtl:space-x-reverse overflow-x-auto no-scrollbar scroll-smooth">
+            <!-- ================= HORIZONTAL QUICK-CATEGORY BAR (COMPLETELY CLIPPED & OVERFLOW-SAFE) ================= -->
+            <div class="relative w-full border-b border-stone-200/60 bg-[#FCFBF9] shrink-0 overflow-hidden"
+                x-show="view === 'categories-grid' || view === 'category-products'" x-data="{
+                    scrollLeft() { $refs.pillsContainer.scrollBy({ left: -160, behavior: 'smooth' }); },
+                        scrollRight() { $refs.pillsContainer.scrollBy({ left: 160, behavior: 'smooth' }); }
+                }">
+
+                <!-- Left scroll trigger (for desktop mouse users) -->
+                <button type="button" @click="scrollLeft()"
+                    class="hidden sm:flex absolute left-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-r from-[#FCFBF9] via-[#FCFBF9]/90 to-transparent text-stone-500 hover:text-stone-900 transition">
+                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                </button>
+
+                <!-- Scrollable Track -->
+                <div x-ref="pillsContainer"
+                    class="px-4 sm:px-6 py-2.5 flex items-center space-x-2 rtl:space-x-reverse overflow-x-auto no-scrollbar scroll-smooth w-full">
                     <button type="button" @click="applyCategoryFilter(null)"
                         class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0"
                         :class="!selectedCategoryFilter ? 'bg-[#747D52] text-white shadow-xs' :
@@ -228,50 +225,57 @@
                             x-text="cat.name">
                         </button>
                     </template>
-                    <!-- Extra spacing spacer so final item doesn't touch the edge -->
-                    <div class="w-6 shrink-0 pointer-events-none"></div>
+                    <!-- End spacer to ensure final item has proper margin -->
+                    <div class="w-8 shrink-0"></div>
                 </div>
 
-                <!-- Right edge soft gradient fade so pills don't collide into right-side banner -->
+                <!-- Right scroll trigger (for desktop mouse users) -->
+                <button type="button" @click="scrollRight()"
+                    class="hidden sm:flex absolute right-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-l from-[#FCFBF9] via-[#FCFBF9]/90 to-transparent text-stone-500 hover:text-stone-900 transition">
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+
+                <!-- Soft fade indicator on edge -->
                 <div
-                    class="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#FCFBF9] to-transparent rtl:right-auto rtl:left-0 rtl:bg-gradient-to-r">
+                    class="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-[#FCFBF9] to-transparent rtl:right-auto rtl:left-0 rtl:bg-gradient-to-r">
                 </div>
             </div>
 
             <!-- ================= MOBILE HERO SLIDER FROM PRODUCTS (lg:hidden) ================= -->
-            <div class="block lg:hidden px-4 pt-3 pb-1" x-show="view === 'categories-grid'" x-data="{
-                activeSlide: 0,
-                timer: null,
-                get featuredSlides() {
-                    const items = [];
-                    this.categoriesList.forEach(cat => {
-                        (cat.products || []).forEach(prod => {
-                            if (prod.image && items.length < 5) {
-                                items.push({
-                                    id: prod.id,
-                                    name: prod.name,
-                                    slug: prod.slug,
-                                    image: prod.image,
-                                    base_price: prod.base_price,
-                                    product: prod
-                                });
-                            }
+            <div class="block lg:hidden px-4 pt-3 pb-1 shrink-0" x-show="view === 'categories-grid'"
+                x-data="{
+                    activeSlide: 0,
+                    timer: null,
+                    get featuredSlides() {
+                        const items = [];
+                        this.categoriesList.forEach(cat => {
+                            (cat.products || []).forEach(prod => {
+                                if (prod.image && items.length < 5) {
+                                    items.push({
+                                        id: prod.id,
+                                        name: prod.name,
+                                        slug: prod.slug,
+                                        image: prod.image,
+                                        base_price: prod.base_price,
+                                        product: prod
+                                    });
+                                }
+                            });
                         });
-                    });
-                    return items;
-                },
-                startAutoSlide() {
-                    if (this.timer) clearInterval(this.timer);
-                    this.timer = setInterval(() => {
-                        if (this.featuredSlides.length > 1) {
-                            this.activeSlide = (this.activeSlide + 1) % this.featuredSlides.length;
-                        }
-                    }, 4000);
-                },
-                init() {
-                    this.startAutoSlide();
-                }
-            }">
+                        return items;
+                    },
+                    startAutoSlide() {
+                        if (this.timer) clearInterval(this.timer);
+                        this.timer = setInterval(() => {
+                            if (this.featuredSlides.length > 1) {
+                                this.activeSlide = (this.activeSlide + 1) % this.featuredSlides.length;
+                            }
+                        }, 4000);
+                    },
+                    init() {
+                        this.startAutoSlide();
+                    }
+                }">
 
                 <template x-if="featuredSlides.length > 0">
                     <div
@@ -320,7 +324,7 @@
             </div>
 
             <!-- Filter & Sort Tag Button & Active Status Bar -->
-            <div class="px-4 sm:px-5 pt-3 pb-1 flex items-center justify-between shrink-0"
+            <div class="px-4 sm:px-6 pt-3 pb-1 flex items-center justify-between shrink-0"
                 x-show="view === 'categories-grid' || view === 'category-products'">
                 <button @click="showFilterModal = true"
                     class="border border-stone-200 bg-white text-stone-700 px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-2xs hover:border-[#747D52] hover:bg-stone-50 transition flex items-center space-x-1.5 rtl:space-x-reverse"
@@ -471,11 +475,11 @@
             </div>
 
             <!-- SCROLLABLE BODY AREA -->
-            <div class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-5 space-y-5">
+            <div class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 space-y-5">
 
                 <!-- SCREEN 1: CATEGORY TILES GRID -->
                 <div x-show="view === 'categories-grid'" class="space-y-4">
-                    <div class="grid grid-cols-2 gap-3.5 sm:gap-4">
+                    <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3.5 sm:gap-4">
                         <template x-for="category in displayedCategories" :key="category.id">
                             <div @click="openCategory(category)"
                                 class="group cursor-pointer rounded-2xl overflow-hidden border border-stone-200/80 bg-white hover:border-[#747D52]/50 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
@@ -514,7 +518,7 @@
                             x-text="activeCategory?.name"></h2>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3.5 sm:gap-4">
+                    <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3.5 sm:gap-4">
                         <template x-for="product in displayedProducts" :key="product.id">
                             <div
                                 class="group border border-stone-200/80 rounded-2xl p-3 bg-white flex flex-col justify-between hover:shadow-md hover:border-[#747D52]/40 transition-all duration-300">
