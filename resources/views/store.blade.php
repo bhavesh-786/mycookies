@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}"
-    class="h-full overflow-hidden">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title x-text="pageTitle">{{ __('otherwise') }}</title>
 
@@ -19,17 +17,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        *,
-        ::before,
-        ::after {
-            box-sizing: border-box;
-        }
-
-        html,
         body {
-            width: 100%;
-            max-width: 100vw;
-            overflow-x: hidden !important;
             font-family: {{ app()->getLocale() === 'ar' ? "'Cairo', sans-serif" : "'Plus Jakarta Sans', sans-serif" }};
             -webkit-tap-highlight-color: transparent;
         }
@@ -48,55 +36,36 @@
             background: #a8a29e;
         }
 
-        /* Fully hide scrollbar on mobile horizontal bars */
-        .pills-scroll {
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+        .no-scrollbar::-webkit-scrollbar {
+            display: none !important;
+            height: 0 !important;
+            width: 0 !important;
         }
 
-        .pills-scroll::-webkit-scrollbar {
-            display: none !important;
-            width: 0 !important;
-            height: 0 !important;
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
 
         [x-cloak] {
             display: none !important;
         }
-
-        /* Ambient subtle pulse */
-        @keyframes subtle-float {
-
-            0%,
-            100% {
-                transform: translateY(0px);
-            }
-
-            50% {
-                transform: translateY(-4px);
-            }
-        }
-
-        .animate-subtle-float {
-            animation: subtle-float 4s ease-in-out infinite;
-        }
     </style>
 </head>
 
 <body
-    class="bg-[#F8F7F4] text-[#24261F] antialiased h-full overflow-hidden selection:bg-[#747D52]/20 selection:text-[#272E1B]"
+    class="bg-[#F8F7F4] text-[#24261F] antialiased h-screen overflow-hidden selection:bg-[#747D52]/20 selection:text-[#272E1B]"
     x-data="storeApp()" x-init="initRouter()">
 
-    <!-- CRITICAL CONTAINER FIX: w-full max-w-full overflow-x-hidden min-w-0 -->
-    <div class="flex h-screen w-full max-w-full overflow-hidden min-w-0">
-        <!-- ================= LEFT INTERACTIVE PANEL (100% on Mobile, 50% on Desktop) ================= -->
+    <div class="flex h-screen w-full overflow-hidden">
+        <!-- ================= LEFT INTERACTIVE PANEL (50%) ================= -->
+        <!-- Added min-w-0, shrink-0 and overflow-hidden to permanently eliminate bleed-through -->
         <main
-            class="w-full lg:w-1/2 flex-1 flex flex-col h-full bg-[#FCFBF9] border-r rtl:border-r-0 rtl:border-l border-stone-200/80 relative z-10 shadow-sm min-w-0 max-w-full overflow-hidden">
+            class="w-full lg:w-1/2 flex flex-col h-full bg-[#FCFBF9] border-r rtl:border-r-0 rtl:border-l border-stone-200/80 relative z-10 shadow-sm min-w-0 overflow-hidden">
 
             <!-- Sticky Header -->
             <header
-                class="w-full px-4 sm:px-5 py-3 border-b border-stone-200/60 flex items-center justify-between bg-white/95 backdrop-blur-md sticky top-0 z-30 transition-all shrink-0">
+                class="px-4 sm:px-6 py-3 border-b border-stone-200/70 flex items-center justify-between bg-white/95 backdrop-blur-md sticky top-0 z-30 transition-all shrink-0">
                 <div class="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer group min-w-0"
                     @click="navigate('/')">
                     <div
@@ -106,7 +75,7 @@
                     <div class="min-w-0">
                         <div class="flex items-center space-x-2 rtl:space-x-reverse">
                             <h1
-                                class="font-black text-sm tracking-tight text-[#24261F] group-hover:text-[#747D52] transition truncate">
+                                class="font-black text-sm sm:text-base tracking-tight text-[#24261F] group-hover:text-[#747D52] transition truncate">
                                 {{ __('otherwise') }}
                             </h1>
                             <span
@@ -130,7 +99,7 @@
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-1 sm:space-x-1.5 rtl:space-x-reverse shrink-0">
+                <div class="flex items-center space-x-1 sm:space-x-2 rtl:space-x-reverse shrink-0">
                     <button @click="toggleSearch()"
                         class="w-9 h-9 flex items-center justify-center hover:bg-stone-100 rounded-xl transition text-stone-600 active:scale-95"
                         :class="searchOpen ? 'text-[#747D52] bg-[#747D52]/10' : ''" title="Search">
@@ -153,8 +122,8 @@
                     </button>
 
                     <a href="{{ route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}"
-                        class="inline-flex items-center space-x-1.5 rtl:space-x-reverse px-2.5 py-1.5 rounded-xl border border-stone-200 text-[11px] font-bold text-stone-700 hover:bg-stone-50 transition active:scale-95 shadow-2xs">
-                        <i class="fa-solid fa-globe text-stone-400 text-[11px]"></i>
+                        class="inline-flex items-center space-x-1 rtl:space-x-reverse px-2.5 py-1.5 rounded-xl border border-stone-200 text-[11px] font-bold text-stone-700 hover:bg-stone-50 transition active:scale-95 shadow-2xs">
+                        <i class="fa-solid fa-globe text-stone-400 text-[10px]"></i>
                         <span>{{ app()->getLocale() === 'ar' ? 'EN' : 'عربي' }}</span>
                     </a>
                 </div>
@@ -163,7 +132,7 @@
             <!-- Search Bar -->
             <div x-show="searchOpen" x-cloak x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
-                class="w-full px-4 sm:px-5 py-2.5 bg-stone-50/90 border-b border-stone-200/70 shrink-0">
+                class="px-4 sm:px-6 py-2.5 bg-stone-50/90 border-b border-stone-200/70 shrink-0">
                 <div class="relative">
                     <i
                         class="fa-solid fa-magnifying-glass absolute left-3.5 rtl:left-auto rtl:right-3.5 top-3 text-stone-400 text-xs"></i>
@@ -178,7 +147,7 @@
             </div>
 
             <!-- Delivery / Pickup Switcher & Quick Location Info -->
-            <section class="w-full p-3.5 sm:p-4 bg-white border-b border-stone-200/60 shrink-0"
+            <section class="p-3.5 sm:p-4 bg-white border-b border-stone-200/60 shrink-0"
                 x-show="['categories-grid', 'category-products'].includes(view)">
                 <!-- Segmented Toggle -->
                 <div
@@ -202,7 +171,7 @@
                 </div>
 
                 <div
-                    class="w-full flex items-center justify-between text-xs px-3 py-2 bg-[#FAF9F5] border border-stone-200/70 rounded-xl shadow-2xs">
+                    class="flex items-center justify-between text-xs px-3 py-2 bg-[#FAF9F5] border border-stone-200/70 rounded-xl shadow-2xs">
                     <div class="flex items-center space-x-2 rtl:space-x-reverse truncate min-w-0">
                         <span
                             class="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-[#747D52] shadow-xs shrink-0 border border-stone-100">
@@ -226,32 +195,54 @@
                 </div>
             </section>
 
-            <!-- ================= HORIZONTAL CATEGORY PILLS BAR (CONTAINED & SHIFT-PROOF) ================= -->
-            <div class="w-full max-w-full overflow-hidden border-b border-stone-200/60 bg-[#FCFBF9] shrink-0"
-                x-show="view === 'categories-grid' || view === 'category-products'">
-                <div
-                    class="w-full max-w-full px-4 sm:px-5 py-2.5 flex items-center space-x-2 rtl:space-x-reverse overflow-x-auto pills-scroll scroll-smooth">
+            <!-- ================= HORIZONTAL QUICK-CATEGORY BAR (COMPLETELY CLIPPED & OVERFLOW-SAFE) ================= -->
+            <div class="relative w-full border-b border-stone-200/60 bg-[#FCFBF9] shrink-0 overflow-hidden"
+                x-show="view === 'categories-grid' || view === 'category-products'" x-data="{
+                    scrollLeft() { $refs.pillsContainer.scrollBy({ left: -160, behavior: 'smooth' }); },
+                        scrollRight() { $refs.pillsContainer.scrollBy({ left: 160, behavior: 'smooth' }); }
+                }">
+
+                <!-- Left scroll trigger (for desktop mouse users) -->
+                <button type="button" @click="scrollLeft()"
+                    class="hidden sm:flex absolute left-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-r from-[#FCFBF9] via-[#FCFBF9]/90 to-transparent text-stone-500 hover:text-stone-900 transition">
+                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                </button>
+
+                <!-- Scrollable Track -->
+                <div x-ref="pillsContainer"
+                    class="px-4 sm:px-6 py-2.5 flex items-center space-x-2 rtl:space-x-reverse overflow-x-auto no-scrollbar scroll-smooth w-full">
                     <button type="button" @click="applyCategoryFilter(null)"
-                        class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0 shadow-2xs"
+                        class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0"
                         :class="!selectedCategoryFilter ? 'bg-[#747D52] text-white shadow-xs' :
-                            'bg-white border border-stone-200/80 text-stone-600 hover:border-stone-400 hover:text-stone-900'">
+                            'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'">
                         {{ __('All Categories') }}
                     </button>
                     <template x-for="cat in categoriesList" :key="cat.id">
                         <button type="button" @click="openCategory(cat)"
-                            class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0 shadow-2xs"
+                            class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0"
                             :class="Number(selectedCategoryFilter) === Number(cat.id) ? 'bg-[#747D52] text-white shadow-xs' :
-                                'bg-white border border-stone-200/80 text-stone-600 hover:border-stone-400 hover:text-stone-900'"
+                                'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'"
                             x-text="cat.name">
                         </button>
                     </template>
-                    <!-- Buffer spacer to allow the last pill to scroll comfortably past the screen edge -->
-                    <div class="w-8 shrink-0 h-1"></div>
+                    <!-- End spacer to ensure final item has proper margin -->
+                    <div class="w-8 shrink-0"></div>
+                </div>
+
+                <!-- Right scroll trigger (for desktop mouse users) -->
+                <button type="button" @click="scrollRight()"
+                    class="hidden sm:flex absolute right-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-l from-[#FCFBF9] via-[#FCFBF9]/90 to-transparent text-stone-500 hover:text-stone-900 transition">
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+
+                <!-- Soft fade indicator on edge -->
+                <div
+                    class="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-[#FCFBF9] to-transparent rtl:right-auto rtl:left-0 rtl:bg-gradient-to-r">
                 </div>
             </div>
 
             <!-- ================= MOBILE HERO SLIDER FROM PRODUCTS (lg:hidden) ================= -->
-            <div class="block lg:hidden px-4 pt-3 pb-1 shrink-0 w-full" x-show="view === 'categories-grid'"
+            <div class="block lg:hidden px-4 pt-3 pb-1 shrink-0" x-show="view === 'categories-grid'"
                 x-data="{
                     activeSlide: 0,
                     timer: null,
@@ -333,7 +324,7 @@
             </div>
 
             <!-- Filter & Sort Tag Button & Active Status Bar -->
-            <div class="w-full px-4 sm:px-5 pt-3 pb-1 flex items-center justify-between shrink-0"
+            <div class="px-4 sm:px-6 pt-3 pb-1 flex items-center justify-between shrink-0"
                 x-show="view === 'categories-grid' || view === 'category-products'">
                 <button @click="showFilterModal = true"
                     class="border border-stone-200 bg-white text-stone-700 px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-2xs hover:border-[#747D52] hover:bg-stone-50 transition flex items-center space-x-1.5 rtl:space-x-reverse"
@@ -484,11 +475,11 @@
             </div>
 
             <!-- SCROLLABLE BODY AREA -->
-            <div class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-5 space-y-5 w-full">
+            <div class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 space-y-5">
 
                 <!-- SCREEN 1: CATEGORY TILES GRID -->
-                <div x-show="view === 'categories-grid'" class="space-y-4 w-full">
-                    <div class="grid grid-cols-2 gap-3.5 sm:gap-4 w-full">
+                <div x-show="view === 'categories-grid'" class="space-y-4">
+                    <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3.5 sm:gap-4">
                         <template x-for="category in displayedCategories" :key="category.id">
                             <div @click="openCategory(category)"
                                 class="group cursor-pointer rounded-2xl overflow-hidden border border-stone-200/80 bg-white hover:border-[#747D52]/50 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
@@ -517,7 +508,7 @@
                 </div>
 
                 <!-- SCREEN 2: PRODUCTS UNDER SELECTED CATEGORY -->
-                <div x-show="view === 'category-products'" x-cloak class="space-y-4 w-full">
+                <div x-show="view === 'category-products'" x-cloak class="space-y-4">
                     <div class="flex items-center space-x-2.5 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/')"
                             class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-100 flex items-center justify-center text-xs text-stone-600 transition active:scale-95">
@@ -527,7 +518,7 @@
                             x-text="activeCategory?.name"></h2>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3.5 sm:gap-4 w-full">
+                    <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3.5 sm:gap-4">
                         <template x-for="product in displayedProducts" :key="product.id">
                             <div
                                 class="group border border-stone-200/80 rounded-2xl p-3 bg-white flex flex-col justify-between hover:shadow-md hover:border-[#747D52]/40 transition-all duration-300">
@@ -563,7 +554,7 @@
                 </div>
 
                 <!-- SCREEN 3: PRODUCT ADDON CUSTOMIZER -->
-                <div x-show="view === 'customizer'" x-cloak class="space-y-5 w-full">
+                <div x-show="view === 'customizer'" x-cloak class="space-y-5">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse">
                         <button @click="navigate('/category/' + (activeCategory?.slug || ''))"
                             class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95">
@@ -655,7 +646,7 @@
                 </div>
 
                 <!-- SCREEN 4: SHOPPING CART -->
-                <div x-show="view === 'cart'" x-cloak class="space-y-4 w-full">
+                <div x-show="view === 'cart'" x-cloak class="space-y-4">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/')"
                             class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95">
@@ -679,7 +670,7 @@
                         </div>
                     </template>
 
-                    <div class="space-y-3 w-full">
+                    <div class="space-y-3">
                         <template x-for="(item, idx) in cart" :key="idx">
                             <div
                                 class="p-3.5 rounded-2xl border border-stone-200/80 bg-white flex justify-between items-start shadow-xs hover:border-stone-300 transition">
@@ -716,7 +707,7 @@
                 </div>
 
                 <!-- SCREEN: LOCATION SELECTOR (Delivery vs Pickup) -->
-                <div x-show="view === 'select-location'" x-cloak class="space-y-4 w-full">
+                <div x-show="view === 'select-location'" x-cloak class="space-y-4">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/')"
                             class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95">
@@ -727,7 +718,7 @@
                         </h2>
                     </div>
 
-                    <div class="relative w-full">
+                    <div class="relative">
                         <i
                             class="fa-solid fa-magnifying-glass absolute left-3.5 rtl:left-auto rtl:right-3.5 top-3.5 text-stone-400 text-xs"></i>
                         <input type="text" x-model="areaSearch"
@@ -737,7 +728,7 @@
                     </div>
 
                     <!-- 1. DELIVERY MODE -->
-                    <div x-show="method === 'delivery'" class="space-y-2.5 w-full">
+                    <div x-show="method === 'delivery'" class="space-y-2.5">
                         <template x-for="gov in filteredGovernorates" :key="gov.id">
                             <div class="border border-stone-200/80 rounded-2xl overflow-hidden bg-white shadow-xs">
                                 <button type="button" @click="toggleGov(gov.id)"
@@ -767,7 +758,7 @@
                     </div>
 
                     <!-- 2. PICKUP MODE -->
-                    <div x-show="method === 'pickup'" class="space-y-2.5 w-full">
+                    <div x-show="method === 'pickup'" class="space-y-2.5">
                         <template x-for="st in filteredStores" :key="st.id">
                             <button type="button" @click="setStorePickup(st.name)"
                                 class="w-full text-left rtl:text-right p-4 rounded-2xl border border-stone-200/80 hover:border-[#747D52] hover:bg-[#747D52]/5 transition bg-white flex justify-between items-center shadow-xs"
@@ -791,7 +782,7 @@
                 </div>
 
                 <!-- SCREEN: MY ORDERS & TRACKING DETAILS WITH 5-MIN CANCELLATION -->
-                <div x-show="view === 'my-orders'" x-cloak class="space-y-4 w-full">
+                <div x-show="view === 'my-orders'" x-cloak class="space-y-4">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/profile')"
                             class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95">
@@ -811,7 +802,7 @@
                         <p class="text-xs font-bold text-stone-600">{{ __('You don\'t have any past orders.') }}</p>
                     </div>
 
-                    <div x-show="!ordersLoading && customerOrdersList.length > 0" class="space-y-3.5 w-full">
+                    <div x-show="!ordersLoading && customerOrdersList.length > 0" class="space-y-3.5">
                         <template x-for="ord in customerOrdersList" :key="ord.id">
                             <div class="border border-stone-200/80 rounded-2xl p-4 bg-white shadow-xs space-y-3">
                                 <div class="flex items-start justify-between border-b border-stone-100 pb-2.5">
@@ -901,7 +892,7 @@
                 </div>
 
                 <!-- SCREEN: CHECKOUT DETAILS -->
-                <div x-show="view === 'checkout-details'" x-cloak class="space-y-5 w-full">
+                <div x-show="view === 'checkout-details'" x-cloak class="space-y-5">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/cart')"
                             class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95">
@@ -987,7 +978,7 @@
                 </div>
 
                 <!-- SCREEN: PROFILE & MENU DRAWER -->
-                <div x-show="view === 'profile-menu'" x-cloak class="space-y-6 w-full">
+                <div x-show="view === 'profile-menu'" x-cloak class="space-y-6">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/')"
                             class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95">
@@ -1017,7 +1008,7 @@
                     </template>
 
                     <!-- Menu list -->
-                    <div class="space-y-1 w-full">
+                    <div class="space-y-1">
                         <div class="text-[11px] font-extrabold text-stone-400 uppercase tracking-wider mb-2">
                             {{ __('Menu') }}
                         </div>
@@ -1075,7 +1066,7 @@
                     </div>
 
                     <template x-if="!isAuthenticated">
-                        <div class="space-y-2 pt-2 w-full">
+                        <div class="space-y-2 pt-2">
                             <div class="text-[11px] font-extrabold text-stone-400 uppercase tracking-wider">
                                 {{ __('Sign in with') }}
                             </div>
@@ -1117,7 +1108,7 @@
                 </div>
 
                 <!-- SCREEN: TABBED EMAIL SIGNIN / REGISTER / FORGOT / RESET PASSWORD -->
-                <div x-show="view === 'email-signin'" x-cloak class="space-y-5 w-full">
+                <div x-show="view === 'email-signin'" x-cloak class="space-y-5">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/profile')"
                             class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95">
@@ -1162,7 +1153,7 @@
                     </template>
 
                     <!-- Login Tab View -->
-                    <div x-show="authTab === 'login'" class="space-y-3 pt-2 text-xs w-full">
+                    <div x-show="authTab === 'login'" class="space-y-3 pt-2 text-xs">
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Email *') }}</label>
                             <input type="email" x-model="authForm.email" placeholder="example@email.com"
@@ -1195,7 +1186,7 @@
                     </div>
 
                     <!-- Register Tab View -->
-                    <div x-show="authTab === 'register'" class="space-y-3 pt-2 text-xs w-full">
+                    <div x-show="authTab === 'register'" class="space-y-3 pt-2 text-xs">
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Full Name *') }}</label>
                             <input type="text" x-model="regForm.name" placeholder="John Doe"
@@ -1232,7 +1223,7 @@
                     </div>
 
                     <!-- Forgot Password Tab View -->
-                    <div x-show="authTab === 'forgot'" class="space-y-3 pt-2 text-xs w-full">
+                    <div x-show="authTab === 'forgot'" class="space-y-3 pt-2 text-xs">
                         <p class="text-stone-500 text-[11px] leading-relaxed">
                             {{ __('Enter your registered email address and we will send you a link to reset your password.') }}
                         </p>
@@ -1265,7 +1256,7 @@
                     </div>
 
                     <!-- Customer Reset Password Tab View -->
-                    <div x-show="authTab === 'reset-password'" class="space-y-3 pt-2 text-xs w-full">
+                    <div x-show="authTab === 'reset-password'" class="space-y-3 pt-2 text-xs">
                         <p class="text-stone-500 text-[11px] leading-relaxed">
                             {{ __('Enter your new password below.') }}
                         </p>
@@ -1305,7 +1296,7 @@
                 </div>
 
                 <!-- SCREEN: KUWAIT ADDRESS DETAILS -->
-                <div x-show="view === 'address'" x-cloak class="space-y-4 w-full">
+                <div x-show="view === 'address'" x-cloak class="space-y-4">
                     <h3 class="font-extrabold text-sm text-stone-900">{{ __('Delivery Address Details') }}</h3>
 
                     <div>
@@ -1358,7 +1349,7 @@
                 </div>
 
                 <!-- SCREEN: PAYMENT & TOTAL REVIEW -->
-                <div x-show="view === 'checkout'" x-cloak class="space-y-4 w-full">
+                <div x-show="view === 'checkout'" x-cloak class="space-y-4">
                     <h3 class="font-extrabold text-sm text-stone-900">{{ __('Payment Option') }}</h3>
                     <div class="space-y-2">
                         <label
@@ -1407,7 +1398,7 @@
                 </div>
 
                 <!-- SCREEN: CONFIRMATION -->
-                <div x-show="view === 'success'" x-cloak class="text-center py-16 space-y-3.5 w-full">
+                <div x-show="view === 'success'" x-cloak class="text-center py-16 space-y-3.5">
                     <div
                         class="w-16 h-16 bg-[#747D52]/20 text-[#272E1B] rounded-2xl flex items-center justify-center mx-auto text-2xl mb-2 shadow-sm">
                         <i class="fa-solid fa-check"></i>
@@ -1424,7 +1415,7 @@
 
             <!-- Sticky Bottom Review Bar -->
             <footer
-                class="w-full p-4 bg-white/95 backdrop-blur-md border-t border-stone-200 sticky bottom-0 z-20 shadow-lg shrink-0"
+                class="p-4 bg-white/95 backdrop-blur-md border-t border-stone-200 sticky bottom-0 z-20 shadow-lg shrink-0"
                 x-show="view !== 'success' && view !== 'profile-menu' && view !== 'email-signin' && view !== 'my-orders'">
                 <template x-if="(view === 'categories-grid' || view === 'category-products') && cart.length > 0">
                     <button @click="navigate('/cart')"
@@ -1474,13 +1465,13 @@
             </footer>
         </main>
 
-        <!-- ================= RIGHT STATIC BRAND BANNER (Hidden on mobile, 50% on Desktop) ================= -->
+        <!-- ================= RIGHT STATIC BRAND BANNER (50%) ================= -->
         <aside class="hidden lg:block lg:w-1/2 h-full relative overflow-hidden bg-[#DDD5C9] select-none min-w-0">
             <!-- Background Image -->
             <img src="{{ asset('images/otherwise-banner-new.jpeg') }}" alt="otherwise - Choose well. Drink well."
                 class="w-full h-full object-cover object-[50%_40%]">
 
-            <!-- Top Left Floating Live Status Badge -->
+            <!-- Top Left Floating Live Status Badge (Preserves central logo) -->
             <div
                 class="absolute top-6 left-6 rtl:left-auto rtl:right-6 flex items-center space-x-2 rtl:space-x-reverse z-20">
                 <div
