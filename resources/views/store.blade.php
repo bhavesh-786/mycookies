@@ -72,34 +72,34 @@
     class="bg-[#F8F7F4] text-[#24261F] antialiased h-screen overflow-hidden selection:bg-[#747D52]/20 selection:text-[#272E1B]"
     x-data="storeApp()" x-init="initRouter()">
 
-    <div class="flex h-screen w-full">
+    <div class="flex h-screen w-full overflow-hidden">
         <!-- ================= LEFT INTERACTIVE PANEL (50%) ================= -->
         <main
-            class="w-full lg:w-1/2 flex flex-col h-full bg-[#FCFBF9] border-r rtl:border-r-0 rtl:border-l border-stone-200/70 relative z-10 shadow-sm">
+            class="w-full lg:w-1/2 flex flex-col h-full bg-[#FCFBF9] border-r rtl:border-r-0 rtl:border-l border-stone-200/80 relative z-10 shadow-sm min-w-0">
 
             <!-- Sticky Header -->
             <header
-                class="px-5 py-3 border-b border-stone-200/60 flex items-center justify-between bg-white/95 backdrop-blur-md sticky top-0 z-30 transition-all">
-                <div class="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer group"
+                class="px-4 sm:px-5 py-3 border-b border-stone-200/70 flex items-center justify-between bg-white/95 backdrop-blur-md sticky top-0 z-30 transition-all shrink-0">
+                <div class="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer group min-w-0"
                     @click="navigate('/')">
                     <div
-                        class="w-10 h-10 bg-gradient-to-br from-[#747D52] to-[#5A623E] text-white flex items-center justify-center font-black rounded-xl text-xs tracking-widest uppercase shadow-md shadow-[#747D52]/25 group-hover:scale-105 transition-all">
+                        class="w-10 h-10 bg-gradient-to-br from-[#747D52] to-[#5A623E] text-white flex items-center justify-center font-black rounded-xl text-xs tracking-widest uppercase shadow-md shadow-[#747D52]/25 group-hover:scale-105 transition-all shrink-0">
                         OW
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <div class="flex items-center space-x-2 rtl:space-x-reverse">
                             <h1
-                                class="font-black text-sm tracking-tight text-[#24261F] group-hover:text-[#747D52] transition">
+                                class="font-black text-sm tracking-tight text-[#24261F] group-hover:text-[#747D52] transition truncate">
                                 {{ __('otherwise') }}
                             </h1>
                             <span
-                                class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#747D52]/10 text-[#747D52] border border-[#747D52]/20">
+                                class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#747D52]/10 text-[#747D52] border border-[#747D52]/20 shrink-0">
                                 Specialty
                             </span>
                         </div>
                         <div
                             class="flex items-center space-x-2 rtl:space-x-reverse mt-0.5 text-[11px] text-stone-500 font-medium">
-                            <span class="flex items-center space-x-1.5 rtl:space-x-reverse text-emerald-700">
+                            <span class="flex items-center space-x-1.5 rtl:space-x-reverse text-emerald-700 shrink-0">
                                 <span class="relative flex h-2 w-2">
                                     <span
                                         class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -108,12 +108,12 @@
                                 <span>{{ __('Open') }}</span>
                             </span>
                             <span>&bull;</span>
-                            <span>{{ __('Min. 3.75 KD') }}</span>
+                            <span class="truncate">{{ __('Min. 3.75 KD') }}</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-1.5 rtl:space-x-reverse">
+                <div class="flex items-center space-x-1 sm:space-x-1.5 rtl:space-x-reverse shrink-0">
                     <button @click="toggleSearch()"
                         class="w-9 h-9 flex items-center justify-center hover:bg-stone-100 rounded-xl transition text-stone-600 active:scale-95"
                         :class="searchOpen ? 'text-[#747D52] bg-[#747D52]/10' : ''" title="Search">
@@ -136,8 +136,8 @@
                     </button>
 
                     <a href="{{ route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}"
-                        class="inline-flex items-center space-x-1.5 rtl:space-x-reverse px-2.5 py-1.5 rounded-xl border border-stone-200 text-[11px] font-bold text-stone-700 hover:bg-stone-50 transition active:scale-95 shadow-2xs">
-                        <i class="fa-solid fa-globe text-stone-400 text-[11px]"></i>
+                        class="inline-flex items-center space-x-1 rtl:space-x-reverse px-2.5 py-1.5 rounded-xl border border-stone-200 text-[11px] font-bold text-stone-700 hover:bg-stone-50 transition active:scale-95 shadow-2xs">
+                        <i class="fa-solid fa-globe text-stone-400 text-[10px]"></i>
                         <span>{{ app()->getLocale() === 'ar' ? 'EN' : 'عربي' }}</span>
                     </a>
                 </div>
@@ -146,7 +146,7 @@
             <!-- Search Bar -->
             <div x-show="searchOpen" x-cloak x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
-                class="px-5 py-2.5 bg-stone-50/90 border-b border-stone-200/70">
+                class="px-4 sm:px-5 py-2.5 bg-stone-50/90 border-b border-stone-200/70 shrink-0">
                 <div class="relative">
                     <i
                         class="fa-solid fa-magnifying-glass absolute left-3.5 rtl:left-auto rtl:right-3.5 top-3 text-stone-400 text-xs"></i>
@@ -161,7 +161,7 @@
             </div>
 
             <!-- Delivery / Pickup Switcher & Quick Location Info -->
-            <section class="p-4 bg-white border-b border-stone-200/60"
+            <section class="p-3.5 sm:p-4 bg-white border-b border-stone-200/60 shrink-0"
                 x-show="['categories-grid', 'category-products'].includes(view)">
                 <!-- Segmented Toggle -->
                 <div
@@ -186,19 +186,20 @@
 
                 <div
                     class="flex items-center justify-between text-xs px-3 py-2 bg-[#FAF9F5] border border-stone-200/70 rounded-xl shadow-2xs">
-                    <div class="flex items-center space-x-2 rtl:space-x-reverse truncate">
+                    <div class="flex items-center space-x-2 rtl:space-x-reverse truncate min-w-0">
                         <span
                             class="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-[#747D52] shadow-xs shrink-0 border border-stone-100">
                             <i class="fa-solid text-[11px]"
                                 :class="method === 'delivery' ? 'fa-location-dot' : 'fa-store'"></i>
                         </span>
-                        <div class="truncate">
+                        <div class="truncate min-w-0">
                             <span class="text-[10px] text-stone-400 block leading-tight font-medium"
                                 x-text="method === 'delivery' ? '{{ __('Deliver to') }}' : '{{ __('Store Branch') }}'"></span>
-                            <span class="font-bold text-[#24261F] truncate text-xs" x-text="currentLocationName"></span>
+                            <span class="font-bold text-[#24261F] truncate text-xs block"
+                                x-text="currentLocationName"></span>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2 rtl:space-x-reverse shrink-0">
+                    <div class="flex items-center space-x-2 rtl:space-x-reverse shrink-0 ml-2 rtl:ml-0 rtl:mr-2">
                         <span
                             class="text-[11px] font-semibold text-stone-600 bg-white px-2 py-0.5 rounded-lg border border-stone-200/60 shadow-2xs"
                             x-text="method === 'delivery' ? '{{ __('~1 h') }}' : '{{ __('~30 min') }}'"></span>
@@ -208,23 +209,33 @@
                 </div>
             </section>
 
-            <!-- Horizontal Quick-Category Pills Bar -->
-            <div class="px-5 py-2.5 bg-[#FCFBF9] border-b border-stone-200/50 flex items-center space-x-2 rtl:space-x-reverse overflow-x-auto no-scrollbar"
+            <!-- ================= HORIZONTAL QUICK-CATEGORY BAR (FIXED OVERFLOW & FADE MASK) ================= -->
+            <div class="relative w-full border-b border-stone-200/60 bg-[#FCFBF9] shrink-0"
                 x-show="view === 'categories-grid' || view === 'category-products'">
-                <button type="button" @click="applyCategoryFilter(null)"
-                    class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0"
-                    :class="!selectedCategoryFilter ? 'bg-[#747D52] text-white shadow-xs' :
-                        'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'">
-                    {{ __('All Categories') }}
-                </button>
-                <template x-for="cat in categoriesList" :key="cat.id">
-                    <button type="button" @click="openCategory(cat)"
+                <div
+                    class="px-4 sm:px-5 py-2.5 flex items-center space-x-2 rtl:space-x-reverse overflow-x-auto no-scrollbar scroll-smooth">
+                    <button type="button" @click="applyCategoryFilter(null)"
                         class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0"
-                        :class="Number(selectedCategoryFilter) === Number(cat.id) ? 'bg-[#747D52] text-white shadow-xs' :
-                            'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'"
-                        x-text="cat.name">
+                        :class="!selectedCategoryFilter ? 'bg-[#747D52] text-white shadow-xs' :
+                            'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'">
+                        {{ __('All Categories') }}
                     </button>
-                </template>
+                    <template x-for="cat in categoriesList" :key="cat.id">
+                        <button type="button" @click="openCategory(cat)"
+                            class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0"
+                            :class="Number(selectedCategoryFilter) === Number(cat.id) ? 'bg-[#747D52] text-white shadow-xs' :
+                                'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'"
+                            x-text="cat.name">
+                        </button>
+                    </template>
+                    <!-- Extra spacing spacer so final item doesn't touch the edge -->
+                    <div class="w-6 shrink-0 pointer-events-none"></div>
+                </div>
+
+                <!-- Right edge soft gradient fade so pills don't collide into right-side banner -->
+                <div
+                    class="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#FCFBF9] to-transparent rtl:right-auto rtl:left-0 rtl:bg-gradient-to-r">
+                </div>
             </div>
 
             <!-- ================= MOBILE HERO SLIDER FROM PRODUCTS (lg:hidden) ================= -->
@@ -309,7 +320,7 @@
             </div>
 
             <!-- Filter & Sort Tag Button & Active Status Bar -->
-            <div class="px-5 pt-3 pb-1 flex items-center justify-between"
+            <div class="px-4 sm:px-5 pt-3 pb-1 flex items-center justify-between shrink-0"
                 x-show="view === 'categories-grid' || view === 'category-products'">
                 <button @click="showFilterModal = true"
                     class="border border-stone-200 bg-white text-stone-700 px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-2xs hover:border-[#747D52] hover:bg-stone-50 transition flex items-center space-x-1.5 rtl:space-x-reverse"
@@ -1399,7 +1410,8 @@
             </div>
 
             <!-- Sticky Bottom Review Bar -->
-            <footer class="p-4 bg-white/95 backdrop-blur-md border-t border-stone-200 sticky bottom-0 z-20 shadow-lg"
+            <footer
+                class="p-4 bg-white/95 backdrop-blur-md border-t border-stone-200 sticky bottom-0 z-20 shadow-lg shrink-0"
                 x-show="view !== 'success' && view !== 'profile-menu' && view !== 'email-signin' && view !== 'my-orders'">
                 <template x-if="(view === 'categories-grid' || view === 'category-products') && cart.length > 0">
                     <button @click="navigate('/cart')"
@@ -1449,24 +1461,17 @@
             </footer>
         </main>
 
-        <!-- ================= RIGHT STATIC BRAND BANNER (50%) - HIGH-END LUXURY MAKEOVER ================= -->
-        <aside class="hidden lg:block lg:w-1/2 h-full relative overflow-hidden bg-[#D3CDC3] select-none">
-            <!-- Background Image with Clean Depth -->
+        <!-- ================= RIGHT STATIC BRAND BANNER (50%) ================= -->
+        <aside class="hidden lg:block lg:w-1/2 h-full relative overflow-hidden bg-[#DDD5C9] select-none min-w-0">
+            <!-- Background Image -->
             <img src="{{ asset('images/otherwise-banner-new.jpeg') }}" alt="otherwise - Choose well. Drink well."
-                class="w-full h-full object-cover object-[50%_35%] scale-105 filter saturate-[1.08] contrast-[1.02] transition-transform duration-1000 ease-out hover:scale-100">
+                class="w-full h-full object-cover object-[50%_40%]">
 
-            <!-- Elegant multi-layer gradients for text readability and cinematic depth -->
-            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/30 pointer-events-none">
-            </div>
+            <!-- Top Left Floating Live Status Badge (Preserves central logo) -->
             <div
-                class="absolute inset-0 bg-radial-at-t from-transparent via-transparent to-black/40 pointer-events-none">
-            </div>
-
-            <!-- Top Left Floating Live Status Badge -->
-            <div
-                class="absolute top-8 left-8 rtl:left-auto rtl:right-8 flex items-center space-x-2 rtl:space-x-reverse z-20">
+                class="absolute top-6 left-6 rtl:left-auto rtl:right-6 flex items-center space-x-2 rtl:space-x-reverse z-20">
                 <div
-                    class="bg-white/80 backdrop-blur-md border border-white/40 shadow-xl px-3.5 py-1.5 rounded-full flex items-center space-x-2 rtl:space-x-reverse">
+                    class="bg-white/80 backdrop-blur-md border border-white/50 shadow-md px-3.5 py-1.5 rounded-full flex items-center space-x-2 rtl:space-x-reverse">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span class="text-[11px] font-bold text-stone-900 tracking-wide">
                         {{ __('Freshly Prepared in Kuwait') }}
@@ -1474,74 +1479,20 @@
                 </div>
             </div>
 
-            <!-- Top Right Official Brand Monogram Pill -->
-            <div class="absolute top-8 right-8 rtl:right-auto rtl:left-8 z-20">
+            <!-- Floating Instagram CTA in Bottom Corner -->
+            <a href="https://www.instagram.com/otherwisekw/" target="_blank"
+                class="group absolute bottom-8 right-8 rtl:right-auto rtl:left-8 z-20 flex items-center space-x-2.5 rtl:space-x-reverse bg-white/90 hover:bg-white text-stone-900 px-4 py-3 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 backdrop-blur-md border border-white/60">
                 <div
-                    class="bg-black/30 backdrop-blur-md border border-white/20 px-3.5 py-1.5 rounded-full text-white text-[11px] font-extrabold tracking-widest uppercase shadow-lg">
-                    OTHERWISE &trade;
+                    class="w-7 h-7 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center text-sm shadow-xs">
+                    <i class="fa-brands fa-instagram"></i>
                 </div>
-            </div>
-
-            <!-- Bottom Left Glassmorphic Brand Showcase Card -->
-            <div class="absolute bottom-8 left-8 rtl:left-auto rtl:right-8 z-20 max-w-sm">
-                <div
-                    class="bg-black/40 backdrop-blur-xl border border-white/25 text-white p-5 rounded-3xl shadow-2xl space-y-3">
-                    <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                        <div
-                            class="w-6 h-6 rounded-lg bg-[#747D52] flex items-center justify-center text-white text-[10px] font-black">
-                            OW
-                        </div>
-                        <span class="text-[10px] font-extrabold tracking-widest uppercase text-stone-300">Artisan
-                            Coffee & Bakehouse</span>
-                    </div>
-
-                    <div>
-                        <h2 class="text-xl font-black tracking-tight leading-tight drop-shadow-sm">
-                            Choose well. Drink well.
-                        </h2>
-                        <p class="text-xs text-stone-200 mt-1 leading-relaxed opacity-95">
-                            {{ __('Premium craft beverages and melt-in-your-mouth pastries baked fresh every single morning.') }}
-                        </p>
-                    </div>
-
-                    <!-- Highlight Features Pills -->
-                    <div
-                        class="flex items-center space-x-2 rtl:space-x-reverse pt-1 text-[10px] font-bold text-white/90">
-                        <span
-                            class="bg-white/15 px-2.5 py-1 rounded-lg backdrop-blur-xs flex items-center space-x-1.5 rtl:space-x-reverse">
-                            <i class="fa-solid fa-fire-flame-curved text-amber-400"></i>
-                            <span>{{ __('Daily Roasts') }}</span>
-                        </span>
-                        <span
-                            class="bg-white/15 px-2.5 py-1 rounded-lg backdrop-blur-xs flex items-center space-x-1.5 rtl:space-x-reverse">
-                            <i class="fa-solid fa-cookie-bite text-amber-300"></i>
-                            <span>{{ __('Signature Cookies') }}</span>
-                        </span>
-                        <span
-                            class="bg-white/15 px-2.5 py-1 rounded-lg backdrop-blur-xs flex items-center space-x-1.5 rtl:space-x-reverse">
-                            <i class="fa-solid fa-bolt text-emerald-400"></i>
-                            <span>{{ __('Express Pickup') }}</span>
-                        </span>
-                    </div>
+                <div class="text-left rtl:text-right">
+                    <span
+                        class="block text-[11px] font-black leading-tight text-stone-900 group-hover:text-[#747D52] transition">@otherwisekw</span>
+                    <span
+                        class="block text-[9px] font-semibold text-stone-500 leading-none mt-0.5">{{ __('Follow our story') }}</span>
                 </div>
-            </div>
-
-            <!-- Bottom Right Social & Interaction Hub -->
-            <div class="absolute bottom-8 right-8 rtl:right-auto rtl:left-8 z-20 flex flex-col items-end space-y-2">
-                <a href="https://www.instagram.com/otherwisekw/" target="_blank"
-                    class="group flex items-center space-x-2.5 rtl:space-x-reverse bg-white/90 hover:bg-white text-stone-900 px-4 py-3 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 backdrop-blur-md border border-white/50">
-                    <div
-                        class="w-7 h-7 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center text-sm shadow-xs">
-                        <i class="fa-brands fa-instagram"></i>
-                    </div>
-                    <div class="text-left rtl:text-right">
-                        <span
-                            class="block text-[11px] font-black leading-tight text-stone-900 group-hover:text-[#747D52] transition">@otherwisekw</span>
-                        <span
-                            class="block text-[9px] font-semibold text-stone-500 leading-none mt-0.5">{{ __('Follow our story') }}</span>
-                    </div>
-                </a>
-            </div>
+            </a>
         </aside>
     </div>
 
