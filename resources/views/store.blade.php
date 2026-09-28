@@ -50,6 +50,24 @@
         [x-cloak] {
             display: none !important;
         }
+
+        @keyframes slowZoom {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.03);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .animate-subtle-zoom {
+            animation: slowZoom 24s ease-in-out infinite;
+        }
     </style>
 </head>
 
@@ -59,7 +77,6 @@
 
     <div class="flex h-screen w-full overflow-hidden">
         <!-- ================= LEFT INTERACTIVE PANEL (50%) ================= -->
-        <!-- Added min-w-0, shrink-0 and overflow-hidden to permanently eliminate bleed-through -->
         <main
             class="w-full lg:w-1/2 flex flex-col h-full bg-[#FCFBF9] border-r rtl:border-r-0 rtl:border-l border-stone-200/80 relative z-10 shadow-sm min-w-0 overflow-hidden">
 
@@ -149,7 +166,6 @@
             <!-- Delivery / Pickup Switcher & Quick Location Info -->
             <section class="p-3.5 sm:p-4 bg-white border-b border-stone-200/60 shrink-0"
                 x-show="['categories-grid', 'category-products'].includes(view)">
-                <!-- Segmented Toggle -->
                 <div
                     class="grid grid-cols-2 max-w-[280px] mx-auto bg-stone-100 p-1 rounded-2xl shadow-inner mb-3 border border-stone-200/50">
                     <button @click="setMethod('delivery')"
@@ -195,20 +211,18 @@
                 </div>
             </section>
 
-            <!-- ================= HORIZONTAL QUICK-CATEGORY BAR (COMPLETELY CLIPPED & OVERFLOW-SAFE) ================= -->
+            <!-- ================= HORIZONTAL QUICK-CATEGORY BAR ================= -->
             <div class="relative w-full border-b border-stone-200/60 bg-[#FCFBF9] shrink-0 overflow-hidden"
                 x-show="view === 'categories-grid' || view === 'category-products'" x-data="{
                     scrollLeft() { $refs.pillsContainer.scrollBy({ left: -160, behavior: 'smooth' }); },
                         scrollRight() { $refs.pillsContainer.scrollBy({ left: 160, behavior: 'smooth' }); }
                 }">
 
-                <!-- Left scroll trigger (for desktop mouse users) -->
                 <button type="button" @click="scrollLeft()"
                     class="hidden sm:flex absolute left-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-r from-[#FCFBF9] via-[#FCFBF9]/90 to-transparent text-stone-500 hover:text-stone-900 transition">
                     <i class="fa-solid fa-chevron-left text-[10px]"></i>
                 </button>
 
-                <!-- Scrollable Track -->
                 <div x-ref="pillsContainer"
                     class="px-4 sm:px-6 py-2.5 flex items-center space-x-2 rtl:space-x-reverse overflow-x-auto no-scrollbar scroll-smooth w-full">
                     <button type="button" @click="applyCategoryFilter(null)"
@@ -225,17 +239,14 @@
                             x-text="cat.name">
                         </button>
                     </template>
-                    <!-- End spacer to ensure final item has proper margin -->
                     <div class="w-8 shrink-0"></div>
                 </div>
 
-                <!-- Right scroll trigger (for desktop mouse users) -->
                 <button type="button" @click="scrollRight()"
                     class="hidden sm:flex absolute right-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-l from-[#FCFBF9] via-[#FCFBF9]/90 to-transparent text-stone-500 hover:text-stone-900 transition">
                     <i class="fa-solid fa-chevron-right text-[10px]"></i>
                 </button>
 
-                <!-- Soft fade indicator on edge -->
                 <div
                     class="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-[#FCFBF9] to-transparent rtl:right-auto rtl:left-0 rtl:bg-gradient-to-r">
                 </div>
@@ -706,7 +717,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN: LOCATION SELECTOR (Delivery vs Pickup) -->
+                <!-- SCREEN: LOCATION SELECTOR -->
                 <div x-show="view === 'select-location'" x-cloak class="space-y-4">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/')"
@@ -727,7 +738,6 @@
                             class="w-full border border-stone-200 rounded-xl py-2.5 pl-9 pr-3.5 rtl:pr-9 rtl:pl-3.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 shadow-xs transition">
                     </div>
 
-                    <!-- 1. DELIVERY MODE -->
                     <div x-show="method === 'delivery'" class="space-y-2.5">
                         <template x-for="gov in filteredGovernorates" :key="gov.id">
                             <div class="border border-stone-200/80 rounded-2xl overflow-hidden bg-white shadow-xs">
@@ -757,7 +767,6 @@
                         </template>
                     </div>
 
-                    <!-- 2. PICKUP MODE -->
                     <div x-show="method === 'pickup'" class="space-y-2.5">
                         <template x-for="st in filteredStores" :key="st.id">
                             <button type="button" @click="setStorePickup(st.name)"
@@ -781,7 +790,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN: MY ORDERS & TRACKING DETAILS WITH 5-MIN CANCELLATION -->
+                <!-- SCREEN: MY ORDERS & TRACKING DETAILS -->
                 <div x-show="view === 'my-orders'" x-cloak class="space-y-4">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/profile')"
@@ -1007,7 +1016,6 @@
                         </div>
                     </template>
 
-                    <!-- Menu list -->
                     <div class="space-y-1">
                         <div class="text-[11px] font-extrabold text-stone-400 uppercase tracking-wider mb-2">
                             {{ __('Menu') }}
@@ -1107,7 +1115,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN: TABBED EMAIL SIGNIN / REGISTER / FORGOT / RESET PASSWORD -->
+                <!-- SCREEN: TABBED EMAIL SIGNIN / REGISTER -->
                 <div x-show="view === 'email-signin'" x-cloak class="space-y-5">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/profile')"
@@ -1119,7 +1127,6 @@
                         </h2>
                     </div>
 
-                    <!-- Tab Switcher -->
                     <div class="flex bg-stone-100 p-1 rounded-2xl border border-stone-200/60"
                         x-show="authTab !== 'forgot' && authTab !== 'reset-password'">
                         <button @click="authTab = 'login'"
@@ -1152,7 +1159,6 @@
                         </div>
                     </template>
 
-                    <!-- Login Tab View -->
                     <div x-show="authTab === 'login'" class="space-y-3 pt-2 text-xs">
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Email *') }}</label>
@@ -1185,7 +1191,6 @@
                         </button>
                     </div>
 
-                    <!-- Register Tab View -->
                     <div x-show="authTab === 'register'" class="space-y-3 pt-2 text-xs">
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Full Name *') }}</label>
@@ -1222,12 +1227,10 @@
                         </button>
                     </div>
 
-                    <!-- Forgot Password Tab View -->
                     <div x-show="authTab === 'forgot'" class="space-y-3 pt-2 text-xs">
                         <p class="text-stone-500 text-[11px] leading-relaxed">
                             {{ __('Enter your registered email address and we will send you a link to reset your password.') }}
                         </p>
-
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Email *') }}</label>
                             <input type="email" x-model="forgotEmail" placeholder="example@email.com"
@@ -1255,24 +1258,20 @@
                         </div>
                     </div>
 
-                    <!-- Customer Reset Password Tab View -->
                     <div x-show="authTab === 'reset-password'" class="space-y-3 pt-2 text-xs">
                         <p class="text-stone-500 text-[11px] leading-relaxed">
                             {{ __('Enter your new password below.') }}
                         </p>
-
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Email') }}</label>
                             <input type="email" x-model="resetForm.email" readonly disabled
                                 class="w-full border border-stone-200 bg-stone-50 rounded-xl px-3.5 py-2.5 text-xs text-stone-500 outline-none">
                         </div>
-
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('New Password *') }}</label>
                             <input type="password" x-model="resetForm.password" placeholder="••••••••"
                                 class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 transition">
                         </div>
-
                         <div>
                             <label
                                 class="block font-bold text-stone-700 mb-1">{{ __('Confirm New Password *') }}</label>
@@ -1298,7 +1297,6 @@
                 <!-- SCREEN: KUWAIT ADDRESS DETAILS -->
                 <div x-show="view === 'address'" x-cloak class="space-y-4">
                     <h3 class="font-extrabold text-sm text-stone-900">{{ __('Delivery Address Details') }}</h3>
-
                     <div>
                         <label
                             class="block font-bold text-stone-700 text-xs mb-1.5">{{ __('Address Type *') }}</label>
@@ -1410,7 +1408,6 @@
                     <button @click="navigate('/')"
                         class="mt-4 bg-[#747D52] hover:bg-[#636C44] text-white px-7 py-3 rounded-xl font-extrabold text-xs shadow-md shadow-[#747D52]/20 active:scale-95 transition">{{ __('Back to Menu') }}</button>
                 </div>
-
             </div>
 
             <!-- Sticky Bottom Review Bar -->
@@ -1466,37 +1463,78 @@
         </main>
 
         <!-- ================= RIGHT STATIC BRAND BANNER (50%) ================= -->
-        <aside class="hidden lg:block lg:w-1/2 h-full relative overflow-hidden bg-[#DDD5C9] select-none min-w-0">
-            <!-- Background Image -->
-            <img src="{{ asset('images/otherwise-banner-new.jpeg') }}" alt="otherwise - Choose well. Drink well."
-                class="w-full h-full object-cover object-[50%_40%]">
+        <aside
+            class="hidden lg:flex lg:w-1/2 h-full relative overflow-hidden bg-[#24261F] select-none min-w-0 flex-col justify-between p-8 xl:p-10 group">
 
-            <!-- Top Left Floating Live Status Badge (Preserves central logo) -->
+            <!-- 1. The Core Photographic Asset with Smooth Hover Zoom & Cinematic Depth -->
+            <div class="absolute inset-0 z-0 overflow-hidden">
+                <img src="{{ asset('images/otherwise-banner-new.jpeg') }}"
+                    alt="otherwise - Choose well. Drink well."
+                    class="w-full h-full object-cover object-[50%_40%] group-hover:scale-105 transition-transform duration-700 ease-out brightness-[0.98]">
+            </div>
+
+            <!-- 2. Subtle Cinematic Top & Bottom Gradients (Frames the image like an art gallery) -->
             <div
-                class="absolute top-6 left-6 rtl:left-auto rtl:right-6 flex items-center space-x-2 rtl:space-x-reverse z-20">
+                class="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/50 to-transparent z-10">
+            </div>
+            <div
+                class="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10">
+            </div>
+
+            <!-- 3. TOP ROW: Clean Minimalist Status Pill -->
+            <div class="relative z-20 flex items-center justify-between w-full">
+                <!-- Live Status Pill -->
                 <div
-                    class="bg-white/80 backdrop-blur-md border border-white/50 shadow-md px-3.5 py-1.5 rounded-full flex items-center space-x-2 rtl:space-x-reverse">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-[11px] font-bold text-stone-900 tracking-wide">
-                        {{ __('Freshly Prepared in Kuwait') }}
+                    class="inline-flex items-center space-x-2.5 rtl:space-x-reverse bg-black/40 backdrop-blur-xl border border-white/20 px-4 py-2 rounded-2xl shadow-xl">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
+                    <span class="text-[11px] font-black uppercase tracking-widest text-white">
+                        {{ __('Open in Kuwait') }}
+                    </span>
+                </div>
+
+                <!-- Operating Hours Pill -->
+                <div
+                    class="inline-flex items-center space-x-2 rtl:space-x-reverse bg-black/40 backdrop-blur-xl border border-white/15 px-3.5 py-2 rounded-2xl text-stone-200 text-[11px] font-bold shadow-lg">
+                    <i class="fa-regular fa-clock text-[#B5BF8A]"></i>
+                    <span>{{ __('7:00 AM – 11:30 PM') }}</span>
                 </div>
             </div>
 
-            <!-- Floating Instagram CTA in Bottom Corner -->
-            <a href="https://www.instagram.com/otherwisekw/" target="_blank"
-                class="group absolute bottom-8 right-8 rtl:right-auto rtl:left-8 z-20 flex items-center space-x-2.5 rtl:space-x-reverse bg-white/90 hover:bg-white text-stone-900 px-4 py-3 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 backdrop-blur-md border border-white/60">
-                <div
-                    class="w-7 h-7 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center text-sm shadow-xs">
-                    <i class="fa-brands fa-instagram"></i>
+            <!-- 4. CENTER: 100% UNTOUCHED SHOWCASE -->
+            <div class="relative z-20 my-auto pointer-events-none"></div>
+
+            <!-- 5. BOTTOM DOCK: Unified, Sleek Glass Capsule (Cleanly anchored at the bottom edge) -->
+            <div
+                class="relative z-20 flex items-center justify-between bg-white/90 backdrop-blur-2xl border border-white/50 px-5 py-3.5 rounded-2xl shadow-2xl w-full">
+                <!-- Left: Live Order Status -->
+                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <div
+                        class="w-8 h-8 rounded-xl bg-[#747D52] text-white flex items-center justify-center text-xs font-black shadow-sm">
+                        <i class="fa-solid" :class="method === 'delivery' ? 'fa-bicycle' : 'fa-store'"></i>
+                    </div>
+                    <div class="text-left rtl:text-right">
+                        <span class="block text-xs font-black text-stone-900 leading-tight"
+                            x-text="method === 'delivery' ? `{{ __('Delivery:') }} ${deliveryFee.toFixed(3)} {{ __('KD') }}` : '{{ __('Store Pickup (Free)') }}'"></span>
+                        <span
+                            class="block text-[10px] font-bold text-stone-500 leading-none mt-0.5">{{ __('Freshly prepared & dispatched') }}</span>
+                    </div>
                 </div>
-                <div class="text-left rtl:text-right">
-                    <span
-                        class="block text-[11px] font-black leading-tight text-stone-900 group-hover:text-[#747D52] transition">@otherwisekw</span>
-                    <span
-                        class="block text-[9px] font-semibold text-stone-500 leading-none mt-0.5">{{ __('Follow our story') }}</span>
-                </div>
-            </a>
+
+                <!-- Right: Instagram Link -->
+                <a href="https://www.instagram.com/otherwisekw/" target="_blank"
+                    class="group/ig inline-flex items-center space-x-2 text-stone-900 hover:text-[#747D52] transition-colors font-black text-xs">
+                    <div
+                        class="w-7 h-7 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center text-xs shadow-sm group-hover/ig:rotate-12 transition-transform">
+                        <i class="fa-brands fa-instagram"></i>
+                    </div>
+                    <span class="hidden sm:inline">@otherwisekw</span>
+                </a>
+            </div>
+
         </aside>
     </div>
 
