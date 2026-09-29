@@ -69,36 +69,64 @@
 
                 <!-- Navigation Links -->
                 <nav class="space-y-1.5 text-xs font-semibold">
+                    <!-- Dashboard: Visible to all authenticated admin users -->
                     <a href="{{ route('admin.dashboard') }}"
                         class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
                         <i class="fa-solid fa-chart-pie w-4 text-center"></i>
                         <span>{{ __('Dashboard') }}</span>
                     </a>
 
-                    <a href="{{ route('admin.orders.index') }}"
-                        class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.orders.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                        <div class="flex items-center space-x-3 rtl:space-x-reverse">
-                            <i class="fa-solid fa-receipt w-4 text-center"></i>
-                            <span>{{ __('Orders') }}</span>
-                        </div>
-                        @if (isset($pendingOrdersCount) && $pendingOrdersCount > 0)
-                            <span class="bg-stone-800 text-stone-200 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                                {{ $pendingOrdersCount }}
-                            </span>
-                        @endif
-                    </a>
+                    <!-- Users: Controlled by 'manage-users' -->
+                    @can('manage-users')
+                        <a href="{{ route('admin.users.index') }}"
+                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.users.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                            <i class="fa-solid fa-users w-4 text-center"></i>
+                            <span>{{ __('Users') }}</span>
+                        </a>
+                    @endcan
 
-                    <a href="{{ route('admin.products.index') }}"
-                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.products.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                        <i class="fa-solid fa-cookie w-4 text-center"></i>
-                        <span>{{ __('Products & Addons') }}</span>
-                    </a>
+                    <!-- Roles: Controlled by 'manage-users' -->
+                    @can('manage-users')
+                        <a href="{{ route('admin.roles.index') }}"
+                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.roles.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                            <i class="fa-solid fa-user-shield w-4 text-center"></i>
+                            <span>{{ __('Roles') }}</span>
+                        </a>
+                    @endcan
 
-                    <a href="{{ route('admin.categories.index') }}"
-                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.categories.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                        <i class="fa-solid fa-layer-group w-4 text-center"></i>
-                        <span>{{ __('Categories') }}</span>
-                    </a>
+                    <!-- Orders: Controlled by 'manage-orders' -->
+                    @can('manage-orders')
+                        <a href="{{ route('admin.orders.index') }}"
+                            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.orders.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                            <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                                <i class="fa-solid fa-receipt w-4 text-center"></i>
+                                <span>{{ __('Orders') }}</span>
+                            </div>
+                            @if (isset($pendingOrdersCount) && $pendingOrdersCount > 0)
+                                <span class="bg-stone-800 text-stone-200 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                                    {{ $pendingOrdersCount }}
+                                </span>
+                            @endif
+                        </a>
+                    @endcan
+
+                    <!-- Products & Addons: Controlled by 'manage-products' -->
+                    @can('manage-products')
+                        <a href="{{ route('admin.products.index') }}"
+                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.products.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                            <i class="fa-solid fa-cookie w-4 text-center"></i>
+                            <span>{{ __('Products & Addons') }}</span>
+                        </a>
+                    @endcan
+
+                    <!-- Categories: Controlled by 'manage-categories' -->
+                    @can('manage-categories')
+                        <a href="{{ route('admin.categories.index') }}"
+                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.categories.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                            <i class="fa-solid fa-layer-group w-4 text-center"></i>
+                            <span>{{ __('Categories') }}</span>
+                        </a>
+                    @endcan
                 </nav>
             </div>
 

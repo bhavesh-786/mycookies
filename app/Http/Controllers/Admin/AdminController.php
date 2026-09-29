@@ -351,6 +351,35 @@ class AdminController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully!');
     }
 
+    public function productClone(Product $product)
+    {
+        DB::transaction(function () use ($product) {
+            $replicatedProduct = $product->replicate(['slug']);
+            $replicatedProduct->name = $product->name . ' (Copy)';
+            if ($product->name_ar) {
+                $replicatedProduct->name_ar = $product->name_ar . ' (نسخة)';
+            }
+            $replicatedProduct->slug = \Illuminate\Support\Str::slug($replicatedProduct->name) . '-' . \Illuminate\Support\Str::random(5);
+            $replicatedProduct->save();
+
+            // Deep copy addon groups and their individual options
+            $product->load('addonGroups.options');
+            foreach ($product->addonGroups as $group) {
+                $replicatedGroup = $group->replicate();
+                $replicatedGroup->product_id = $replicatedProduct->id;
+                $replicatedGroup->save();
+
+                foreach ($group->options as $option) {
+                    $replicatedOption = $option->replicate();
+                    $replicatedOption->addon_group_id = $replicatedGroup->id;
+                    $replicatedOption->save();
+                }
+            }
+        });
+
+        return redirect()->route('admin.products.index')->with('success', __('Product cloned successfully with all addons.'));
+    }
+
     public function deleteProduct(Product $product)
     {
         $product->delete();
@@ -452,5 +481,18 @@ class AdminController extends Controller
     {
         $category->delete();
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully!');
+    }
+
+    public function categoriesClone(Category $category)
+    {
+        $replicatedCategory = $category->replicate(['slug']);
+        $replicatedCategory->name = $category->name . ' (Copy)';
+        if ($category->name_ar) {
+            $replicatedCategory->name_ar = $category->name_ar . ' (نسخة)';
+        }
+        $replicatedCategory->slug = \Illuminate\Support\Str::slug($replicatedCategory->name) . '-' . \Illuminate\Support\Str::random(5);
+        $replicatedCategory->save();
+
+        return redirect()->route('admin.categories.index')->with('success', __('Category cloned successfully.'));
     }
 }

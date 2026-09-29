@@ -37,9 +37,7 @@
         }
 
         .no-scrollbar::-webkit-scrollbar {
-            display: none !important;
-            height: 0 !important;
-            width: 0 !important;
+            display: none;
         }
 
         .no-scrollbar {
@@ -51,22 +49,21 @@
             display: none !important;
         }
 
-        @keyframes slowZoom {
-            0% {
-                transform: scale(1);
+        /* Ambient subtle pulse */
+        @keyframes subtle-float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
             }
 
             50% {
-                transform: scale(1.03);
-            }
-
-            100% {
-                transform: scale(1);
+                transform: translateY(-4px);
             }
         }
 
-        .animate-subtle-zoom {
-            animation: slowZoom 24s ease-in-out infinite;
+        .animate-subtle-float {
+            animation: subtle-float 4s ease-in-out infinite;
         }
     </style>
 </head>
@@ -75,34 +72,34 @@
     class="bg-[#F8F7F4] text-[#24261F] antialiased h-screen overflow-hidden selection:bg-[#747D52]/20 selection:text-[#272E1B]"
     x-data="storeApp()" x-init="initRouter()">
 
-    <div class="flex h-screen w-full overflow-hidden">
+    <div class="flex h-screen w-full">
         <!-- ================= LEFT INTERACTIVE PANEL (50%) ================= -->
         <main
-            class="w-full lg:w-1/2 flex flex-col h-full bg-[#FCFBF9] border-r rtl:border-r-0 rtl:border-l border-stone-200/80 relative z-10 shadow-sm min-w-0 overflow-hidden">
+            class="w-full lg:w-1/2 flex flex-col h-full bg-[#FCFBF9] border-r rtl:border-r-0 rtl:border-l border-stone-200/70 relative z-10 shadow-sm">
 
             <!-- Sticky Header -->
             <header
-                class="px-4 sm:px-6 py-3 border-b border-stone-200/70 flex items-center justify-between bg-white/95 backdrop-blur-md sticky top-0 z-30 transition-all shrink-0">
-                <div class="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer group min-w-0"
+                class="px-5 py-3 border-b border-stone-200/60 flex items-center justify-between bg-white/95 backdrop-blur-md sticky top-0 z-30 transition-all">
+                <div class="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer group"
                     @click="navigate('/')">
                     <div
-                        class="w-10 h-10 bg-gradient-to-br from-[#747D52] to-[#5A623E] text-white flex items-center justify-center font-black rounded-xl text-xs tracking-widest uppercase shadow-md shadow-[#747D52]/25 group-hover:scale-105 transition-all shrink-0">
+                        class="w-10 h-10 bg-gradient-to-br from-[#747D52] to-[#5A623E] text-white flex items-center justify-center font-black rounded-xl text-xs tracking-widest uppercase shadow-md shadow-[#747D52]/25 group-hover:scale-105 transition-all">
                         OW
                     </div>
-                    <div class="min-w-0">
+                    <div>
                         <div class="flex items-center space-x-2 rtl:space-x-reverse">
                             <h1
-                                class="font-black text-sm sm:text-base tracking-tight text-[#24261F] group-hover:text-[#747D52] transition truncate">
+                                class="font-black text-sm tracking-tight text-[#24261F] group-hover:text-[#747D52] transition">
                                 {{ __('otherwise') }}
                             </h1>
                             <span
-                                class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#747D52]/10 text-[#747D52] border border-[#747D52]/20 shrink-0">
+                                class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#747D52]/10 text-[#747D52] border border-[#747D52]/20">
                                 Specialty
                             </span>
                         </div>
                         <div
                             class="flex items-center space-x-2 rtl:space-x-reverse mt-0.5 text-[11px] text-stone-500 font-medium">
-                            <span class="flex items-center space-x-1.5 rtl:space-x-reverse text-emerald-700 shrink-0">
+                            <span class="flex items-center space-x-1.5 rtl:space-x-reverse text-emerald-700">
                                 <span class="relative flex h-2 w-2">
                                     <span
                                         class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -111,12 +108,12 @@
                                 <span>{{ __('Open') }}</span>
                             </span>
                             <span>&bull;</span>
-                            <span class="truncate">{{ __('Min. 3.75 KD') }}</span>
+                            <span>{{ __('Min. 3.75 KD') }}</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-1 sm:space-x-2 rtl:space-x-reverse shrink-0">
+                <div class="flex items-center space-x-1.5 rtl:space-x-reverse">
                     <button @click="toggleSearch()"
                         class="w-9 h-9 flex items-center justify-center hover:bg-stone-100 rounded-xl transition text-stone-600 active:scale-95"
                         :class="searchOpen ? 'text-[#747D52] bg-[#747D52]/10' : ''" title="Search">
@@ -139,8 +136,8 @@
                     </button>
 
                     <a href="{{ route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}"
-                        class="inline-flex items-center space-x-1 rtl:space-x-reverse px-2.5 py-1.5 rounded-xl border border-stone-200 text-[11px] font-bold text-stone-700 hover:bg-stone-50 transition active:scale-95 shadow-2xs">
-                        <i class="fa-solid fa-globe text-stone-400 text-[10px]"></i>
+                        class="inline-flex items-center space-x-1.5 rtl:space-x-reverse px-2.5 py-1.5 rounded-xl border border-stone-200 text-[11px] font-bold text-stone-700 hover:bg-stone-50 transition active:scale-95 shadow-2xs">
+                        <i class="fa-solid fa-globe text-stone-400 text-[11px]"></i>
                         <span>{{ app()->getLocale() === 'ar' ? 'EN' : 'عربي' }}</span>
                     </a>
                 </div>
@@ -149,7 +146,7 @@
             <!-- Search Bar -->
             <div x-show="searchOpen" x-cloak x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
-                class="px-4 sm:px-6 py-2.5 bg-stone-50/90 border-b border-stone-200/70 shrink-0">
+                class="px-5 py-2.5 bg-stone-50/90 border-b border-stone-200/70">
                 <div class="relative">
                     <i
                         class="fa-solid fa-magnifying-glass absolute left-3.5 rtl:left-auto rtl:right-3.5 top-3 text-stone-400 text-xs"></i>
@@ -164,8 +161,9 @@
             </div>
 
             <!-- Delivery / Pickup Switcher & Quick Location Info -->
-            <section class="p-3.5 sm:p-4 bg-white border-b border-stone-200/60 shrink-0"
+            <section class="p-4 bg-white border-b border-stone-200/60"
                 x-show="['categories-grid', 'category-products'].includes(view)">
+                <!-- Segmented Toggle -->
                 <div
                     class="grid grid-cols-2 max-w-[280px] mx-auto bg-stone-100 p-1 rounded-2xl shadow-inner mb-3 border border-stone-200/50">
                     <button @click="setMethod('delivery')"
@@ -188,20 +186,19 @@
 
                 <div
                     class="flex items-center justify-between text-xs px-3 py-2 bg-[#FAF9F5] border border-stone-200/70 rounded-xl shadow-2xs">
-                    <div class="flex items-center space-x-2 rtl:space-x-reverse truncate min-w-0">
+                    <div class="flex items-center space-x-2 rtl:space-x-reverse truncate">
                         <span
                             class="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-[#747D52] shadow-xs shrink-0 border border-stone-100">
                             <i class="fa-solid text-[11px]"
                                 :class="method === 'delivery' ? 'fa-location-dot' : 'fa-store'"></i>
                         </span>
-                        <div class="truncate min-w-0">
+                        <div class="truncate">
                             <span class="text-[10px] text-stone-400 block leading-tight font-medium"
                                 x-text="method === 'delivery' ? '{{ __('Deliver to') }}' : '{{ __('Store Branch') }}'"></span>
-                            <span class="font-bold text-[#24261F] truncate text-xs block"
-                                x-text="currentLocationName"></span>
+                            <span class="font-bold text-[#24261F] truncate text-xs" x-text="currentLocationName"></span>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2 rtl:space-x-reverse shrink-0 ml-2 rtl:ml-0 rtl:mr-2">
+                    <div class="flex items-center space-x-2 rtl:space-x-reverse shrink-0">
                         <span
                             class="text-[11px] font-semibold text-stone-600 bg-white px-2 py-0.5 rounded-lg border border-stone-200/60 shadow-2xs"
                             x-text="method === 'delivery' ? '{{ __('~1 h') }}' : '{{ __('~30 min') }}'"></span>
@@ -211,82 +208,59 @@
                 </div>
             </section>
 
-            <!-- ================= HORIZONTAL QUICK-CATEGORY BAR ================= -->
-            <div class="relative w-full border-b border-stone-200/60 bg-[#FCFBF9] shrink-0 overflow-hidden"
-                x-show="view === 'categories-grid' || view === 'category-products'" x-data="{
-                    scrollLeft() { $refs.pillsContainer.scrollBy({ left: -160, behavior: 'smooth' }); },
-                        scrollRight() { $refs.pillsContainer.scrollBy({ left: 160, behavior: 'smooth' }); }
-                }">
-
-                <button type="button" @click="scrollLeft()"
-                    class="hidden sm:flex absolute left-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-r from-[#FCFBF9] via-[#FCFBF9]/90 to-transparent text-stone-500 hover:text-stone-900 transition">
-                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+            <!-- Horizontal Quick-Category Pills Bar -->
+            <div class="px-5 py-2.5 bg-[#FCFBF9] border-b border-stone-200/50 flex items-center space-x-2 rtl:space-x-reverse overflow-x-auto no-scrollbar"
+                x-show="view === 'categories-grid' || view === 'category-products'">
+                <button type="button" @click="applyCategoryFilter(null)"
+                    class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0"
+                    :class="!selectedCategoryFilter ? 'bg-[#747D52] text-white shadow-xs' :
+                        'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'">
+                    {{ __('All Categories') }}
                 </button>
-
-                <div x-ref="pillsContainer"
-                    class="px-4 sm:px-6 py-2.5 flex items-center space-x-2 rtl:space-x-reverse overflow-x-auto no-scrollbar scroll-smooth w-full">
-                    <button type="button" @click="applyCategoryFilter(null)"
+                <template x-for="cat in categoriesList" :key="cat.id">
+                    <button type="button" @click="openCategory(cat)"
                         class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0"
-                        :class="!selectedCategoryFilter ? 'bg-[#747D52] text-white shadow-xs' :
-                            'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'">
-                        {{ __('All Categories') }}
+                        :class="Number(selectedCategoryFilter) === Number(cat.id) ? 'bg-[#747D52] text-white shadow-xs' :
+                            'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'"
+                        x-text="cat.name">
                     </button>
-                    <template x-for="cat in categoriesList" :key="cat.id">
-                        <button type="button" @click="openCategory(cat)"
-                            class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0"
-                            :class="Number(selectedCategoryFilter) === Number(cat.id) ? 'bg-[#747D52] text-white shadow-xs' :
-                                'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'"
-                            x-text="cat.name">
-                        </button>
-                    </template>
-                    <div class="w-8 shrink-0"></div>
-                </div>
-
-                <button type="button" @click="scrollRight()"
-                    class="hidden sm:flex absolute right-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-l from-[#FCFBF9] via-[#FCFBF9]/90 to-transparent text-stone-500 hover:text-stone-900 transition">
-                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                </button>
-
-                <div
-                    class="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-[#FCFBF9] to-transparent rtl:right-auto rtl:left-0 rtl:bg-gradient-to-r">
-                </div>
+                </template>
             </div>
 
             <!-- ================= MOBILE HERO SLIDER FROM PRODUCTS (lg:hidden) ================= -->
-            <div class="block lg:hidden px-4 pt-3 pb-1 shrink-0" x-show="view === 'categories-grid'"
-                x-data="{
-                    activeSlide: 0,
-                    timer: null,
-                    get featuredSlides() {
-                        const items = [];
-                        this.categoriesList.forEach(cat => {
-                            (cat.products || []).forEach(prod => {
-                                if (prod.image && items.length < 5) {
-                                    items.push({
-                                        id: prod.id,
-                                        name: prod.name,
-                                        slug: prod.slug,
-                                        image: prod.image,
-                                        base_price: prod.base_price,
-                                        product: prod
-                                    });
-                                }
-                            });
-                        });
-                        return items;
-                    },
-                    startAutoSlide() {
-                        if (this.timer) clearInterval(this.timer);
-                        this.timer = setInterval(() => {
-                            if (this.featuredSlides.length > 1) {
-                                this.activeSlide = (this.activeSlide + 1) % this.featuredSlides.length;
+            <div class="block lg:hidden px-4 pt-3 pb-1" x-show="view === 'categories-grid'" x-data="{
+                activeSlide: 0,
+                timer: null,
+                get featuredSlides() {
+                    const items = [];
+                    this.categoriesList.forEach(cat => {
+                        (cat.products || []).forEach(prod => {
+                            if (prod.image && items.length < 5) {
+                                items.push({
+                                    id: prod.id,
+                                    name: prod.name,
+                                    slug: prod.slug,
+                                    image: prod.image,
+                                    base_price: prod.base_price,
+                                    product: prod
+                                });
                             }
-                        }, 4000);
-                    },
-                    init() {
-                        this.startAutoSlide();
-                    }
-                }">
+                        });
+                    });
+                    return items;
+                },
+                startAutoSlide() {
+                    if (this.timer) clearInterval(this.timer);
+                    this.timer = setInterval(() => {
+                        if (this.featuredSlides.length > 1) {
+                            this.activeSlide = (this.activeSlide + 1) % this.featuredSlides.length;
+                        }
+                    }, 4000);
+                },
+                init() {
+                    this.startAutoSlide();
+                }
+            }">
 
                 <template x-if="featuredSlides.length > 0">
                     <div
@@ -335,7 +309,7 @@
             </div>
 
             <!-- Filter & Sort Tag Button & Active Status Bar -->
-            <div class="px-4 sm:px-6 pt-3 pb-1 flex items-center justify-between shrink-0"
+            <div class="px-5 pt-3 pb-1 flex items-center justify-between"
                 x-show="view === 'categories-grid' || view === 'category-products'">
                 <button @click="showFilterModal = true"
                     class="border border-stone-200 bg-white text-stone-700 px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-2xs hover:border-[#747D52] hover:bg-stone-50 transition flex items-center space-x-1.5 rtl:space-x-reverse"
@@ -486,11 +460,11 @@
             </div>
 
             <!-- SCROLLABLE BODY AREA -->
-            <div class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 space-y-5">
+            <div class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-5 space-y-5">
 
                 <!-- SCREEN 1: CATEGORY TILES GRID -->
                 <div x-show="view === 'categories-grid'" class="space-y-4">
-                    <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3.5 sm:gap-4">
+                    <div class="grid grid-cols-2 gap-3.5 sm:gap-4">
                         <template x-for="category in displayedCategories" :key="category.id">
                             <div @click="openCategory(category)"
                                 class="group cursor-pointer rounded-2xl overflow-hidden border border-stone-200/80 bg-white hover:border-[#747D52]/50 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
@@ -529,7 +503,7 @@
                             x-text="activeCategory?.name"></h2>
                     </div>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3.5 sm:gap-4">
+                    <div class="grid grid-cols-2 gap-3.5 sm:gap-4">
                         <template x-for="product in displayedProducts" :key="product.id">
                             <div
                                 class="group border border-stone-200/80 rounded-2xl p-3 bg-white flex flex-col justify-between hover:shadow-md hover:border-[#747D52]/40 transition-all duration-300">
@@ -717,7 +691,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN: LOCATION SELECTOR -->
+                <!-- SCREEN: LOCATION SELECTOR (Delivery vs Pickup) -->
                 <div x-show="view === 'select-location'" x-cloak class="space-y-4">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/')"
@@ -738,6 +712,7 @@
                             class="w-full border border-stone-200 rounded-xl py-2.5 pl-9 pr-3.5 rtl:pr-9 rtl:pl-3.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 shadow-xs transition">
                     </div>
 
+                    <!-- 1. DELIVERY MODE -->
                     <div x-show="method === 'delivery'" class="space-y-2.5">
                         <template x-for="gov in filteredGovernorates" :key="gov.id">
                             <div class="border border-stone-200/80 rounded-2xl overflow-hidden bg-white shadow-xs">
@@ -767,6 +742,7 @@
                         </template>
                     </div>
 
+                    <!-- 2. PICKUP MODE -->
                     <div x-show="method === 'pickup'" class="space-y-2.5">
                         <template x-for="st in filteredStores" :key="st.id">
                             <button type="button" @click="setStorePickup(st.name)"
@@ -790,7 +766,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN: MY ORDERS & TRACKING DETAILS -->
+                <!-- SCREEN: MY ORDERS & TRACKING DETAILS WITH 5-MIN CANCELLATION -->
                 <div x-show="view === 'my-orders'" x-cloak class="space-y-4">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/profile')"
@@ -1016,6 +992,7 @@
                         </div>
                     </template>
 
+                    <!-- Menu list -->
                     <div class="space-y-1">
                         <div class="text-[11px] font-extrabold text-stone-400 uppercase tracking-wider mb-2">
                             {{ __('Menu') }}
@@ -1115,7 +1092,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN: TABBED EMAIL SIGNIN / REGISTER -->
+                <!-- SCREEN: TABBED EMAIL SIGNIN / REGISTER / FORGOT / RESET PASSWORD -->
                 <div x-show="view === 'email-signin'" x-cloak class="space-y-5">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/profile')"
@@ -1127,6 +1104,7 @@
                         </h2>
                     </div>
 
+                    <!-- Tab Switcher -->
                     <div class="flex bg-stone-100 p-1 rounded-2xl border border-stone-200/60"
                         x-show="authTab !== 'forgot' && authTab !== 'reset-password'">
                         <button @click="authTab = 'login'"
@@ -1159,6 +1137,7 @@
                         </div>
                     </template>
 
+                    <!-- Login Tab View -->
                     <div x-show="authTab === 'login'" class="space-y-3 pt-2 text-xs">
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Email *') }}</label>
@@ -1191,6 +1170,7 @@
                         </button>
                     </div>
 
+                    <!-- Register Tab View -->
                     <div x-show="authTab === 'register'" class="space-y-3 pt-2 text-xs">
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Full Name *') }}</label>
@@ -1227,10 +1207,12 @@
                         </button>
                     </div>
 
+                    <!-- Forgot Password Tab View -->
                     <div x-show="authTab === 'forgot'" class="space-y-3 pt-2 text-xs">
                         <p class="text-stone-500 text-[11px] leading-relaxed">
                             {{ __('Enter your registered email address and we will send you a link to reset your password.') }}
                         </p>
+
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Email *') }}</label>
                             <input type="email" x-model="forgotEmail" placeholder="example@email.com"
@@ -1258,20 +1240,24 @@
                         </div>
                     </div>
 
+                    <!-- Customer Reset Password Tab View -->
                     <div x-show="authTab === 'reset-password'" class="space-y-3 pt-2 text-xs">
                         <p class="text-stone-500 text-[11px] leading-relaxed">
                             {{ __('Enter your new password below.') }}
                         </p>
+
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('Email') }}</label>
                             <input type="email" x-model="resetForm.email" readonly disabled
                                 class="w-full border border-stone-200 bg-stone-50 rounded-xl px-3.5 py-2.5 text-xs text-stone-500 outline-none">
                         </div>
+
                         <div>
                             <label class="block font-bold text-stone-700 mb-1">{{ __('New Password *') }}</label>
                             <input type="password" x-model="resetForm.password" placeholder="••••••••"
                                 class="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 transition">
                         </div>
+
                         <div>
                             <label
                                 class="block font-bold text-stone-700 mb-1">{{ __('Confirm New Password *') }}</label>
@@ -1297,6 +1283,7 @@
                 <!-- SCREEN: KUWAIT ADDRESS DETAILS -->
                 <div x-show="view === 'address'" x-cloak class="space-y-4">
                     <h3 class="font-extrabold text-sm text-stone-900">{{ __('Delivery Address Details') }}</h3>
+
                     <div>
                         <label
                             class="block font-bold text-stone-700 text-xs mb-1.5">{{ __('Address Type *') }}</label>
@@ -1408,11 +1395,11 @@
                     <button @click="navigate('/')"
                         class="mt-4 bg-[#747D52] hover:bg-[#636C44] text-white px-7 py-3 rounded-xl font-extrabold text-xs shadow-md shadow-[#747D52]/20 active:scale-95 transition">{{ __('Back to Menu') }}</button>
                 </div>
+
             </div>
 
             <!-- Sticky Bottom Review Bar -->
-            <footer
-                class="p-4 bg-white/95 backdrop-blur-md border-t border-stone-200 sticky bottom-0 z-20 shadow-lg shrink-0"
+            <footer class="p-4 bg-white/95 backdrop-blur-md border-t border-stone-200 sticky bottom-0 z-20 shadow-lg"
                 x-show="view !== 'success' && view !== 'profile-menu' && view !== 'email-signin' && view !== 'my-orders'">
                 <template x-if="(view === 'categories-grid' || view === 'category-products') && cart.length > 0">
                     <button @click="navigate('/cart')"
@@ -1462,79 +1449,99 @@
             </footer>
         </main>
 
-        <!-- ================= RIGHT STATIC BRAND BANNER (50%) ================= -->
-        <aside
-            class="hidden lg:flex lg:w-1/2 h-full relative overflow-hidden bg-[#24261F] select-none min-w-0 flex-col justify-between p-8 xl:p-10 group">
+        <!-- ================= RIGHT STATIC BRAND BANNER (50%) - HIGH-END LUXURY MAKEOVER ================= -->
+        <aside class="hidden lg:block lg:w-1/2 h-full relative overflow-hidden bg-[#D3CDC3] select-none">
+            <!-- Background Image with Clean Depth -->
+            <img src="{{ asset('images/otherwise-banner-new.jpeg') }}" alt="otherwise - Choose well. Drink well."
+                class="w-full h-full object-cover object-[50%_35%] scale-105 filter saturate-[1.08] contrast-[1.02] transition-transform duration-1000 ease-out hover:scale-100">
 
-            <!-- 1. The Core Photographic Asset with Smooth Hover Zoom & Cinematic Depth -->
-            <div class="absolute inset-0 z-0 overflow-hidden">
-                <img src="{{ asset('images/otherwise-banner-new.jpeg') }}"
-                    alt="otherwise - Choose well. Drink well."
-                    class="w-full h-full object-cover object-[50%_40%] group-hover:scale-105 transition-transform duration-700 ease-out brightness-[0.98]">
-            </div>
-
-            <!-- 2. Subtle Cinematic Top & Bottom Gradients (Frames the image like an art gallery) -->
-            <div
-                class="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/50 to-transparent z-10">
+            <!-- Elegant multi-layer gradients for text readability and cinematic depth -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/30 pointer-events-none">
             </div>
             <div
-                class="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10">
+                class="absolute inset-0 bg-radial-at-t from-transparent via-transparent to-black/40 pointer-events-none">
             </div>
 
-            <!-- 3. TOP ROW: Clean Minimalist Status Pill -->
-            <div class="relative z-20 flex items-center justify-between w-full">
-                <!-- Live Status Pill -->
+            <!-- Top Left Floating Live Status Badge -->
+            <div
+                class="absolute top-8 left-8 rtl:left-auto rtl:right-8 flex items-center space-x-2 rtl:space-x-reverse z-20">
                 <div
-                    class="inline-flex items-center space-x-2.5 rtl:space-x-reverse bg-black/40 backdrop-blur-xl border border-white/20 px-4 py-2 rounded-2xl shadow-xl">
-                    <span class="relative flex h-2 w-2">
-                        <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span class="text-[11px] font-black uppercase tracking-widest text-white">
-                        {{ __('Open in Kuwait') }}
+                    class="bg-white/80 backdrop-blur-md border border-white/40 shadow-xl px-3.5 py-1.5 rounded-full flex items-center space-x-2 rtl:space-x-reverse">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-[11px] font-bold text-stone-900 tracking-wide">
+                        {{ __('Freshly Prepared in Kuwait') }}
                     </span>
                 </div>
+            </div>
 
-                <!-- Operating Hours Pill -->
+            <!-- Top Right Official Brand Monogram Pill -->
+            <div class="absolute top-8 right-8 rtl:right-auto rtl:left-8 z-20">
                 <div
-                    class="inline-flex items-center space-x-2 rtl:space-x-reverse bg-black/40 backdrop-blur-xl border border-white/15 px-3.5 py-2 rounded-2xl text-stone-200 text-[11px] font-bold shadow-lg">
-                    <i class="fa-regular fa-clock text-[#B5BF8A]"></i>
-                    <span>{{ __('7:00 AM – 11:30 PM') }}</span>
+                    class="bg-black/30 backdrop-blur-md border border-white/20 px-3.5 py-1.5 rounded-full text-white text-[11px] font-extrabold tracking-widest uppercase shadow-lg">
+                    OTHERWISE &trade;
                 </div>
             </div>
 
-            <!-- 4. CENTER: 100% UNTOUCHED SHOWCASE -->
-            <div class="relative z-20 my-auto pointer-events-none"></div>
+            <!-- Bottom Left Glassmorphic Brand Showcase Card -->
+            <div class="absolute bottom-8 left-8 rtl:left-auto rtl:right-8 z-20 max-w-sm">
+                <div
+                    class="bg-black/40 backdrop-blur-xl border border-white/25 text-white p-5 rounded-3xl shadow-2xl space-y-3">
+                    <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                        <div
+                            class="w-6 h-6 rounded-lg bg-[#747D52] flex items-center justify-center text-white text-[10px] font-black">
+                            OW
+                        </div>
+                        <span class="text-[10px] font-extrabold tracking-widest uppercase text-stone-300">Artisan
+                            Coffee & Bakehouse</span>
+                    </div>
 
-            <!-- 5. BOTTOM DOCK: Unified, Sleek Glass Capsule (Cleanly anchored at the bottom edge) -->
-            <div
-                class="relative z-20 flex items-center justify-between bg-white/90 backdrop-blur-2xl border border-white/50 px-5 py-3.5 rounded-2xl shadow-2xl w-full">
-                <!-- Left: Live Order Status -->
-                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <div>
+                        <h2 class="text-xl font-black tracking-tight leading-tight drop-shadow-sm">
+                            Choose well. Drink well.
+                        </h2>
+                        <p class="text-xs text-stone-200 mt-1 leading-relaxed opacity-95">
+                            {{ __('Premium craft beverages and melt-in-your-mouth pastries baked fresh every single morning.') }}
+                        </p>
+                    </div>
+
+                    <!-- Highlight Features Pills -->
                     <div
-                        class="w-8 h-8 rounded-xl bg-[#747D52] text-white flex items-center justify-center text-xs font-black shadow-sm">
-                        <i class="fa-solid" :class="method === 'delivery' ? 'fa-bicycle' : 'fa-store'"></i>
-                    </div>
-                    <div class="text-left rtl:text-right">
-                        <span class="block text-xs font-black text-stone-900 leading-tight"
-                            x-text="method === 'delivery' ? `{{ __('Delivery:') }} ${deliveryFee.toFixed(3)} {{ __('KD') }}` : '{{ __('Store Pickup (Free)') }}'"></span>
+                        class="flex items-center space-x-2 rtl:space-x-reverse pt-1 text-[10px] font-bold text-white/90">
                         <span
-                            class="block text-[10px] font-bold text-stone-500 leading-none mt-0.5">{{ __('Freshly prepared & dispatched') }}</span>
+                            class="bg-white/15 px-2.5 py-1 rounded-lg backdrop-blur-xs flex items-center space-x-1.5 rtl:space-x-reverse">
+                            <i class="fa-solid fa-fire-flame-curved text-amber-400"></i>
+                            <span>{{ __('Daily Roasts') }}</span>
+                        </span>
+                        <span
+                            class="bg-white/15 px-2.5 py-1 rounded-lg backdrop-blur-xs flex items-center space-x-1.5 rtl:space-x-reverse">
+                            <i class="fa-solid fa-cookie-bite text-amber-300"></i>
+                            <span>{{ __('Signature Cookies') }}</span>
+                        </span>
+                        <span
+                            class="bg-white/15 px-2.5 py-1 rounded-lg backdrop-blur-xs flex items-center space-x-1.5 rtl:space-x-reverse">
+                            <i class="fa-solid fa-bolt text-emerald-400"></i>
+                            <span>{{ __('Express Pickup') }}</span>
+                        </span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Right: Instagram Link -->
+            <!-- Bottom Right Social & Interaction Hub -->
+            <div class="absolute bottom-8 right-8 rtl:right-auto rtl:left-8 z-20 flex flex-col items-end space-y-2">
                 <a href="https://www.instagram.com/otherwisekw/" target="_blank"
-                    class="group/ig inline-flex items-center space-x-2 text-stone-900 hover:text-[#747D52] transition-colors font-black text-xs">
+                    class="group flex items-center space-x-2.5 rtl:space-x-reverse bg-white/90 hover:bg-white text-stone-900 px-4 py-3 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 backdrop-blur-md border border-white/50">
                     <div
-                        class="w-7 h-7 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center text-xs shadow-sm group-hover/ig:rotate-12 transition-transform">
+                        class="w-7 h-7 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center text-sm shadow-xs">
                         <i class="fa-brands fa-instagram"></i>
                     </div>
-                    <span class="hidden sm:inline">@otherwisekw</span>
+                    <div class="text-left rtl:text-right">
+                        <span
+                            class="block text-[11px] font-black leading-tight text-stone-900 group-hover:text-[#747D52] transition">@otherwisekw</span>
+                        <span
+                            class="block text-[9px] font-semibold text-stone-500 leading-none mt-0.5">{{ __('Follow our story') }}</span>
+                    </div>
                 </a>
             </div>
-
         </aside>
     </div>
 
