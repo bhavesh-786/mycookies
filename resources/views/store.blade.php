@@ -294,8 +294,8 @@
                 </div>
             </div>
 
-            <!-- SCROLLABLE BODY AREA (Everything below headers scrolls smoothly here) -->
-            <div class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 space-y-5">
+            <!-- SCROLLABLE BODY AREA (Added ample bottom padding pb-48 to ensure full scrolling access) -->
+            <div class="flex-1 min-h-0 overflow-y-auto custom-scroll p-4 sm:p-6 space-y-5 pb-48">
 
                 <!-- Delivery / Pickup Switcher & Quick Location Info -->
                 <section class="p-3.5 sm:p-4 bg-white border border-stone-200/60 rounded-2xl shadow-xs shrink-0"
@@ -2431,7 +2431,11 @@
                             body: JSON.stringify(payload)
                         })
                         .then(async res => {
-                            const data = await res.json();
+                            let data = {};
+                            try {
+                                data = await res.json();
+                            } catch (e) {}
+
                             if (!res.ok) throw new Error(data.message || 'Server error');
                             return data;
                         })
