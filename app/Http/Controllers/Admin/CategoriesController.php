@@ -38,7 +38,7 @@ class CategoriesController extends Controller
             $query->orderBy('sort_order', 'asc')->orderBy('id', 'desc');
         }
 
-        $categories = $query->paginate(2);
+        $categories = $query->paginate(15);
 
         return view('admin.categories.index', compact('categories'));
     }

@@ -45,7 +45,7 @@ class ProductController extends Controller
             $query->orderBy('sort_order', 'asc')->orderBy('id', 'desc');
         }
 
-        $products = $query->paginate(5);
+        $products = $query->paginate(15);
 
         return view('admin.products.index', compact('products'));
     }
