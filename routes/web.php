@@ -11,6 +11,8 @@ use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\CategoriesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -100,26 +102,28 @@ Route::prefix('backend')->name('admin.')->middleware('auth')->group(function () 
 
     // --- Products Management (Guarded by 'manage-products') ---
     Route::middleware(['can:manage-products'])->group(function () {
-        Route::get('/products', [AdminController::class, 'products'])->name('products.index');
-        Route::get('/products/create', [AdminController::class, 'createProduct'])->name('products.create');
-        Route::post('/products', [AdminController::class, 'storeProduct'])->name('products.store');
-        Route::get('/products/{product}', [AdminController::class, 'showProduct'])->name('products.show');
-        Route::get('/products/{product}/edit', [AdminController::class, 'editProduct'])->name('products.edit');
-        Route::put('/products/{product}', [AdminController::class, 'updateProduct'])->name('products.update');
-        Route::delete('/products/{product}', [AdminController::class, 'deleteProduct'])->name('products.delete');
-        Route::post('/products/{product}/clone', [AdminController::class, 'productClone'])->name('products.clone');
+        Route::get('/products', [ProductController::class, 'products'])->name('products.index');
+        Route::get('/products/create', [ProductController::class, 'createProduct'])->name('products.create');
+        Route::post('/products', [ProductController::class, 'storeProduct'])->name('products.store');
+        Route::get('/products/{product}', [ProductController::class, 'showProduct'])->name('products.show');
+        Route::get('/products/{product}/edit', [ProductController::class, 'editProduct'])->name('products.edit');
+        Route::put('/products/{product}', [ProductController::class, 'updateProduct'])->name('products.update');
+        Route::delete('/products/{product}', [ProductController::class, 'deleteProduct'])->name('products.delete');
+        Route::post('/products/{product}/clone', [ProductController::class, 'productClone'])->name('products.clone');
+        Route::post('/products/reorder', [ProductController::class, 'reorderProducts'])->name('products.reorder');
     });
 
     // --- Categories Management (Guarded by 'manage-categories') ---
     Route::middleware(['can:manage-categories'])->group(function () {
-        Route::get('/categories', [AdminController::class, 'categories'])->name('categories.index');
-        Route::get('/categories/create', [AdminController::class, 'createCategory'])->name('categories.create');
-        Route::post('/categories', [AdminController::class, 'storeCategory'])->name('categories.store');
-        Route::get('/categories/{category}', [AdminController::class, 'showCategory'])->name('categories.show');
-        Route::get('/categories/{category}/edit', [AdminController::class, 'editCategory'])->name('categories.edit');
-        Route::put('/categories/{category}', [AdminController::class, 'updateCategory'])->name('categories.update');
-        Route::delete('/categories/{category}', [AdminController::class, 'deleteCategory'])->name('categories.delete');
-        Route::post('/categories/{category}/clone', [AdminController::class, 'categoriesClone'])->name('categories.clone');
+        Route::get('/categories', [CategoriesController::class, 'categories'])->name('categories.index');
+        Route::get('/categories/create', [CategoriesController::class, 'createCategory'])->name('categories.create');
+        Route::post('/categories', [CategoriesController::class, 'storeCategory'])->name('categories.store');
+        Route::get('/categories/{category}', [CategoriesController::class, 'showCategory'])->name('categories.show');
+        Route::get('/categories/{category}/edit', [CategoriesController::class, 'editCategory'])->name('categories.edit');
+        Route::put('/categories/{category}', [CategoriesController::class, 'updateCategory'])->name('categories.update');
+        Route::delete('/categories/{category}', [CategoriesController::class, 'deleteCategory'])->name('categories.delete');
+        Route::post('/categories/{category}/clone', [CategoriesController::class, 'categoriesClone'])->name('categories.clone');
+        Route::post('/categories/reorder', [CategoriesController::class, 'reorderCategories'])->name('categories.reorder');
     });
 
     // --- Users & Roles Management (Guarded by 'manage-users') ---

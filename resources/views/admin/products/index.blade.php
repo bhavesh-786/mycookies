@@ -21,9 +21,14 @@
                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-100 text-stone-700">
                         {{ $products->total() }} {{ __('Total Items') }}
                     </span>
+                    <span id="reorder-status"
+                        class="hidden text-xs font-semibold text-emerald-600 transition-opacity duration-300">
+                        <i class="fa-solid fa-circle-check"></i> {{ __('Order saved!') }}
+                    </span>
                 </div>
                 <p class="text-xs text-stone-500">
-                    {{ __('Manage all store products, prices, and customizable add-on groups.') }}</p>
+                    {{ __('Manage all store products, prices, and customizable add-on groups. Drag items to reorder.') }}
+                </p>
             </div>
 
             <a href="{{ route('admin.products.create') }}"
@@ -40,6 +45,11 @@
                     <thead>
                         <tr
                             class="bg-stone-50/75 border-b border-stone-200 text-stone-500 font-bold text-[11px] uppercase tracking-wider">
+                            <!-- Drag & Drop Handle Header -->
+                            <th class="py-3.5 px-3 w-10 text-center">
+                                <i class="fa-solid fa-arrows-up-down text-stone-400"></i>
+                            </th>
+
                             <!-- SORT BY PRODUCT -->
                             <th class="py-3.5 px-5">
                                 <a href="{{ request()->fullUrlWithQuery([
@@ -80,9 +90,15 @@
                             <th class="py-3.5 px-5 text-right rtl:text-left">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-stone-100 text-xs">
+                    <tbody id="sortable-product-list" class="divide-y divide-stone-100 text-xs">
                         @forelse($products as $p)
-                            <tr class="hover:bg-stone-50/60 transition duration-150 group">
+                            <tr data-id="{{ $p->id }}" class="hover:bg-stone-50/60 transition duration-150 group">
+                                <!-- Reorder Handle Column -->
+                                <td
+                                    class="py-4 px-3 text-center cursor-grab active:cursor-grabbing text-stone-300 hover:text-stone-600 transition drag-handle">
+                                    <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                </td>
+
                                 <!-- Product thumbnail & localized name -->
                                 <td class="py-4 px-5">
                                     <div class="flex items-center space-x-3.5 rtl:space-x-reverse">
@@ -96,7 +112,8 @@
                                             <span
                                                 class="font-extrabold text-stone-900 group-hover:text-[#8F966C] transition">{{ $p->display_name }}</span>
                                             <p class="text-[11px] text-stone-400 line-clamp-1 max-w-xs mt-0.5">
-                                                {{ $p->display_description ?? __('No description provided.') }}</p>
+                                                {{ $p->display_description ?? __('No description provided.') }}
+                                            </p>
                                         </div>
                                     </div>
                                 </td>
@@ -113,8 +130,8 @@
                                 <td class="py-4 px-4 whitespace-nowrap">
                                     @if ($p->base_price !== null)
                                         <span class="font-black text-stone-900 text-[13px]">
-                                            {{ number_format($p->base_price, 3) }} <span
-                                                class="text-[10px] text-stone-500 font-bold">{{ __('KD') }}</span>
+                                            {{ number_format($p->base_price, 3) }}
+                                            <span class="text-[10px] text-stone-500 font-bold">{{ __('KD') }}</span>
                                         </span>
                                     @else
                                         <span
@@ -175,6 +192,7 @@
                                             <i class="fa-solid fa-trash-can text-[11px]"></i>
                                         </button>
 
+                                        <!-- Clone Button -->
                                         <form action="{{ route('admin.products.clone', $p->id) }}" method="POST"
                                             class="inline m-0">
                                             @csrf
@@ -189,14 +207,15 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="py-12 text-center text-stone-400">
+                                <td colspan="6" class="py-12 text-center text-stone-400">
                                     <div
                                         class="w-12 h-12 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mx-auto mb-3 text-lg">
                                         <i class="fa-solid fa-cookie-bite"></i>
                                     </div>
                                     <span class="font-bold text-sm text-stone-700">{{ __('No products found') }}</span>
                                     <p class="text-xs text-stone-400 mt-1">
-                                        {{ __('Get started by creating your first product item.') }}</p>
+                                        {{ __('Get started by creating your first product item.') }}
+                                    </p>
                                 </td>
                             </tr>
                         @endforelse
@@ -217,7 +236,8 @@
             <div class="fixed inset-0 bg-stone-900/40 backdrop-blur-xs transition-opacity" x-show="deleteModalOpen"
                 x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0"
                 x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
-                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="deleteModalOpen = false">
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                @click="deleteModalOpen = false">
             </div>
 
             <!-- Modal Window -->
@@ -260,4 +280,56 @@
             </div>
         </div>
     </div>
+
+    <!-- Drag & Drop Sorting Script -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const el = document.getElementById('sortable-product-list');
+            const statusIndicator = document.getElementById('reorder-status');
+
+            if (!el) return;
+
+            Sortable.create(el, {
+                handle: '.drag-handle',
+                animation: 200,
+                ghostClass: 'bg-stone-100/90',
+                chosenClass: 'bg-stone-50',
+                onEnd: function() {
+                    const orderedIds = Array.from(el.querySelectorAll('tr[data-id]'))
+                        .map(row => row.dataset.id);
+
+                    fetch("{{ route('admin.products.reorder') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                order: orderedIds
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response failed');
+                            return response.json();
+                        })
+                        .then(() => {
+                            if (statusIndicator) {
+                                statusIndicator.classList.remove('hidden');
+                                setTimeout(() => {
+                                    statusIndicator.classList.add('hidden');
+                                }, 2500);
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Failed to update product order:', err);
+                            alert(
+                                "{{ __('Unable to save product ordering. Please try again.') }}"
+                            );
+                        });
+                }
+            });
+        });
+    </script>
 @endsection

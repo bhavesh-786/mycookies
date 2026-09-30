@@ -22,9 +22,14 @@
                         {{ $categories instanceof \Illuminate\Pagination\LengthAwarePaginator ? $categories->total() : $categories->count() }}
                         {{ __('Total Categories') }}
                     </span>
+                    <span id="reorder-status"
+                        class="hidden text-xs font-semibold text-emerald-600 transition-opacity duration-300">
+                        <i class="fa-solid fa-circle-check"></i> {{ __('Order saved!') }}
+                    </span>
                 </div>
                 <p class="text-xs text-stone-500">
-                    {{ __('Organize your storefront menu sections, banners, and product groupings.') }}</p>
+                    {{ __('Organize your storefront menu sections, banners, and product groupings. Drag rows to reorder.') }}
+                </p>
             </div>
 
             <a href="{{ route('admin.categories.create') }}"
@@ -46,7 +51,8 @@
                     </div>
                     <div>
                         <h3 class="font-extrabold text-xs uppercase tracking-wider text-stone-900">
-                            {{ __('Quick Add Category') }}</h3>
+                            {{ __('Quick Add Category') }}
+                        </h3>
                         <p class="text-[11px] text-stone-400">{{ __('Instantly add a category to storefront') }}</p>
                     </div>
                 </div>
@@ -101,6 +107,11 @@
                         <thead>
                             <tr
                                 class="bg-stone-50/75 border-b border-stone-200 text-stone-500 font-bold text-[11px] uppercase tracking-wider">
+                                <!-- Drag Handle Header -->
+                                <th class="py-3.5 px-3 w-10 text-center">
+                                    <i class="fa-solid fa-arrows-up-down text-stone-400"></i>
+                                </th>
+
                                 <!-- SORT BY CATEGORY NAME -->
                                 <th class="py-3.5 px-5">
                                     <a href="{{ request()->fullUrlWithQuery([
@@ -122,9 +133,16 @@
                                 <th class="py-3.5 px-5 text-right rtl:text-left">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-stone-100 text-xs">
+                        <tbody id="sortable-category-list" class="divide-y divide-stone-100 text-xs">
                             @forelse($categories as $cat)
-                                <tr class="hover:bg-stone-50/60 transition duration-150 group">
+                                <tr data-id="{{ $cat->id }}"
+                                    class="hover:bg-stone-50/60 transition duration-150 group">
+                                    <!-- Drag Handle -->
+                                    <td
+                                        class="py-4 px-3 text-center cursor-grab active:cursor-grabbing text-stone-300 hover:text-stone-600 transition drag-handle">
+                                        <i class="fa-solid fa-grip-vertical text-xs"></i>
+                                    </td>
+
                                     <!-- Category Banner & Localized Name -->
                                     <td class="py-4 px-5">
                                         <div class="flex items-center space-x-3.5 rtl:space-x-reverse">
@@ -193,6 +211,7 @@
                                                 <i class="fa-solid fa-trash-can text-[11px]"></i>
                                             </button>
 
+                                            <!-- Clone Button -->
                                             <form action="{{ route('admin.categories.clone', $cat->id) }}" method="POST"
                                                 class="inline m-0">
                                                 @csrf
@@ -207,7 +226,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="py-12 text-center text-stone-400">
+                                    <td colspan="5" class="py-12 text-center text-stone-400">
                                         <div
                                             class="w-12 h-12 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mx-auto mb-3 text-lg">
                                             <i class="fa-solid fa-folder-open"></i>
@@ -215,7 +234,8 @@
                                         <span
                                             class="font-bold text-sm text-stone-700">{{ __('No categories found') }}</span>
                                         <p class="text-xs text-stone-400 mt-1">
-                                            {{ __('Add your first category using the quick form on the left.') }}</p>
+                                            {{ __('Add your first category using the quick form on the left.') }}
+                                        </p>
                                     </td>
                                 </tr>
                             @endforelse
@@ -283,4 +303,55 @@
         </div>
 
     </div>
+
+    <!-- Drag & Drop Sorting Script -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const el = document.getElementById('sortable-category-list');
+            const statusIndicator = document.getElementById('reorder-status');
+
+            if (!el) return;
+
+            Sortable.create(el, {
+                handle: '.drag-handle',
+                animation: 200,
+                ghostClass: 'bg-stone-100/90',
+                chosenClass: 'bg-stone-50',
+                onEnd: function() {
+                    const orderedIds = Array.from(el.querySelectorAll('tr[data-id]'))
+                        .map(row => row.dataset.id);
+
+                    fetch("{{ route('admin.categories.reorder') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                order: orderedIds
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response failed');
+                            return response.json();
+                        })
+                        .then(() => {
+                            if (statusIndicator) {
+                                statusIndicator.classList.remove('hidden');
+                                setTimeout(() => {
+                                    statusIndicator.classList.add('hidden');
+                                }, 2500);
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Failed to update category order:', err);
+                            alert(
+                                "{{ __('Unable to save category ordering. Please try again.') }}");
+                        });
+                }
+            });
+        });
+    </script>
 @endsection
