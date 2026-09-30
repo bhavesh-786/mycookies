@@ -7,6 +7,7 @@
         @csrf
         @method('PUT')
 
+        <input type="hidden" name="return_url" value="{{ $returnUrl ?? old('return_url', route('admin.products.index')) }}">
         <!-- General Info Card -->
         <div class="bg-white border border-stone-200/80 rounded-2xl p-6 shadow-sm space-y-4">
             <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2 border-b border-stone-100">

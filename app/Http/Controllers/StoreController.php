@@ -25,7 +25,7 @@ class StoreController extends Controller
         $isAr = app()->getLocale() === 'ar';
 
         // 1. Categories and Products with Addon Groups & Options
-        $categories = Category::with(['products.addonGroups.options'])->get()->map(function ($cat) {
+        $categories = Category::with(['products.addonGroups.options'])->orderBy('sort_order', 'asc')->get()->map(function ($cat) {
             return [
                 'id' => $cat->id,
                 'slug' => $cat->slug,

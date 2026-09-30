@@ -13,8 +13,9 @@
         }
     }">
         <!-- Top Action & Overview Bar -->
+        <!-- Top Action & Overview Bar with Search -->
         <div
-            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm">
+            class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm">
             <div class="space-y-1">
                 <div class="flex items-center space-x-2 rtl:space-x-reverse">
                     <span
@@ -28,15 +29,40 @@
                     </span>
                 </div>
                 <p class="text-xs text-stone-500">
-                    {{ __('Organize your storefront menu sections, banners, and product groupings. Drag rows to reorder.') }}
+                    {{ __('Organize your storefront menu sections. Drag rows to reorder.') }}
                 </p>
             </div>
 
-            <a href="{{ route('admin.categories.create') }}"
-                class="inline-flex items-center space-x-2 rtl:space-x-reverse bg-[#8F966C] hover:bg-[#7B825B] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition active:scale-95">
-                <i class="fa-solid fa-plus text-[11px]"></i>
-                <span>{{ __('Create New Category') }}</span>
-            </a>
+            <!-- Search Form + Create Button -->
+            <div class="flex flex-col sm:flex-row items-center gap-3">
+                <form method="GET" action="{{ route('admin.categories.index') }}" class="relative w-full sm:w-64">
+                    @if (request('sort_by'))
+                        <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
+                    @endif
+                    @if (request('sort_dir'))
+                        <input type="hidden" name="sort_dir" value="{{ request('sort_dir') }}">
+                    @endif
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        placeholder="{{ __('Search categories...') }}"
+                        class="w-full bg-stone-50/70 border border-stone-200 rounded-xl pl-9 pr-8 rtl:pr-9 rtl:pl-8 py-2 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-[#8F966C] focus:bg-white transition">
+                    <span
+                        class="absolute inset-y-0 left-3 rtl:left-auto rtl:right-3 flex items-center pointer-events-none text-stone-400">
+                        <i class="fa-solid fa-magnifying-glass text-[11px]"></i>
+                    </span>
+                    @if (request('search'))
+                        <a href="{{ route('admin.categories.index') }}"
+                            class="absolute inset-y-0 right-2.5 rtl:right-auto rtl:left-2.5 flex items-center text-stone-400 hover:text-stone-600 text-xs">
+                            <i class="fa-solid fa-xmark"></i>
+                        </a>
+                    @endif
+                </form>
+
+                <a href="{{ route('admin.categories.create') }}"
+                    class="w-full sm:w-auto inline-flex justify-center items-center space-x-2 rtl:space-x-reverse bg-[#8F966C] hover:bg-[#7B825B] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition active:scale-95 shrink-0">
+                    <i class="fa-solid fa-plus text-[11px]"></i>
+                    <span>{{ __('Create New Category') }}</span>
+                </a>
+            </div>
         </div>
 
         <!-- Main Grid: Quick-Create Form + Categories Table -->
@@ -196,7 +222,8 @@
                                             </a>
 
                                             <!-- Edit Button -->
-                                            <a href="{{ route('admin.categories.edit', $cat->id) }}"
+                                            <!-- Edit Button with return_url -->
+                                            <a href="{{ route('admin.categories.edit', ['category' => $cat->id, 'return_url' => request()->fullUrl()]) }}"
                                                 title="{{ __('Edit') }}"
                                                 class="inline-flex items-center space-x-1 rtl:space-x-reverse px-2.5 py-1.5 rounded-lg text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-100 font-bold transition text-[11px]">
                                                 <i class="fa-solid fa-pen-to-square text-[11px]"></i>
@@ -348,7 +375,8 @@
                         .catch(err => {
                             console.error('Failed to update category order:', err);
                             alert(
-                                "{{ __('Unable to save category ordering. Please try again.') }}");
+                                "{{ __('Unable to save category ordering. Please try again.') }}"
+                            );
                         });
                 }
             });

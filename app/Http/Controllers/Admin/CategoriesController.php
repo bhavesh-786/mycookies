@@ -16,6 +16,17 @@ class CategoriesController extends Controller
     {
         $query = Category::withCount('products');
 
+        // 1. Search Query Handling
+        if ($request->filled('search')) {
+            $search = trim($request->query('search'));
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('name_ar', 'LIKE', "%{$search}%")
+                    ->orWhere('slug', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // 2. Sorting
         $sortBy = $request->query('sort_by');
         $sortDir = strtolower($request->query('sort_dir')) === 'desc' ? 'desc' : 'asc';
 
@@ -24,11 +35,10 @@ class CategoriesController extends Controller
             $column = Schema::hasColumn('categories', $localeCol) ? $localeCol : 'name';
             $query->orderBy($column, $sortDir);
         } else {
-            // Default manual sort order first, then ID
             $query->orderBy('sort_order', 'asc')->orderBy('id', 'desc');
         }
 
-        $categories = $query->paginate(15);
+        $categories = $query->paginate(2);
 
         return view('admin.categories.index', compact('categories'));
     }
@@ -93,22 +103,23 @@ class CategoriesController extends Controller
         return view('admin.categories.show', compact('category'));
     }
 
-    public function editCategory(Category $category)
+    public function editCategory(Request $request, Category $category)
     {
-        return view('admin.categories.edit', compact('category'));
+        $returnUrl = $request->query('return_url', route('admin.categories.index'));
+        return view('admin.categories.edit', compact('category', 'returnUrl'));
     }
 
     public function updateCategory(Request $request, Category $category)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'name_ar' => 'required|string|max:255',
-            'image_url' => 'nullable|url',
-            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:2048',
+            'name'        => 'required|string|max:255',
+            'name_ar'     => 'required|string|max:255',
+            'image_url'   => 'nullable|url',
+            'image_file'  => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:2048',
+            'return_url'  => 'nullable|string',
         ]);
 
         $imagePath = $category->image;
-
         if ($request->hasFile('image_file')) {
             $path = $request->file('image_file')->store('categories', 'public');
             $imagePath = asset('storage/' . $path);
@@ -116,14 +127,16 @@ class CategoriesController extends Controller
             $imagePath = $request->input('image_url');
         }
 
+        $returnUrl = $request->input('return_url', route('admin.categories.index'));
+
         $category->update([
-            'name' => $request->name,
+            'name'    => $request->name,
             'name_ar' => $request->name_ar,
-            'slug' => Str::slug($request->name),
-            'image' => $imagePath,
+            'slug'    => Str::slug($request->name),
+            'image'   => $imagePath,
         ]);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully!');
+        return redirect($returnUrl)->with('success', 'Category updated successfully!');
     }
 
     public function deleteCategory(Category $category)

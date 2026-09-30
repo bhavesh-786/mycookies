@@ -14,14 +14,24 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    // 3. Products Management
     public function products(Request $request)
     {
-        //$products = Product::with(['category', 'addonGroups.options'])->latest()->paginate(10);
-        //return view('admin.products.index', compact('products'));
-
         $query = Product::with(['category', 'addonGroups.options']);
 
+        // 1. Search Query Handling
+        if ($request->filled('search')) {
+            $search = trim($request->query('search'));
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('name_ar', 'LIKE', "%{$search}%")
+                    ->orWhereHas('category', function ($catQuery) use ($search) {
+                        $catQuery->where('name', 'LIKE', "%{$search}%")
+                            ->orWhere('name_ar', 'LIKE', "%{$search}%");
+                    });
+            });
+        }
+
+        // 2. Sorting
         $sortBy = $request->query('sort_by');
         $sortDir = strtolower($request->query('sort_dir')) === 'desc' ? 'desc' : 'asc';
 
@@ -32,15 +42,13 @@ class ProductController extends Controller
             $column = Schema::hasColumn('products', $localeCol) ? $localeCol : 'name';
             $query->orderBy($column, $sortDir);
         } else {
-            // Default manual sort order first, then ID
             $query->orderBy('sort_order', 'asc')->orderBy('id', 'desc');
         }
 
-        $products = $query->paginate(15);
+        $products = $query->paginate(5);
 
         return view('admin.products.index', compact('products'));
     }
-
     public function createProduct()
     {
         $categories = Category::all();
@@ -118,12 +126,14 @@ class ProductController extends Controller
         return view('admin.products.show', compact('product'));
     }
 
-    public function editProduct(Product $product)
+    public function editProduct(Request $request, Product $product)
     {
         $product->load('addonGroups.options');
         $categories = Category::all();
 
-        // Prepare JSON data directly in PHP
+        // Capture return URL to redirect back after update
+        $returnUrl = $request->query('return_url', route('admin.products.index'));
+
         $initialGroups = $product->addonGroups->map(function ($g) {
             return [
                 'name' => $g->name,
@@ -140,7 +150,7 @@ class ProductController extends Controller
             ];
         })->values();
 
-        return view('admin.products.edit', compact('product', 'categories', 'initialGroups'));
+        return view('admin.products.edit', compact('product', 'categories', 'initialGroups', 'returnUrl'));
     }
 
     public function updateProduct(Request $request, Product $product)
@@ -154,6 +164,7 @@ class ProductController extends Controller
             'description_ar'  => 'nullable|string',
             'image_url'       => 'nullable|url',
             'image_file'      => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:2048',
+            'return_url'      => 'nullable|string', // To preserve current page
         ]);
 
         $imagePath = $product->image;
@@ -164,19 +175,19 @@ class ProductController extends Controller
             $imagePath = $request->input('image_url');
         }
 
-        unset($validated['image_url'], $validated['image_file']);
+        $returnUrl = $request->input('return_url', route('admin.products.index'));
+
+        unset($validated['image_url'], $validated['image_file'], $validated['return_url']);
         $validated['image'] = $imagePath;
         $validated['slug']  = Str::slug($request->name) . '-' . $product->id;
 
         DB::transaction(function () use ($request, $product, $validated) {
             $product->update($validated);
 
-            // 1. Explicitly clear previous groups and child options
             $existingGroupIds = $product->addonGroups()->pluck('id');
             AddonOption::whereIn('addon_group_id', $existingGroupIds)->delete();
             $product->addonGroups()->delete();
 
-            // 2. Re-create only submitted groups (if any)
             $groups = $request->input('groups', []);
             foreach ($groups as $grpData) {
                 if (!empty($grpData['name'])) {
@@ -206,7 +217,7 @@ class ProductController extends Controller
             }
         });
 
-        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully!');
+        return redirect($returnUrl)->with('success', 'Product updated successfully!');
     }
 
     public function productClone(Product $product)

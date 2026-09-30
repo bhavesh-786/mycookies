@@ -24,6 +24,9 @@
                 @csrf
                 @method('PUT')
 
+                <input type="hidden" name="return_url"
+                    value="{{ $returnUrl ?? old('return_url', route('admin.categories.index')) }}">
+
                 <!-- Existing Image Preview -->
                 @if ($category->image)
                     <div
