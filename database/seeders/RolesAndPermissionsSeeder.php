@@ -28,7 +28,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-settings',
             'manage-governorates',
             'manage-areas',
-            'manage-stores',
+            'manage-pickstores',
 
             // Catalog Management
             'manage-products',
