@@ -2,7 +2,7 @@
 @section('title', __('Store Settings'))
 
 @section('content')
-    <div class="max-w-3xls mx-auto space-y-6">
+    <div class="max-w-3xl mx-auto space-y-6">
         <!-- Header -->
         <div
             class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-stone-200/80 shadow-sm">
@@ -77,21 +77,94 @@
                     </div>
                 </div>
 
-                <!-- Operating Hours -->
-                <div>
-                    <label class="block font-bold text-stone-700 mb-1">
-                        {{ __('Operating Hours') }} <span
-                            class="text-stone-400 font-normal">({{ __('e.g. 7:00 AM - 11:30 PM') }})</span>
-                    </label>
-                    <div class="relative">
-                        <div
-                            class="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3.5 rtl:pl-0 rtl:pr-3.5 flex items-center pointer-events-none text-stone-400">
-                            <i class="fa-regular fa-clock text-xs"></i>
-                        </div>
-                        <input type="text" name="operating_hours"
-                            value="{{ old('operating_hours', $settings['operating_hours'] ?? '7:00 AM - 11:30 PM') }}"
-                            placeholder="7:00 AM - 11:30 PM" required
-                            class="w-full border border-stone-200 rounded-xl py-2.5 pl-9 pr-3.5 rtl:pr-9 rtl:pl-3.5 outline-none focus:border-[#8F966C] focus:ring-1 focus:ring-[#8F966C] transition">
+                @php
+                    $rawHours = old('operating_hours', $settings['operating_hours'] ?? null);
+                    if (is_string($rawHours)) {
+                        $rawHours = json_decode($rawHours, true);
+                    }
+                    $scheduleData =
+                        is_array($rawHours) && count($rawHours) > 0
+                            ? $rawHours
+                            : [
+                                [
+                                    'days' => 'Sunday - Thursday',
+                                    'open' => '07:00',
+                                    'close' => '23:30',
+                                    'closed' => false,
+                                ],
+                                [
+                                    'days' => 'Friday - Saturday',
+                                    'open' => '13:00',
+                                    'close' => '00:00',
+                                    'closed' => false,
+                                ],
+                            ];
+                @endphp
+
+                <!-- Operating Hours by Day Repeater -->
+                <div class="space-y-3" x-data="{
+                    schedule: JSON.parse($el.dataset.schedule),
+                    addSchedule() {
+                        this.schedule.push({ days: '', open: '09:00', close: '22:00', closed: false });
+                    },
+                    removeSchedule(index) {
+                        this.schedule.splice(index, 1);
+                    }
+                }" data-schedule='@json($scheduleData)'>
+                    <div class="flex items-center justify-between">
+                        <label class="block font-bold text-stone-700">
+                            {{ __('Operating Hours by Day') }}
+                        </label>
+                        <button type="button" @click="addSchedule()"
+                            class="inline-flex items-center space-x-1 text-xs font-bold text-[#8F966C] hover:text-[#7B825B]">
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                            <span>{{ __('Add Schedule Row') }}</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        <template x-for="(row, index) in schedule" :key="index">
+                            <div
+                                class="flex flex-col sm:flex-row items-center gap-2 bg-stone-50 p-3 rounded-xl border border-stone-200">
+                                <!-- Days Input -->
+                                <div class="w-full sm:w-1/3">
+                                    <input type="text" :name="`operating_hours[${index}][days]`" x-model="row.days"
+                                        placeholder="e.g. Sunday - Thursday" required
+                                        class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:border-[#8F966C]">
+                                </div>
+
+                                <!-- Opening Time -->
+                                <div class="w-full sm:w-1/4" x-show="!row.closed">
+                                    <input type="time" :name="`operating_hours[${index}][open]`" x-model="row.open"
+                                        class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:border-[#8F966C]">
+                                </div>
+
+                                <!-- Closing Time -->
+                                <div class="w-full sm:w-1/4" x-show="!row.closed">
+                                    <input type="time" :name="`operating_hours[${index}][close]`" x-model="row.close"
+                                        class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:border-[#8F966C]">
+                                </div>
+
+                                <!-- Closed Toggle -->
+                                <div class="flex items-center space-x-2 shrink-0">
+                                    <label
+                                        class="inline-flex items-center space-x-1 text-[11px] text-stone-600 cursor-pointer">
+                                        <input type="checkbox" :name="`operating_hours[${index}][closed]`"
+                                            x-model="row.closed" value="1"
+                                            class="rounded border-stone-300 text-[#8F966C] focus:ring-[#8F966C]">
+                                        <span>{{ __('Closed') }}</span>
+                                    </label>
+                                </div>
+
+                                <!-- Remove Row Button -->
+                                <div class="shrink-0 ml-auto">
+                                    <button type="button" @click="removeSchedule(index)"
+                                        class="text-stone-400 hover:text-rose-600 p-1.5 transition">
+                                        <i class="fa-solid fa-trash-can text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
 

@@ -1526,9 +1526,35 @@
 
                 <!-- Operating Hours Pill -->
                 <div
-                    class="inline-flex items-center space-x-2 rtl:space-x-reverse bg-black/40 backdrop-blur-xl border border-white/15 px-3.5 py-2 rounded-2xl text-stone-200 text-[11px] font-bold shadow-lg">
-                    <i class="fa-regular fa-clock text-[#B5BF8A]"></i>
-                    <span>{{ $settings['operating_hours'] ?? __('7:00 AM – 11:30 PM') }}</span>
+                    class="inline-flex items-start space-x-2 rtl:space-x-reverse bg-black/40 backdrop-blur-xl border border-white/15 px-3.5 py-2.5 rounded-2xl text-stone-200 text-[11px] font-bold shadow-lg">
+                    <i class="fa-regular fa-clock text-[#B5BF8A] mt-0.5"></i>
+                    <div class="space-y-0.5">
+                        @php
+                            $hours = $settings['operating_hours'] ?? null;
+                            if (is_string($hours)) {
+                                $hours = json_decode($hours, true);
+                            }
+                        @endphp
+
+                        @if (is_array($hours) && count($hours) > 0)
+                            @foreach ($hours as $schedule)
+                                <div>
+                                    <span class="text-stone-300">{{ $schedule['days'] }}:</span>
+                                    @if (!empty($schedule['closed']))
+                                        <span class="text-rose-400 font-extrabold">{{ __('Closed') }}</span>
+                                    @else
+                                        <span class="text-white">
+                                            {{ !empty($schedule['open']) ? date('g:i A', strtotime($schedule['open'])) : '' }}
+                                            –
+                                            {{ !empty($schedule['close']) ? date('g:i A', strtotime($schedule['close'])) : '' }}
+                                        </span>
+                                    @endif
+                                </div>
+                            @endforeach
+                        @else
+                            <span>{{ __('7:00 AM – 11:30 PM') }}</span>
+                        @endif
+                    </div>
                 </div>
             </div>
 

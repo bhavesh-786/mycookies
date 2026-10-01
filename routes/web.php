@@ -238,7 +238,7 @@ Route::prefix('backend')->name('admin.')->middleware('auth')->group(function () 
     // Settings
     Route::middleware(['can:manage-settings'])->group(function () {
         Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
-        Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
+        Route::post('settings', [SettingController::class, 'updateSettings'])->name('settings.update');
     });
 });
 // ==========================================
