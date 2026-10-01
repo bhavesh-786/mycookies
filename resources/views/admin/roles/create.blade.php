@@ -2,7 +2,7 @@
 @section('title', __('Create Role'))
 
 @section('content')
-    <div class="max-w-2xl mx-auto space-y-6">
+    <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-base font-extrabold text-stone-900">{{ __('Create Role') }}</h2>

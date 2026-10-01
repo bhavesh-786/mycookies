@@ -17,12 +17,6 @@
             </div>
         </div>
 
-        @if (session('success'))
-            <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
-                {{ session('success') }}
-            </div>
-        @endif
-
         <div class="bg-white border border-stone-200/80 rounded-2xl shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left rtl:text-right border-collapse text-xs">

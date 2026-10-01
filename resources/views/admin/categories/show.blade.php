@@ -2,7 +2,7 @@
 @section('title', 'Category Details: ' . $category->name)
 
 @section('content')
-    <div class="max-w-4xl space-y-6">
+    <div class="space-y-6">
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <a href="{{ route('admin.categories.index') }}"

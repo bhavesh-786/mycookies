@@ -2,7 +2,7 @@
 @section('title', __('Create New Category'))
 
 @section('content')
-    <div class="max-w-2xl mx-auto space-y-6">
+    <div class="space-y-6">
         <!-- Header with Back Button -->
         <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-stone-200/80 shadow-sm">
             <div class="flex items-center space-x-3 rtl:space-x-reverse">

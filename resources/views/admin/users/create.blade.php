@@ -2,7 +2,7 @@
 @section('title', __('Add Admin User'))
 
 @section('content')
-    <div class="max-w-2xl mx-auto space-y-6">
+    <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-base font-extrabold text-stone-900">{{ __('Add New User') }}</h2>

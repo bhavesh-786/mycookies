@@ -2,7 +2,7 @@
 @section('title', __('Edit Admin User'))
 
 @section('content')
-    <div class="max-w-2xl mx-auto space-y-6">
+    <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-base font-extrabold text-stone-900">{{ __('Edit User') }}: {{ $user->name }}</h2>
