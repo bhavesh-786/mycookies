@@ -163,197 +163,6 @@
                 </div>
             </div>
 
-            <!-- Delivery / Pickup Switcher & Quick Location Info -->
-            <section class="p-3.5 sm:p-4 bg-white border-b border-stone-200/60 shrink-0"
-                x-show="['categories-grid', 'category-products'].includes(view)">
-                <div
-                    class="grid grid-cols-2 max-w-[280px] mx-auto bg-stone-100 p-1 rounded-2xl shadow-inner mb-3 border border-stone-200/50">
-                    <button @click="setMethod('delivery')"
-                        :class="method === 'delivery' ? 'bg-white text-[#24261F] font-black shadow-xs' :
-                            'text-stone-500 hover:text-stone-800 font-semibold'"
-                        class="py-1.5 text-xs text-center transition-all duration-200 rounded-xl flex items-center justify-center space-x-1.5 rtl:space-x-reverse">
-                        <i class="fa-solid fa-bicycle text-[11px]"
-                            :class="method === 'delivery' ? 'text-[#747D52]' : 'opacity-60'"></i>
-                        <span>{{ __('Delivery') }}</span>
-                    </button>
-                    <button @click="setMethod('pickup')"
-                        :class="method === 'pickup' ? 'bg-[#747D52] text-white font-black shadow-xs' :
-                            'text-stone-500 hover:text-stone-800 font-semibold'"
-                        class="py-1.5 text-xs text-center transition-all duration-200 rounded-xl flex items-center justify-center space-x-1.5 rtl:space-x-reverse">
-                        <i class="fa-solid fa-store text-[11px]"
-                            :class="method === 'pickup' ? 'text-white' : 'opacity-60'"></i>
-                        <span>{{ __('Pickup') }}</span>
-                    </button>
-                </div>
-
-                <div
-                    class="flex items-center justify-between text-xs px-3 py-2 bg-[#FAF9F5] border border-stone-200/70 rounded-xl shadow-2xs">
-                    <div class="flex items-center space-x-2 rtl:space-x-reverse truncate min-w-0">
-                        <span
-                            class="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-[#747D52] shadow-xs shrink-0 border border-stone-100">
-                            <i class="fa-solid text-[11px]"
-                                :class="method === 'delivery' ? 'fa-location-dot' : 'fa-store'"></i>
-                        </span>
-                        <div class="truncate min-w-0">
-                            <span class="text-[10px] text-stone-400 block leading-tight font-medium"
-                                x-text="method === 'delivery' ? '{{ __('Deliver to') }}' : '{{ __('Store Branch') }}'"></span>
-                            <span class="font-bold text-[#24261F] truncate text-xs block"
-                                x-text="currentLocationName"></span>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2 rtl:space-x-reverse shrink-0 ml-2 rtl:ml-0 rtl:mr-2">
-                        <span
-                            class="text-[11px] font-semibold text-stone-600 bg-white px-2 py-0.5 rounded-lg border border-stone-200/60 shadow-2xs"
-                            x-text="method === 'delivery' ? '{{ __('~1 h') }}' : '{{ __('~30 min') }}'"></span>
-                        <button @click="navigate('/select-location')"
-                            class="text-[#747D52] font-black text-[11px] hover:underline">{{ __('Change') }}</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ================= HORIZONTAL QUICK-CATEGORY BAR ================= -->
-            <div class="relative w-full border-b border-stone-200/60 bg-[#FCFBF9] shrink-0 overflow-hidden"
-                x-show="view === 'categories-grid' || view === 'category-products'" x-data="{
-                    scrollLeft() { $refs.pillsContainer.scrollBy({ left: -160, behavior: 'smooth' }); },
-                        scrollRight() { $refs.pillsContainer.scrollBy({ left: 160, behavior: 'smooth' }); }
-                }">
-
-                <button type="button" @click="scrollLeft()"
-                    class="hidden sm:flex absolute left-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-r from-[#FCFBF9] via-[#FCFBF9]/90 to-transparent text-stone-500 hover:text-stone-900 transition">
-                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
-                </button>
-
-                <div x-ref="pillsContainer"
-                    class="px-4 sm:px-6 py-2.5 flex items-center space-x-2 rtl:space-x-reverse overflow-x-auto no-scrollbar scroll-smooth w-full">
-                    <button type="button" @click="applyCategoryFilter(null)"
-                        class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0"
-                        :class="!selectedCategoryFilter ? 'bg-[#747D52] text-white shadow-xs' :
-                            'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'">
-                        {{ __('All Categories') }}
-                    </button>
-                    <template x-for="cat in categoriesList" :key="cat.id">
-                        <button type="button" @click="openCategory(cat)"
-                            class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0"
-                            :class="Number(selectedCategoryFilter) === Number(cat.id) ? 'bg-[#747D52] text-white shadow-xs' :
-                                'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'"
-                            x-text="cat.name">
-                        </button>
-                    </template>
-                    <div class="w-8 shrink-0"></div>
-                </div>
-
-                <button type="button" @click="scrollRight()"
-                    class="hidden sm:flex absolute right-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-l from-[#FCFBF9] via-[#FCFBF9]/90 to-transparent text-stone-500 hover:text-stone-900 transition">
-                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                </button>
-
-                <div
-                    class="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-[#FCFBF9] to-transparent rtl:right-auto rtl:left-0 rtl:bg-gradient-to-r">
-                </div>
-            </div>
-
-            <!-- ================= MOBILE HERO SLIDER FROM PRODUCTS (lg:hidden) ================= -->
-            <div class="block lg:hidden px-4 pt-3 pb-1 shrink-0" x-show="view === 'categories-grid'"
-                x-data="{
-                    activeSlide: 0,
-                    timer: null,
-                    get featuredSlides() {
-                        const items = [];
-                        this.categoriesList.forEach(cat => {
-                            (cat.products || []).forEach(prod => {
-                                if (prod.image && items.length < 5) {
-                                    items.push({
-                                        id: prod.id,
-                                        name: prod.name,
-                                        slug: prod.slug,
-                                        image: prod.image,
-                                        base_price: prod.base_price,
-                                        product: prod
-                                    });
-                                }
-                            });
-                        });
-                        return items;
-                    },
-                    startAutoSlide() {
-                        if (this.timer) clearInterval(this.timer);
-                        this.timer = setInterval(() => {
-                            if (this.featuredSlides.length > 1) {
-                                this.activeSlide = (this.activeSlide + 1) % this.featuredSlides.length;
-                            }
-                        }, 4000);
-                    },
-                    init() {
-                        this.startAutoSlide();
-                    }
-                }">
-
-                <template x-if="featuredSlides.length > 0">
-                    <div
-                        class="relative w-full aspect-[21/9] sm:aspect-[2.4/1] rounded-2xl overflow-hidden shadow-sm bg-stone-100 group select-none ring-1 ring-black/5">
-                        <template x-for="(item, i) in featuredSlides" :key="item.id">
-                            <div x-show="activeSlide === i" @click="openCustomizer(item.product)"
-                                x-transition:enter="transition ease-out duration-500"
-                                x-transition:enter-start="opacity-0 scale-95"
-                                x-transition:enter-end="opacity-100 scale-100"
-                                x-transition:leave="transition ease-in duration-300"
-                                x-transition:leave-start="opacity-100 scale-100"
-                                x-transition:leave-end="opacity-0 scale-95" class="absolute inset-0 cursor-pointer">
-
-                                <img :src="item.image" :alt="item.name"
-                                    class="w-full h-full object-cover">
-
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-3.5">
-                                    <div class="flex items-center justify-between text-white">
-                                        <div>
-                                            <h4 class="font-extrabold text-xs tracking-wide leading-tight drop-shadow-sm"
-                                                x-text="item.name"></h4>
-                                            <span
-                                                class="text-[11px] font-extrabold text-[#272E1B] bg-white/95 px-2.5 py-0.5 rounded-lg mt-1 inline-block shadow-xs"
-                                                x-text="item.base_price ? `${parseFloat(item.base_price).toFixed(3)} {{ __('KD') }}` : '{{ __('Customizable') }}'"></span>
-                                        </div>
-                                        <span
-                                            class="w-7 h-7 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-xs">
-                                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-
-                        <div class="absolute bottom-2.5 inset-x-0 flex justify-center space-x-1.5 rtl:space-x-reverse z-10"
-                            x-show="featuredSlides.length > 1">
-                            <template x-for="(item, i) in featuredSlides" :key="i">
-                                <button type="button" @click.stop="activeSlide = i; startAutoSlide()"
-                                    class="h-1.5 rounded-full transition-all duration-300"
-                                    :class="activeSlide === i ? 'w-5 bg-white' : 'w-1.5 bg-white/50'"></button>
-                            </template>
-                        </div>
-                    </div>
-                </template>
-            </div>
-
-            <!-- Filter & Sort Tag Button & Active Status Bar -->
-            <div class="px-4 sm:px-6 pt-3 pb-1 flex items-center justify-between shrink-0"
-                x-show="view === 'categories-grid' || view === 'category-products'">
-                <button @click="showFilterModal = true"
-                    class="border border-stone-200 bg-white text-stone-700 px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-2xs hover:border-[#747D52] hover:bg-stone-50 transition flex items-center space-x-1.5 rtl:space-x-reverse"
-                    :class="(selectedSort !== 'default' || maxPriceFilter < 25.000) ?
-                    'border-[#747D52] text-[#747D52] bg-[#747D52]/10' : ''">
-                    <i class="fa-solid fa-sliders text-[10px]"></i>
-                    <span>{{ __('Filter & Sort') }}</span>
-                    <span x-show="selectedSort !== 'default' || maxPriceFilter < 25.000"
-                        class="w-1.5 h-1.5 rounded-full bg-[#747D52]"></span>
-                </button>
-
-                <button x-show="selectedSort !== 'default' || productSearch !== '' || maxPriceFilter < 25.000"
-                    @click="resetFilters()"
-                    class="text-[11px] text-stone-400 hover:text-stone-800 underline font-semibold transition">
-                    {{ __('Reset Filters') }}
-                </button>
-            </div>
-
             <!-- ================= SIDEBAR DRAWER ================= -->
             <div x-show="showFilterModal" x-cloak class="relative z-50">
                 <div class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity" x-show="showFilterModal"
@@ -485,8 +294,196 @@
                 </div>
             </div>
 
-            <!-- SCROLLABLE BODY AREA -->
-            <div class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 space-y-5">
+            <!-- SCROLLABLE BODY AREA (Added ample bottom padding pb-48 to ensure full scrolling access) -->
+            <div class="flex-1 min-h-0 overflow-y-auto custom-scroll p-4 sm:p-6 space-y-5 pb-48">
+
+                <!-- Delivery / Pickup Switcher & Quick Location Info -->
+                <section class="p-3.5 sm:p-4 bg-white border border-stone-200/60 rounded-2xl shadow-xs shrink-0"
+                    x-show="['categories-grid', 'category-products'].includes(view)">
+                    <div
+                        class="grid grid-cols-2 max-w-[280px] mx-auto bg-stone-100 p-1 rounded-2xl shadow-inner mb-3 border border-stone-200/50">
+                        <button @click="setMethod('delivery')"
+                            :class="method === 'delivery' ? 'bg-white text-[#24261F] font-black shadow-xs' :
+                                'text-stone-500 hover:text-stone-800 font-semibold'"
+                            class="py-1.5 text-xs text-center transition-all duration-200 rounded-xl flex items-center justify-center space-x-1.5 rtl:space-x-reverse">
+                            <i class="fa-solid fa-bicycle text-[11px]"
+                                :class="method === 'delivery' ? 'text-[#747D52]' : 'opacity-60'"></i>
+                            <span>{{ __('Delivery') }}</span>
+                        </button>
+                        <button @click="setMethod('pickup')"
+                            :class="method === 'pickup' ? 'bg-[#747D52] text-white font-black shadow-xs' :
+                                'text-stone-500 hover:text-stone-800 font-semibold'"
+                            class="py-1.5 text-xs text-center transition-all duration-200 rounded-xl flex items-center justify-center space-x-1.5 rtl:space-x-reverse">
+                            <i class="fa-solid fa-store text-[11px]"
+                                :class="method === 'pickup' ? 'text-white' : 'opacity-60'"></i>
+                            <span>{{ __('Pickup') }}</span>
+                        </button>
+                    </div>
+
+                    <div
+                        class="flex items-center justify-between text-xs px-3 py-2 bg-[#FAF9F5] border border-stone-200/70 rounded-xl shadow-2xs">
+                        <div class="flex items-center space-x-2 rtl:space-x-reverse truncate min-w-0">
+                            <span
+                                class="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-[#747D52] shadow-xs shrink-0 border border-stone-100">
+                                <i class="fa-solid text-[11px]"
+                                    :class="method === 'delivery' ? 'fa-location-dot' : 'fa-store'"></i>
+                            </span>
+                            <div class="truncate min-w-0">
+                                <span class="text-[10px] text-stone-400 block leading-tight font-medium"
+                                    x-text="method === 'delivery' ? '{{ __('Deliver to') }}' : '{{ __('Store Branch') }}'"></span>
+                                <span class="font-bold text-[#24261F] truncate text-xs block"
+                                    x-text="currentLocationName"></span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 rtl:space-x-reverse shrink-0 ml-2 rtl:ml-0 rtl:mr-2">
+                            <span
+                                class="text-[11px] font-semibold text-stone-600 bg-white px-2 py-0.5 rounded-lg border border-stone-200/60 shadow-2xs"
+                                x-text="method === 'delivery' ? '{{ __('~1 h') }}' : '{{ __('~30 min') }}'"></span>
+                            <button @click="navigate('/select-location')"
+                                class="text-[#747D52] font-black text-[11px] hover:underline">{{ __('Change') }}</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= HORIZONTAL QUICK-CATEGORY BAR ================= -->
+                <div class="relative w-full rounded-2xl border border-stone-200/60 bg-white p-2 shrink-0 overflow-hidden shadow-xs"
+                    x-show="view === 'categories-grid' || view === 'category-products'" x-data="{
+                        scrollLeft() { $refs.pillsContainer.scrollBy({ left: -160, behavior: 'smooth' }); },
+                            scrollRight() { $refs.pillsContainer.scrollBy({ left: 160, behavior: 'smooth' }); }
+                    }">
+
+                    <button type="button" @click="scrollLeft()"
+                        class="hidden sm:flex absolute left-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-r from-white via-white/90 to-transparent text-stone-500 hover:text-stone-900 transition">
+                        <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                    </button>
+
+                    <div x-ref="pillsContainer"
+                        class="px-2 py-1 flex items-center space-x-2 rtl:space-x-reverse overflow-x-auto no-scrollbar scroll-smooth w-full">
+                        <button type="button" @click="applyCategoryFilter(null)"
+                            class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0"
+                            :class="!selectedCategoryFilter ? 'bg-[#747D52] text-white shadow-xs' :
+                                'bg-stone-50 border border-stone-200 text-stone-600 hover:border-stone-400'">
+                            {{ __('All Categories') }}
+                        </button>
+                        <template x-for="cat in categoriesList" :key="cat.id">
+                            <button type="button" @click="openCategory(cat)"
+                                class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0"
+                                :class="Number(selectedCategoryFilter) === Number(cat.id) ?
+                                    'bg-[#747D52] text-white shadow-xs' :
+                                    'bg-stone-50 border border-stone-200 text-stone-600 hover:border-stone-400'"
+                                x-text="cat.name">
+                            </button>
+                        </template>
+                        <div class="w-8 shrink-0"></div>
+                    </div>
+
+                    <button type="button" @click="scrollRight()"
+                        class="hidden sm:flex absolute right-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-l from-white via-white/90 to-transparent text-stone-500 hover:text-stone-900 transition">
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </button>
+                </div>
+
+                <!-- Filter & Sort Tag Button & Active Status Bar -->
+                <div class="flex items-center justify-between shrink-0"
+                    x-show="view === 'categories-grid' || view === 'category-products'">
+                    <button @click="showFilterModal = true"
+                        class="border border-stone-200 bg-white text-stone-700 px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-2xs hover:border-[#747D52] hover:bg-stone-50 transition flex items-center space-x-1.5 rtl:space-x-reverse"
+                        :class="(selectedSort !== 'default' || maxPriceFilter < 25.000) ?
+                        'border-[#747D52] text-[#747D52] bg-[#747D52]/10' : ''">
+                        <i class="fa-solid fa-sliders text-[10px]"></i>
+                        <span>{{ __('Filter & Sort') }}</span>
+                        <span x-show="selectedSort !== 'default' || maxPriceFilter < 25.000"
+                            class="w-1.5 h-1.5 rounded-full bg-[#747D52]"></span>
+                    </button>
+
+                    <button x-show="selectedSort !== 'default' || productSearch !== '' || maxPriceFilter < 25.000"
+                        @click="resetFilters()"
+                        class="text-[11px] text-stone-400 hover:text-stone-800 underline font-semibold transition">
+                        {{ __('Reset Filters') }}
+                    </button>
+                </div>
+
+                <!-- MOBILE HERO SLIDER FROM PRODUCTS (lg:hidden) -->
+                <div class="block lg:hidden shrink-0" x-show="view === 'categories-grid'" x-data="{
+                    activeSlide: 0,
+                    timer: null,
+                    get featuredSlides() {
+                        const items = [];
+                        this.categoriesList.forEach(cat => {
+                            (cat.products || []).forEach(prod => {
+                                if (prod.image && items.length < 5) {
+                                    items.push({
+                                        id: prod.id,
+                                        name: prod.name,
+                                        slug: prod.slug,
+                                        image: prod.image,
+                                        base_price: prod.base_price,
+                                        product: prod
+                                    });
+                                }
+                            });
+                        });
+                        return items;
+                    },
+                    startAutoSlide() {
+                        if (this.timer) clearInterval(this.timer);
+                        this.timer = setInterval(() => {
+                            if (this.featuredSlides.length > 1) {
+                                this.activeSlide = (this.activeSlide + 1) % this.featuredSlides.length;
+                            }
+                        }, 4000);
+                    },
+                    init() {
+                        this.startAutoSlide();
+                    }
+                }">
+
+                    <template x-if="featuredSlides.length > 0">
+                        <div
+                            class="relative w-full aspect-[21/9] sm:aspect-[2.4/1] rounded-2xl overflow-hidden shadow-sm bg-stone-100 group select-none ring-1 ring-black/5">
+                            <template x-for="(item, i) in featuredSlides" :key="item.id">
+                                <div x-show="activeSlide === i" @click="openCustomizer(item.product)"
+                                    x-transition:enter="transition ease-out duration-500"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-300"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95"
+                                    class="absolute inset-0 cursor-pointer">
+
+                                    <img :src="item.image" :alt="item.name"
+                                        class="w-full h-full object-cover">
+
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-3.5">
+                                        <div class="flex items-center justify-between text-white">
+                                            <div>
+                                                <h4 class="font-extrabold text-xs tracking-wide leading-tight drop-shadow-sm"
+                                                    x-text="item.name"></h4>
+                                                <span
+                                                    class="text-[11px] font-extrabold text-[#272E1B] bg-white/95 px-2.5 py-0.5 rounded-lg mt-1 inline-block shadow-xs"
+                                                    x-text="item.base_price ? `${parseFloat(item.base_price).toFixed(3)} {{ __('KD') }}` : '{{ __('Customizable') }}'"></span>
+                                            </div>
+                                            <span
+                                                class="w-7 h-7 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-xs">
+                                                <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div class="absolute bottom-2.5 inset-x-0 flex justify-center space-x-1.5 rtl:space-x-reverse z-10"
+                                x-show="featuredSlides.length > 1">
+                                <template x-for="(item, i) in featuredSlides" :key="i">
+                                    <button type="button" @click.stop="activeSlide = i; startAutoSlide()"
+                                        class="h-1.5 rounded-full transition-all duration-300"
+                                        :class="activeSlide === i ? 'w-5 bg-white' : 'w-1.5 bg-white/50'"></button>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
 
                 <!-- SCREEN 1: CATEGORY TILES GRID -->
                 <div x-show="view === 'categories-grid'" class="space-y-4">
@@ -564,43 +561,72 @@
                     </div>
                 </div>
 
-                <!-- SCREEN 3: PRODUCT ADDON CUSTOMIZER -->
-                <div x-show="view === 'customizer'" x-cloak class="space-y-5">
+                <!-- SCREEN 3: PRODUCT ADDON CUSTOMIZER (PREMIUM REDESIGN) -->
+                <div x-show="view === 'customizer'" x-cloak class="space-y-5 max-w-xl mx-auto pb-6">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse">
                         <button @click="navigate('/category/' + (activeCategory?.slug || ''))"
-                            class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95">
+                            class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95 shadow-2xs">
                             <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
                         </button>
-                        <h2 class="font-extrabold text-sm text-stone-900" x-text="activeProduct?.name"></h2>
+                        <h2 class="font-extrabold text-sm text-stone-900 tracking-tight" x-text="activeProduct?.name">
+                        </h2>
                     </div>
 
-                    <div
-                        class="aspect-video w-full rounded-2xl overflow-hidden bg-stone-100 border border-stone-200/80 shadow-xs">
-                        <img :src="activeProduct?.image || 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=600'"
-                            class="w-full h-full object-cover">
-                    </div>
-
-                    <div
-                        class="flex items-center justify-between bg-white p-3.5 rounded-2xl border border-stone-200/80 shadow-xs">
-                        <div>
-                            <span class="font-bold text-xs text-stone-900 block">{{ __('Quantity') }}</span>
-                            <span class="text-[11px] text-stone-400 font-medium">{{ __('Select amount') }}</span>
+                    <!-- Immersive Full-Width Product Showcase Card -->
+                    <div class="bg-white rounded-3xl overflow-hidden border border-stone-200/80 shadow-md">
+                        <div
+                            class="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-stone-900 overflow-hidden group">
+                            <img :src="activeProduct?.image || 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800'"
+                                class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
+                            </div>
+                            <div class="absolute bottom-3.5 left-4 right-4 flex items-end justify-between text-white">
+                                <div>
+                                    <span
+                                        class="text-[10px] uppercase tracking-widest font-extrabold bg-[#747D52] px-2.5 py-1 rounded-lg text-white inline-block mb-1 shadow-sm">{{ __('Signature Item') }}</span>
+                                    <h3 class="font-black text-base sm:text-lg drop-shadow-sm"
+                                        x-text="activeProduct?.name"></h3>
+                                </div>
+                                <span
+                                    class="text-sm sm:text-base font-black bg-white/95 text-[#272E1B] px-3 py-1 rounded-xl shadow-md"
+                                    x-text="activeProduct?.base_price ? `${parseFloat(activeProduct.base_price).toFixed(3)} {{ __('KD') }}` : '{{ __('Customizable') }}'"></span>
+                            </div>
                         </div>
-                        <div class="flex items-center space-x-2.5 rtl:space-x-reverse bg-stone-100 p-1 rounded-xl">
+
+                        <!-- Product Description & Info -->
+                        <div class="p-4 sm:p-5 space-y-2 border-b border-stone-100"
+                            x-show="activeProduct?.description">
+                            <p class="text-xs text-stone-500 leading-relaxed font-medium"
+                                x-text="activeProduct?.description"></p>
+                        </div>
+                    </div>
+
+                    <!-- Quantity Selection Card -->
+                    <div
+                        class="flex items-center justify-between bg-white p-4 rounded-2xl border border-stone-200/80 shadow-xs">
+                        <div>
+                            <span class="font-extrabold text-xs text-stone-900 block">{{ __('Quantity') }}</span>
+                            <span
+                                class="text-[11px] text-stone-400 font-medium">{{ __('Select desired amount') }}</span>
+                        </div>
+                        <div
+                            class="flex items-center space-x-3 rtl:space-x-reverse bg-stone-100 p-1.5 rounded-xl border border-stone-200/60">
                             <button @click="itemQuantity > 1 ? itemQuantity-- : null; recalcCustomizerPrice()"
-                                class="w-7 h-7 rounded-lg bg-white border border-stone-200 font-bold text-xs hover:border-[#747D52] shadow-xs active:scale-90 transition">-</button>
-                            <span class="text-xs font-extrabold w-5 text-center text-stone-900"
+                                class="w-8 h-8 rounded-lg bg-white border border-stone-200 font-black text-xs hover:border-[#747D52] hover:text-[#747D52] shadow-xs active:scale-90 transition flex items-center justify-center">-</button>
+                            <span class="text-xs font-black w-6 text-center text-stone-900"
                                 x-text="itemQuantity"></span>
                             <button @click="itemQuantity++; recalcCustomizerPrice()"
-                                class="w-7 h-7 rounded-lg bg-white border border-stone-200 font-bold text-xs hover:border-[#747D52] shadow-xs active:scale-90 transition">+</button>
+                                class="w-8 h-8 rounded-lg bg-white border border-stone-200 font-black text-xs hover:border-[#747D52] hover:text-[#747D52] shadow-xs active:scale-90 transition flex items-center justify-center">+</button>
                         </div>
                     </div>
 
+                    <!-- Addon Groups -->
                     <template x-for="group in activeProduct?.addon_groups" :key="group.id">
-                        <div class="border border-stone-200/80 rounded-2xl p-4 bg-white space-y-3.5 shadow-xs">
-                            <div class="flex items-center justify-between border-b border-stone-100 pb-2.5">
+                        <div class="border border-stone-200/80 rounded-2xl p-4 sm:p-5 bg-white space-y-4 shadow-xs">
+                            <div class="flex items-center justify-between border-b border-stone-100 pb-3">
                                 <div>
-                                    <h4 class="font-extrabold text-xs text-stone-900 uppercase tracking-wide"
+                                    <h4 class="font-extrabold text-xs text-stone-900 uppercase tracking-wider"
                                         x-text="group.name">
                                     </h4>
                                     <div class="flex items-center space-x-2 rtl:space-x-reverse mt-1">
@@ -617,7 +643,7 @@
                                 </div>
                                 <template x-if="group.is_required && !isGroupSatisfied(group)">
                                     <span
-                                        class="text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">{{ __('(This field is required)') }}</span>
+                                        class="text-[11px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200/50">{{ __('Required') }}</span>
                                 </template>
                             </div>
 
@@ -627,12 +653,13 @@
                                         :class="{
                                             'opacity-40 cursor-not-allowed bg-stone-50 border-stone-200': isOptionDisabled(
                                                 group, opt.id),
-                                            'cursor-pointer hover:border-[#747D52]/60 bg-white': !isOptionDisabled(
-                                                group, opt.id),
-                                            'border-[#747D52] bg-[#747D52]/10 text-[#272E1B] font-bold ring-1 ring-[#747D52]/40': isOptionSelected(
+                                            'cursor-pointer hover:border-[#747D52]/60 hover:bg-[#747D52]/5 bg-white': !
+                                                isOptionDisabled(
+                                                    group, opt.id),
+                                            'border-[#747D52] bg-[#747D52]/10 text-[#272E1B] font-bold ring-1 ring-[#747D52]/40 shadow-xs': isOptionSelected(
                                                 group.id, opt.id)
                                         }"
-                                        class="flex items-center justify-between p-3 rounded-xl border border-stone-200 transition select-none">
+                                        class="flex items-center justify-between p-3.5 rounded-xl border border-stone-200 transition select-none">
 
                                         <div class="flex items-center space-x-3 rtl:space-x-reverse">
                                             <input :type="group.type === 'radio' ? 'radio' : 'checkbox'"
@@ -640,13 +667,13 @@
                                                 :checked="isOptionSelected(group.id, opt.id)"
                                                 :disabled="isOptionDisabled(group, opt.id)"
                                                 @change="toggleOption(group, opt)"
-                                                class="w-4 h-4 text-[#747D52] focus:ring-[#747D52]"
+                                                class="w-4 h-4 text-[#747D52] focus:ring-[#747D52] accent-[#747D52]"
                                                 :class="group.type === 'radio' ? '' : 'rounded'">
                                             <span class="text-xs font-semibold text-stone-800"
                                                 x-text="opt.name"></span>
                                         </div>
 
-                                        <span class="text-xs font-bold text-[#747D52]"
+                                        <span class="text-xs font-extrabold text-[#747D52]"
                                             x-text="parseFloat(opt.price) > 0 ? `+ ${parseFloat(opt.price).toFixed(3)} {{ __('KD') }}` : `0.000 {{ __('KD') }}`">
                                         </span>
                                     </label>
@@ -2404,7 +2431,11 @@
                             body: JSON.stringify(payload)
                         })
                         .then(async res => {
-                            const data = await res.json();
+                            let data = {};
+                            try {
+                                data = await res.json();
+                            } catch (e) {}
+
                             if (!res.ok) throw new Error(data.message || 'Server error');
                             return data;
                         })
