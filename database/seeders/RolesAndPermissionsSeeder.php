@@ -20,6 +20,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-categories',
             'manage-orders',
             'manage-users',
+            'manage-customers'
         ];
 
         foreach ($permissions as $perm) {

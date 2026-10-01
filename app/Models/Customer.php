@@ -35,6 +35,12 @@ class Customer extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    // Define the relationship to orders
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'customer_id');
+    }
+
     /**
      * Send the password reset notification for storefront customer.
      *

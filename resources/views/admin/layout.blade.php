@@ -94,6 +94,15 @@
                         </a>
                     @endcan
 
+                    <!-- Roles: Controlled by 'manage-users' -->
+                    @can('manage-customers')
+                        <a href="{{ route('admin.customers.index') }}"
+                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.customers.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                            <i class="fa-solid fa-user-shield w-4 text-center"></i>
+                            <span>{{ __('Customers') }}</span>
+                        </a>
+                    @endcan
+
                     <!-- Orders: Controlled by 'manage-orders' -->
                     @can('manage-orders')
                         <a href="{{ route('admin.orders.index') }}"
