@@ -108,10 +108,11 @@
                                         class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                     <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                                 </span>
-                                <span>{{ __('Open') }}</span>
+                                <span>{{ $settings['store_status'] ?? __('Open') }}</span>
                             </span>
                             <span>&bull;</span>
-                            <span class="truncate">{{ __('Min. 3.75 KD') }}</span>
+                            <span class="truncate">{{ __('Min.') }} {{ $settings['min_order'] ?? '3.75' }}
+                                {{ __('KD') }}</span>
                         </div>
                     </div>
                 </div>
@@ -1492,7 +1493,7 @@
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span class="text-[11px] font-black uppercase tracking-widest text-white">
-                        {{ __('Open in Kuwait') }}
+                        {{ $settings['store_status'] ?? __('Open in Kuwait') }}
                     </span>
                 </div>
 
@@ -1500,7 +1501,7 @@
                 <div
                     class="inline-flex items-center space-x-2 rtl:space-x-reverse bg-black/40 backdrop-blur-xl border border-white/15 px-3.5 py-2 rounded-2xl text-stone-200 text-[11px] font-bold shadow-lg">
                     <i class="fa-regular fa-clock text-[#B5BF8A]"></i>
-                    <span>{{ __('7:00 AM – 11:30 PM') }}</span>
+                    <span>{{ $settings['operating_hours'] ?? __('7:00 AM – 11:30 PM') }}</span>
                 </div>
             </div>
 
@@ -1525,13 +1526,14 @@
                 </div>
 
                 <!-- Right: Instagram Link -->
-                <a href="https://www.instagram.com/otherwisekw/" target="_blank"
+                <a href="https://www.instagram.com/{{ ltrim($settings['instagram_handle'] ?? 'otherwisekw', '@') }}/"
+                    target="_blank"
                     class="group/ig inline-flex items-center space-x-2 text-stone-900 hover:text-[#747D52] transition-colors font-black text-xs">
                     <div
                         class="w-7 h-7 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center text-xs shadow-sm group-hover/ig:rotate-12 transition-transform">
                         <i class="fa-brands fa-instagram"></i>
                     </div>
-                    <span class="hidden sm:inline">@otherwisekw</span>
+                    <span class="hidden sm:inline" x-text="settings.instagram_handle || '@otherwisekw'"></span>
                 </a>
             </div>
 
@@ -1545,12 +1547,15 @@
                 view: 'categories-grid',
                 method: 'delivery',
 
+                settings: @json($settings ?? []),
+
                 selectedDeliveryArea: {
-                    name: '{{ app()->getLocale() === 'ar' ? 'أبو حليفة' : 'Abu Halifa' }}',
-                    fee: 0.950
+                    id: {{ isset($defaultArea) ? $defaultArea->id : 'null' }},
+                    name: '{{ isset($defaultArea) ? (app()->getLocale() === 'ar' ? $defaultArea->name_ar : $defaultArea->name_en) : (app()->getLocale() === 'ar' ? 'أبو حليفة' : 'Abu Halifa') }}',
+                    fee: parseFloat('{{ $settings['default_delivery_fee'] ?? 0.95 }}')
                 },
                 selectedPickupStore: null,
-                deliveryFee: 0.950,
+                deliveryFee: parseFloat('{{ $settings['default_delivery_fee'] ?? 0.95 }}'),
 
                 // Search & Filter State
                 searchOpen: false,
@@ -1723,12 +1728,14 @@
                         this.deliveryFee = 0.000;
                         if (!this.selectedPickupStore && this.storesList.length > 0) {
                             this.selectedPickupStore = {
+                                id: this.storesList[0].id,
                                 name: this.storesList[0].name,
                                 description: this.storesList[0].description
                             };
                         }
                     } else {
-                        this.deliveryFee = this.selectedDeliveryArea ? this.selectedDeliveryArea.fee : 0.950;
+                        this.deliveryFee = this.selectedDeliveryArea ? this.selectedDeliveryArea.fee : parseFloat(
+                            '{{ $settings['default_delivery_fee'] ?? 0.95 }}');
                     }
                 },
 

@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -98,7 +99,9 @@ class StoreController extends Controller
             'phone' => $customerUser->phone ?? '',
         ] : null;
 
-        return view('store', compact('categories', 'governoratesList', 'storesList', 'currentUser'));
+        $settings = Setting::pluck('value', 'key')->toArray();
+
+        return view('store', compact('categories', 'governoratesList', 'storesList', 'currentUser', 'settings'));
     }
 
     // Step: Send 6-digit OTP code[cite: 1]
