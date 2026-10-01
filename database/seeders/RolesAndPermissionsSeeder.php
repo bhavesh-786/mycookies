@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,39 +13,80 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     public function run(): void
     {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        // 1. Reset cached roles and permissions
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Create Permissions
+        // 2. Define all permissions used in your sidebar and routes
         $permissions = [
+            // User & Access Management
+            'manage-users',
+
+            // Customer Accounts
+            'manage-customers',
+
+            // Store Settings & Locations
+            'manage-settings',
+            'manage-governorates',
+            'manage-areas',
+            'manage-stores',
+
+            // Catalog Management
             'manage-products',
             'manage-categories',
+
+            // Order Fulfillment
             'manage-orders',
-            'manage-users',
-            'manage-customers'
         ];
 
-        foreach ($permissions as $perm) {
-            Permission::firstOrCreate(['name' => $perm]);
+        foreach ($permissions as $permissionName) {
+            Permission::firstOrCreate([
+                'name'       => $permissionName,
+                'guard_name' => 'web',
+            ]);
         }
 
-        // Create Roles and assign permissions
-        $superAdmin = Role::firstOrCreate(['name' => 'Super Admin']);
-        $superAdmin->givePermissionTo(Permission::all());
+        // 3. Create Roles and assign permissions
 
-        $manager = Role::firstOrCreate(['name' => 'Manager']);
-        $manager->syncPermissions(['manage-products', 'manage-categories', 'manage-orders']);
+        // --- Role 1: Super Admin (Has everything) ---
+        $superAdmin = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
+        $superAdmin->syncPermissions(Permission::all());
 
-        $staff = Role::firstOrCreate(['name' => 'Staff']);
-        $staff->syncPermissions(['manage-orders']);
+        // --- Role 2: Store Manager ---
+        $manager = Role::firstOrCreate(['name' => 'Manager', 'guard_name' => 'web']);
+        $manager->syncPermissions([
+            'manage-orders',
+            'manage-products',
+            'manage-categories',
+            'manage-customers',
+            'manage-settings',
+            'manage-governorates',
+            'manage-areas',
+            'manage-pickstores',
+        ]);
 
-        // Assign Super Admin role to the first user or create one
+        // --- Role 3: Kitchen / Order Staff ---
+        $orderStaff = Role::firstOrCreate(['name' => 'Order Staff', 'guard_name' => 'web']);
+        $orderStaff->syncPermissions([
+            'manage-orders',
+        ]);
+
+        // --- Role 4: Inventory / Catalog Staff ---
+        $inventoryStaff = Role::firstOrCreate(['name' => 'Catalog Staff', 'guard_name' => 'web']);
+        $inventoryStaff->syncPermissions([
+            'manage-products',
+            'manage-categories',
+        ]);
+
+        // 4. Create or update Default Super Admin user
         $admin = User::firstOrCreate(
             ['email' => 'admin@otherwise.com'],
             [
-                'name' => 'System Admin',
+                'name'     => 'System Admin',
                 'password' => Hash::make('password123'),
             ]
         );
-        $admin->assignRole($superAdmin);
+
+        // Assign the Super Admin role
+        $admin->syncRoles([$superAdmin]);
     }
 }

@@ -9,6 +9,8 @@ class Area extends Model
 {
     protected $guarded = [];
 
+    protected $fillable = ['governorate_id', 'name_en', 'name_ar', 'delivery_fee', 'is_active'];
+
     public function governorate(): BelongsTo
     {
         return $this->belongsTo(Governorate::class);

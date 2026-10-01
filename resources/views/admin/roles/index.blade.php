@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        @if (session('success'))
+        {{-- @if (session('success'))
             <div
                 class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center space-x-2 rtl:space-x-reverse">
                 <i class="fa-solid fa-circle-check shrink-0"></i>
@@ -38,7 +38,7 @@
                 <i class="fa-solid fa-circle-exclamation shrink-0"></i>
                 <span>{{ session('error') }}</span>
             </div>
-        @endif
+        @endif --}}
 
         <!-- Roles Table -->
         <div class="bg-white border border-stone-200/80 rounded-2xl shadow-sm overflow-hidden">

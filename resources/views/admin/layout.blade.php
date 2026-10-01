@@ -68,42 +68,15 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <nav class="space-y-1.5 text-xs font-semibold">
-                    <!-- Dashboard: Visible to all authenticated admin users -->
+                <nav class="space-y-1 text-xs font-semibold">
+                    <!-- Dashboard -->
                     <a href="{{ route('admin.dashboard') }}"
                         class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
                         <i class="fa-solid fa-chart-pie w-4 text-center"></i>
                         <span>{{ __('Dashboard') }}</span>
                     </a>
 
-                    <!-- Users: Controlled by 'manage-users' -->
-                    @can('manage-users')
-                        <a href="{{ route('admin.users.index') }}"
-                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.users.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                            <i class="fa-solid fa-users w-4 text-center"></i>
-                            <span>{{ __('Users') }}</span>
-                        </a>
-                    @endcan
-
-                    <!-- Roles: Controlled by 'manage-users' -->
-                    @can('manage-users')
-                        <a href="{{ route('admin.roles.index') }}"
-                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.roles.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                            <i class="fa-solid fa-user-shield w-4 text-center"></i>
-                            <span>{{ __('Roles') }}</span>
-                        </a>
-                    @endcan
-
-                    <!-- Roles: Controlled by 'manage-users' -->
-                    @can('manage-customers')
-                        <a href="{{ route('admin.customers.index') }}"
-                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.customers.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                            <i class="fa-solid fa-user-shield w-4 text-center"></i>
-                            <span>{{ __('Customers') }}</span>
-                        </a>
-                    @endcan
-
-                    <!-- Orders: Controlled by 'manage-orders' -->
+                    <!-- Orders -->
                     @can('manage-orders')
                         <a href="{{ route('admin.orders.index') }}"
                             class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.orders.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
@@ -119,7 +92,7 @@
                         </a>
                     @endcan
 
-                    <!-- Products & Addons: Controlled by 'manage-products' -->
+                    <!-- Products & Addons -->
                     @can('manage-products')
                         <a href="{{ route('admin.products.index') }}"
                             class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.products.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
@@ -128,12 +101,82 @@
                         </a>
                     @endcan
 
-                    <!-- Categories: Controlled by 'manage-categories' -->
+                    <!-- Categories -->
                     @can('manage-categories')
                         <a href="{{ route('admin.categories.index') }}"
                             class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.categories.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
                             <i class="fa-solid fa-layer-group w-4 text-center"></i>
                             <span>{{ __('Categories') }}</span>
+                        </a>
+                    @endcan
+
+                    <!-- Customers -->
+                    @can('manage-customers')
+                        <a href="{{ route('admin.customers.index') }}"
+                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.customers.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                            <i class="fa-solid fa-users-rectangle w-4 text-center"></i>
+                            <span>{{ __('Customers') }}</span>
+                        </a>
+                    @endcan
+
+                    <!-- Section Divider: Regional & Fulfillment -->
+                    <div class="pt-3 pb-1 px-3 text-[10px] uppercase tracking-wider font-extrabold text-stone-500">
+                        {{ __('Fulfillment & Region') }}
+                    </div>
+
+                    <!-- Governorates -->
+                    @can('manage-governorates')
+                        <a href="{{ route('admin.governorates.index') }}"
+                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.governorates.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                            <i class="fa-solid fa-map-location-dot w-4 text-center"></i>
+                            <span>{{ __('Governorates') }}</span>
+                        </a>
+                    @endcan
+
+                    <!-- Delivery Areas -->
+                    @can('manage-areas')
+                        <a href="{{ route('admin.areas.index') }}"
+                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.areas.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                            <i class="fa-solid fa-truck-ramp-box w-4 text-center"></i>
+                            <span>{{ __('Delivery Areas') }}</span>
+                        </a>
+                    @endcan
+
+                    <!-- Pickup Stores -->
+                    @can('manage-stores')
+                        <a href="{{ route('admin.pickstores.index') }}"
+                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.pickstores.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                            <i class="fa-solid fa-store w-4 text-center"></i>
+                            <span>{{ __('Pickup Stores') }}</span>
+                        </a>
+                    @endcan
+
+                    <!-- Section Divider: System Administration -->
+                    <div class="pt-3 pb-1 px-3 text-[10px] uppercase tracking-wider font-extrabold text-stone-500">
+                        {{ __('Administration') }}
+                    </div>
+
+                    <!-- Users -->
+                    @can('manage-users')
+                        <a href="{{ route('admin.users.index') }}"
+                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.users.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                            <i class="fa-solid fa-user-gear w-4 text-center"></i>
+                            <span>{{ __('Users') }}</span>
+                        </a>
+
+                        <a href="{{ route('admin.roles.index') }}"
+                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.roles.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                            <i class="fa-solid fa-shield-halved w-4 text-center"></i>
+                            <span>{{ __('Roles') }}</span>
+                        </a>
+                    @endcan
+
+                    <!-- Store Settings -->
+                    @can('manage-settings')
+                        <a href="{{ route('admin.settings.index') }}"
+                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.settings.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                            <i class="fa-solid fa-sliders w-4 text-center"></i>
+                            <span>{{ __('Settings') }}</span>
                         </a>
                     @endcan
                 </nav>
