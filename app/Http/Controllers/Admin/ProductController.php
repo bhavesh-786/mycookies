@@ -18,6 +18,11 @@ class ProductController extends Controller
     {
         $query = Product::with(['category', 'addonGroups.options']);
 
+        // 0. Category Filtering
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->query('category_id'));
+        }
+
         // 1. Search Query Handling
         if ($request->filled('search')) {
             $search = trim($request->query('search'));
@@ -47,7 +52,12 @@ class ProductController extends Controller
 
         $products = $query->paginate(15);
 
-        return view('admin.products.index', compact('products'));
+        // Optional: Fetch category details if filtering by one to show a header badge
+        $selectedCategory = $request->filled('category_id')
+            ? Category::find($request->query('category_id'))
+            : null;
+
+        return view('admin.products.index', compact('products', 'selectedCategory'));
     }
     public function createProduct()
     {

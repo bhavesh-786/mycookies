@@ -203,11 +203,13 @@
                                     </td>
 
                                     <!-- Products Count Badge -->
+                                    <!-- Products Count Badge / Link -->
                                     <td class="py-4 px-4 text-center whitespace-nowrap">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-stone-100 text-stone-700">
+                                        <a href="{{ route('admin.products.index', ['category_id' => $cat->id]) }}"
+                                            title="{{ __('View products in this category') }}"
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-stone-100 text-stone-700 hover:bg-[#8F966C] hover:text-white transition">
                                             {{ $cat->products_count ?? 0 }}
-                                        </span>
+                                        </a>
                                     </td>
 
                                     <!-- Action Buttons -->

@@ -34,6 +34,11 @@
             <!-- Search Form + Add Button -->
             <div class="flex flex-col sm:flex-row items-center gap-3">
                 <form method="GET" action="{{ route('admin.products.index') }}" class="relative w-full sm:w-64">
+
+                    @if (request('category_id'))
+                        <input type="hidden" name="category_id" value="{{ request('category_id') }}">
+                    @endif
+
                     @if (request('sort_by'))
                         <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
                     @endif
@@ -66,6 +71,22 @@
         <!-- Products Table -->
         <div class="bg-white border border-stone-200/80 rounded-2xl shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
+                @if (isset($selectedCategory))
+                    <div
+                        class="flex items-center justify-between bg-stone-100 px-4 py-2.5 rounded-xl text-xs text-stone-700">
+                        <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                            <span class="font-bold">{{ __('Filtering by category:') }}</span>
+                            <span
+                                class="bg-white px-2 py-0.5 rounded-md border border-stone-200 font-extrabold text-[#8F966C]">
+                                {{ $selectedCategory->display_name }}
+                            </span>
+                        </div>
+                        <a href="{{ route('admin.products.index') }}"
+                            class="text-stone-500 hover:text-stone-800 font-bold">
+                            <i class="fa-solid fa-xmark mr-1"></i> {{ __('Clear Filter') }}
+                        </a>
+                    </div>
+                @endif
                 <table class="w-full text-left rtl:text-right border-collapse">
                     <thead>
                         <tr
