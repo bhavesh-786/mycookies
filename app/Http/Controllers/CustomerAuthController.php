@@ -277,19 +277,20 @@ class CustomerAuthController extends Controller
 
     public function verifyEmail(Request $request, $id)
     {
-        // Validate signed URL signature
         if (!$request->hasValidSignature()) {
             return redirect('/profile/email-signin?verified=0')->with('error', __('The verification link is invalid or has expired.'));
         }
 
         $customer = Customer::findOrFail($id);
 
-        // Mark as verified using email_verified_at
         $customer->forceFill([
             'email_verified_at' => now(),
         ])->save();
 
-        // Redirect back to frontend with verified flag
-        return redirect('/?verified=1');
+        // Automatically log the customer into the session
+        auth()->login($customer); // Use auth('customer')->login($customer) if using a custom guard
+
+        // Redirect straight to the address checkout step
+        return redirect('/checkout/address?verified=1');
     }
 }

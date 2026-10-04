@@ -1922,9 +1922,10 @@
                 initRouter() {
                     const urlParams = new URLSearchParams(window.location.search);
                     if (urlParams.get('verified') === '1') {
-                        this.view = 'email-signin';
-                        this.authTab = 'login';
-                        this.authSuccess = '{{ __('Email verified successfully! You can now log in.') }}';
+                        this.isAuthenticated = true;
+                        this.view = 'address';
+                        this.showAlert('{{ __('Email verified successfully! Please enter your delivery address.') }}',
+                            '{{ __('Verified') }}');
                         window.history.replaceState({}, document.title, window.location.pathname);
                     }
 
