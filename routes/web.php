@@ -35,6 +35,9 @@ Route::prefix('customer')->name('customer.')->group(function () {
     Route::post('/delete-account', [CustomerAuthController::class, 'deleteAccount'])->name('deleteAccount');
     Route::post('/forgot-password', [CustomerAuthController::class, 'sendResetLinkEmail'])->name('password.email');
     Route::post('/reset-password', [CustomerAuthController::class, 'resetPassword'])->name('password.update');
+
+    Route::post('/customer/send-verification', [CustomerAuthController::class, 'sendVerification']);
+    Route::get('/customer/verify-email/{id}', [CustomerAuthController::class, 'verifyEmail'])->name('customer.verify.email');
 });
 
 // ==========================================

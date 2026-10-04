@@ -295,7 +295,7 @@
                 </div>
             </div>
 
-            <!-- SCROLLABLE BODY AREA (Added ample bottom padding pb-48 to ensure full scrolling access) -->
+            <!-- SCROLLABLE BODY AREA -->
             <div class="flex-1 min-h-0 overflow-y-auto custom-scroll p-4 sm:p-6 space-y-5 pb-48">
 
                 <!-- Delivery / Pickup Switcher & Quick Location Info -->
@@ -562,7 +562,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN 3: PRODUCT ADDON CUSTOMIZER (PREMIUM REDESIGN) -->
+                <!-- SCREEN 3: PRODUCT ADDON CUSTOMIZER -->
                 <div x-show="view === 'customizer'" x-cloak class="space-y-5 max-w-xl mx-auto pb-6">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse">
                         <button @click="navigate('/category/' + (activeCategory?.slug || ''))"
@@ -1007,9 +1007,11 @@
                                     class="w-full border border-stone-200 rounded-r-xl rtl:rounded-r-none rtl:rounded-l-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 transition">
                             </div>
                         </div>
-                        <button @click="proceedGuestToAddress()"
-                            class="w-full bg-stone-900 hover:bg-black text-white font-extrabold py-3.5 rounded-xl text-xs transition active:scale-[0.98] mt-2 shadow-sm">
-                            {{ __('Next') }}
+                        <button @click="proceedGuestToAddress()" :disabled="guestVerificationLoading"
+                            class="w-full bg-stone-900 hover:bg-black text-white font-extrabold py-3.5 rounded-xl text-xs transition active:scale-[0.98] mt-2 shadow-sm flex items-center justify-center space-x-2">
+                            <span x-show="!guestVerificationLoading">{{ __('Next (Verify Email)') }}</span>
+                            <span x-show="guestVerificationLoading"><i class="fa-solid fa-circle-notch fa-spin"></i>
+                                Sending verification email...</span>
                         </button>
                     </div>
                 </div>
@@ -1474,7 +1476,7 @@
                 </template>
 
                 <template x-if="view === 'address'">
-                    <button @click="view = 'checkout'"
+                    <button @click="validateAndProceedAddress()"
                         class="w-full bg-[#747D52] hover:bg-[#636C44] text-white font-extrabold py-3.5 rounded-xl text-xs transition active:scale-[0.98] shadow-md shadow-[#747D52]/25">
                         {{ __('Next') }}
                     </button>
@@ -1501,7 +1503,7 @@
                     class="w-full h-full object-cover object-[50%_40%] group-hover:scale-105 transition-transform duration-700 ease-out brightness-[0.98]">
             </div>
 
-            <!-- 2. Subtle Cinematic Top & Bottom Gradients (Frames the image like an art gallery) -->
+            <!-- 2. Subtle Cinematic Top & Bottom Gradients -->
             <div
                 class="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/50 to-transparent z-10">
             </div>
@@ -1558,10 +1560,10 @@
                 </div>
             </div>
 
-            <!-- 4. CENTER: 100% UNTOUCHED SHOWCASE -->
+            <!-- 4. CENTER -->
             <div class="relative z-20 my-auto pointer-events-none"></div>
 
-            <!-- 5. BOTTOM DOCK: Unified, Sleek Glass Capsule (Cleanly anchored at the bottom edge) -->
+            <!-- 5. BOTTOM DOCK -->
             <div
                 class="relative z-20 flex items-center justify-between bg-white/90 backdrop-blur-2xl border border-white/50 px-5 py-3.5 rounded-2xl shadow-2xl w-full">
                 <!-- Left: Live Order Status -->
@@ -1593,6 +1595,49 @@
         </aside>
     </div>
 
+    <!-- ================= PRETTY GLOBAL MODAL DIALOG ================= -->
+    <div x-show="modal.open" x-cloak class="relative z-50">
+        <div class="fixed inset-0 bg-stone-900/50 backdrop-blur-xs transition-opacity" x-show="modal.open"
+            x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+
+        <div class="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-stone-200/80 text-center space-y-4"
+                x-show="modal.open" x-transition:enter="ease-out duration-200"
+                x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                x-transition:leave="ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-95">
+
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto text-lg shadow-sm"
+                    :class="modal.type === 'confirm' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                        'bg-[#747D52]/15 text-[#747D52] border border-[#747D52]/20'">
+                    <i class="fa-solid"
+                        :class="modal.type === 'confirm' ? 'fa-triangle-exclamation' : 'fa-bell'"></i>
+                </div>
+
+                <div class="space-y-1">
+                    <h3 class="font-extrabold text-stone-900 text-sm" x-text="modal.title"></h3>
+                    <p class="text-xs text-stone-500 leading-relaxed" x-text="modal.message"></p>
+                </div>
+
+                <div class="flex items-center space-x-2 rtl:space-x-reverse pt-2">
+                    <template x-if="modal.type === 'confirm'">
+                        <button type="button" @click="modal.open = false"
+                            class="flex-1 py-3 px-4 rounded-xl border border-stone-200 text-stone-600 text-xs font-bold hover:bg-stone-50 transition">
+                            {{ __('Cancel') }}
+                        </button>
+                    </template>
+                    <button type="button" @click="modal.open = false; if (modal.callback) modal.callback();"
+                        class="w-full flex-1 py-3 px-4 rounded-xl bg-[#747D52] hover:bg-[#636C44] text-white text-xs font-bold transition shadow-md shadow-[#747D52]/20 active:scale-95">
+                        <span
+                            x-text="modal.type === 'confirm' ? '{{ __('Confirm') }}' : '{{ __('OK') }}'"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Alpine.js Store Engine -->
     <script>
         function storeApp() {
@@ -1617,6 +1662,32 @@
                 selectedSort: 'default',
                 selectedCategoryFilter: null,
                 maxPriceFilter: 25.000,
+                guestVerificationLoading: false,
+
+                // Pretty Modal State
+                modal: {
+                    open: false,
+                    title: '{{ __('Notice') }}',
+                    message: '',
+                    type: 'alert',
+                    callback: null
+                },
+
+                showAlert(message, title = '{{ __('Notice') }}') {
+                    this.modal.title = title;
+                    this.modal.message = message;
+                    this.modal.type = 'alert';
+                    this.modal.callback = null;
+                    this.modal.open = true;
+                },
+
+                showConfirm(message, callback, title = '{{ __('Confirmation') }}') {
+                    this.modal.title = title;
+                    this.modal.message = message;
+                    this.modal.type = 'confirm';
+                    this.modal.callback = callback;
+                    this.modal.open = true;
+                },
 
                 toggleSearch() {
                     this.searchOpen = !this.searchOpen;
@@ -2012,10 +2083,49 @@
 
                 proceedGuestToAddress() {
                     if (!this.customer.name || !this.customer.email || !this.customer.phone) {
-                        alert('{{ __('Please fill all required fields') }}');
+                        this.showAlert('{{ __('Please fill all required fields') }}');
                         return;
                     }
-                    this.navigate('/checkout/address', '{{ __('Delivery Address Details') }}');
+                    this.guestVerificationLoading = true;
+                    fetch('/api/customer/send-verification', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                email: this.customer.email,
+                                name: this.customer.name,
+                                phone: this.customer.phone
+                            })
+                        })
+                        .then(async res => {
+                            const data = await res.json();
+                            if (!res.ok) throw new Error(data.message || 'Verification email dispatch failed');
+                            return data;
+                        })
+                        .then(data => {
+                            this.showAlert(data.message ||
+                                '{{ __('Verification email sent! Please check your inbox and verify before continuing.') }}'
+                                );
+                        })
+                        .catch(err => {
+                            this.showAlert(err.message);
+                        })
+                        .finally(() => {
+                            this.guestVerificationLoading = false;
+                        });
+                },
+
+                validateAndProceedAddress() {
+                    if (!this.address.block || !this.address.street || !this.address.building) {
+                        this.showAlert(
+                            '{{ __('Please fill out all mandatory address fields (Block, Street, Building/House)') }}'
+                            );
+                        return;
+                    }
+                    this.view = 'checkout';
                 },
 
                 // ------------------ ORDERS HISTORY & 5-MIN CANCEL ------------------
@@ -2067,28 +2177,28 @@
                 },
 
                 cancelCustomerOrder(orderId) {
-                    if (!confirm('{{ __('Are you sure you want to cancel this order?') }}')) return;
-
-                    fetch(`/api/customer/orders/${orderId}/cancel`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(async res => {
-                            const data = await res.json();
-                            if (!res.ok) throw new Error(data.message || 'Could not cancel order');
-                            return data;
-                        })
-                        .then(data => {
-                            alert(data.message);
-                            this.fetchCustomerOrders();
-                        })
-                        .catch(err => {
-                            alert(err.message);
-                        });
+                    this.showConfirm('{{ __('Are you sure you want to cancel this order?') }}', () => {
+                        fetch(`/api/customer/orders/${orderId}/cancel`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(async res => {
+                                const data = await res.json();
+                                if (!res.ok) throw new Error(data.message || 'Could not cancel order');
+                                return data;
+                            })
+                            .then(data => {
+                                this.showAlert(data.message);
+                                this.fetchCustomerOrders();
+                            })
+                            .catch(err => {
+                                this.showAlert(err.message);
+                            });
+                    });
                 },
 
                 // ------------------ AUTH LOGIC ------------------
@@ -2298,7 +2408,7 @@
                 },
 
                 deleteAccount() {
-                    if (confirm('{{ __('Are you sure you want to delete your account?') }}')) {
+                    this.showConfirm('{{ __('Are you sure you want to delete your account?') }}', () => {
                         fetch('{{ route('customer.deleteAccount') }}', {
                                 method: 'POST',
                                 headers: {
@@ -2316,7 +2426,7 @@
                                 };
                                 this.navigate('/', '{{ __('otherwise') }}');
                             });
-                    }
+                    });
                 },
 
                 // ------------------ ADDONS & PRICING ------------------
@@ -2432,6 +2542,15 @@
                 },
 
                 placeOrderNow() {
+                    const minOrderAmount = parseFloat('{{ $settings['min_order'] ?? 3.75 }}');
+                    const subtotal = this.calculateSubtotal();
+
+                    if (subtotal < minOrderAmount) {
+                        this.showAlert(
+                            `{{ __('Minimum order amount is') }} ${minOrderAmount.toFixed(3)} {{ __('KD') }}`);
+                        return;
+                    }
+
                     const chosenLocation = this.method === 'delivery' ?
                         (this.selectedDeliveryArea ? this.selectedDeliveryArea.name : '') :
                         (this.selectedPickupStore ? this.selectedPickupStore.name : '');
@@ -2447,7 +2566,7 @@
                         street: this.address.street,
                         building: this.address.building,
                         paci: this.address.paci,
-                        subtotal: this.calculateSubtotal(),
+                        subtotal: subtotal,
                         delivery_fee: this.method === 'delivery' ? this.deliveryFee : 0,
                         total: this.calculateGrandTotal(),
                         payment_method: this.paymentMethod,
@@ -2483,7 +2602,7 @@
                             }
                         })
                         .catch(err => {
-                            alert(err.message);
+                            this.showAlert(err.message);
                         });
                 }
             };
