@@ -2546,9 +2546,11 @@
 
                 placeOrderNow() {
                     const minOrderAmount = parseFloat('{{ $settings['min_order'] ?? 3.75 }}');
-                    const subtotal = this.calculateSubtotal();
 
-                    if (subtotal < minOrderAmount) {
+                    // Change this line from 'subtotal' to 'calculateGrandTotal()' if delivery fee counts toward minimum order:
+                    const checkAmount = this.calculateGrandTotal(); // or this.calculateSubtotal() if only products count
+
+                    if (checkAmount < minOrderAmount) {
                         this.showAlert(
                             `{{ __('Minimum order amount is') }} ${minOrderAmount.toFixed(3)} {{ __('KD') }}`);
                         return;
