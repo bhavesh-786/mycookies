@@ -238,14 +238,14 @@ class CustomerAuthController extends Controller
             'phone' => 'required|string|max:50',
         ]);
 
-        // Find or create an unverified customer record for the guest
+        // Find or create a customer record for the guest
         $customer = Customer::firstOrCreate(
             ['email' => $request->email],
             [
                 'name' => $request->name,
                 'phone' => $request->phone,
                 'password' => Hash::make(Str::random(16)),
-                'is_verified' => false, // or email_verified_at => null depending on your schema
+                'email_verified_at' => null, // Unverified initially
             ]
         );
 
@@ -284,13 +284,12 @@ class CustomerAuthController extends Controller
 
         $customer = Customer::findOrFail($id);
 
-        // Mark as verified
+        // Mark as verified using email_verified_at
         $customer->forceFill([
-            'is_verified' => true,
             'email_verified_at' => now(),
         ])->save();
 
-        // Redirect back to frontend with verified flag (which triggers your initRouter success message)
+        // Redirect back to frontend with verified flag
         return redirect('/?verified=1');
     }
 }
