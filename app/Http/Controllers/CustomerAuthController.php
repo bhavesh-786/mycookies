@@ -245,20 +245,23 @@ class CustomerAuthController extends Controller
                 'name' => $request->name,
                 'phone' => $request->phone,
                 'password' => Hash::make(Str::random(16)),
-                'email_verified_at' => null, // Unverified initially
+                'email_verified_at' => null,
             ]
         );
 
-        // Generate a secure temporary signed verification URL valid for 60 minutes
+        // Generate temporary signed verification URL valid for 60 minutes
         $verificationUrl = URL::temporarySignedRoute(
             'customer.verify.email',
             now()->addMinutes(60),
             ['id' => $customer->id]
         );
 
-        // Send the verification email
+        // Send the attractive HTML email template
         try {
-            Mail::raw("Hello {$customer->name},\n\nPlease click the link below to verify your email address and continue your order:\n\n{$verificationUrl}", function ($message) use ($customer) {
+            Mail::send('emails.verify-email', [
+                'customerName' => $customer->name,
+                'verificationUrl' => $verificationUrl
+            ], function ($message) use ($customer) {
                 $message->to($customer->email)
                     ->subject(__('Verify Your Email Address - Otherwise'));
             });
