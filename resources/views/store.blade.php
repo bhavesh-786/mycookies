@@ -2087,7 +2087,7 @@
                         return;
                     }
                     this.guestVerificationLoading = true;
-                    fetch('/api/customer/send-verification', {
+                    fetch('/customer/send-verification', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -2108,7 +2108,7 @@
                         .then(data => {
                             this.showAlert(data.message ||
                                 '{{ __('Verification email sent! Please check your inbox and verify before continuing.') }}'
-                                );
+                            );
                         })
                         .catch(err => {
                             this.showAlert(err.message);
@@ -2122,7 +2122,7 @@
                     if (!this.address.block || !this.address.street || !this.address.building) {
                         this.showAlert(
                             '{{ __('Please fill out all mandatory address fields (Block, Street, Building/House)') }}'
-                            );
+                        );
                         return;
                     }
                     this.view = 'checkout';
@@ -2138,7 +2138,7 @@
                     if (email) params.append('email', email);
                     if (phone) params.append('phone', phone);
 
-                    fetch(`/api/customer/orders?${params.toString()}`, {
+                    fetch(`/customer/orders?${params.toString()}`, {
                             headers: {
                                 'Accept': 'application/json'
                             }
