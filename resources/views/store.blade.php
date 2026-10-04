@@ -2517,12 +2517,14 @@
 
                 increaseQty(idx) {
                     this.cart[idx].quantity++;
+                    this.cart[idx].total_price = this.cart[idx].unit_price * this.cart[idx].quantity;
                     this.saveCart();
                 },
 
                 decreaseQty(idx) {
                     if (this.cart[idx].quantity > 1) {
                         this.cart[idx].quantity--;
+                        this.cart[idx].total_price = this.cart[idx].unit_price * this.cart[idx].quantity;
                     } else {
                         this.cart.splice(idx, 1);
                     }
