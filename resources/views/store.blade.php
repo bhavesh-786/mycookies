@@ -1326,7 +1326,13 @@
 
                 <!-- SCREEN: KUWAIT ADDRESS DETAILS -->
                 <div x-show="view === 'address'" x-cloak class="space-y-4">
-                    <h3 class="font-extrabold text-sm text-stone-900">{{ __('Delivery Address Details') }}</h3>
+                    <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
+                        <button @click="view = 'checkout-details'"
+                            class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95">
+                            <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                        </button>
+                        <h3 class="font-extrabold text-sm text-stone-900">{{ __('Delivery Address Details') }}</h3>
+                    </div>
                     <div>
                         <label
                             class="block font-bold text-stone-700 text-xs mb-1.5">{{ __('Address Type *') }}</label>
@@ -1378,7 +1384,13 @@
 
                 <!-- SCREEN: PAYMENT & TOTAL REVIEW -->
                 <div x-show="view === 'checkout'" x-cloak class="space-y-4">
-                    <h3 class="font-extrabold text-sm text-stone-900">{{ __('Payment Option') }}</h3>
+                    <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
+                        <button @click="view = 'address'"
+                            class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95">
+                            <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                        </button>
+                        <h3 class="font-extrabold text-sm text-stone-900">{{ __('Payment Option') }}</h3>
+                    </div>
                     <div class="space-y-2">
                         <label
                             class="flex items-center justify-between p-3.5 border rounded-2xl cursor-pointer hover:border-stone-300 transition bg-white shadow-xs"
@@ -1904,10 +1916,13 @@
                     password: '',
                     password_confirmation: ''
                 },
-                customer: {
+                customer: JSON.parse(localStorage.getItem('otherwise_customer') || JSON.stringify({
                     name: '{{ $currentUser['name'] ?? '' }}',
                     email: '{{ $currentUser['email'] ?? '' }}',
                     phone: '{{ $currentUser['phone'] ?? '' }}'
+                })),
+                saveCustomer() {
+                    localStorage.setItem('otherwise_customer', JSON.stringify(this.customer));
                 },
                 address: {
                     type: 'Home',
@@ -2087,7 +2102,9 @@
                         this.showAlert('{{ __('Please fill all required fields') }}');
                         return;
                     }
+                    this.saveCustomer(); // Save customer details so they persist after verification redirect
                     this.guestVerificationLoading = true;
+
                     fetch('/customer/send-verification', {
                             method: 'POST',
                             headers: {
