@@ -2547,10 +2547,10 @@
                 placeOrderNow() {
                     const minOrderAmount = parseFloat('{{ $settings['min_order'] ?? 3.75 }}');
                     const subtotal = this.calculateSubtotal();
-                    const checkAmount = this
-                .calculateGrandTotal(); // Or use subtotal if minimum order applies to products only
+                    const grandTotal = this.calculateGrandTotal(); // Use grand total for the check
 
-                    if (subtotal < minOrderAmount) {
+                    // Check against grandTotal instead of subtotal
+                    if (grandTotal < minOrderAmount) {
                         this.showAlert(
                             `{{ __('Minimum order amount is') }} ${minOrderAmount.toFixed(3)} {{ __('KD') }}`);
                         return;
@@ -2573,7 +2573,7 @@
                         paci: this.address.paci,
                         subtotal: subtotal,
                         delivery_fee: this.method === 'delivery' ? this.deliveryFee : 0,
-                        total: this.calculateGrandTotal(),
+                        total: grandTotal,
                         payment_method: this.paymentMethod,
                         items: this.cart
                     };

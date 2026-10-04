@@ -18,7 +18,11 @@ class OrderItem extends Model
         'selected_addons',
     ];
 
-    protected $casts = [
-        'selected_addons' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'selected_addons' => 'array',
+            'addons' => 'array',
+        ];
+    }
 }
