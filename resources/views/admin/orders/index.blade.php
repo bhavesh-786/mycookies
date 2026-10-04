@@ -54,21 +54,41 @@
                                         {{ $ord->area_name ?? __('Branch Pickup') }}</div>
                                 </td>
                                 <td class="py-4 px-4 space-y-1 max-w-xs">
-                                    @foreach ($ord->items as $it)
+                                    @php
+                                        $items = is_string($ord->items) ? json_decode($ord->items, false) : $ord->items;
+                                    @endphp
+
+                                    @foreach ($items ?? [] as $it)
+                                        @php
+                                            $it = is_array($it) ? (object) $it : $it;
+
+                                            $selectedAddons = is_string($it->selected_addons ?? null)
+                                                ? json_decode($it->selected_addons, true)
+                                                : $it->selected_addons ?? [];
+
+                                            $addons = is_string($it->addons ?? null)
+                                                ? json_decode($it->addons, true)
+                                                : $it->addons ?? [];
+                                        @endphp
+
                                         <div class="leading-snug">
-                                            <span
-                                                class="font-bold text-stone-800">{{ $it->product_name ?? $it->name }}</span>
-                                            <span class="text-stone-500 font-bold">(x{{ $it->quantity }})</span>
-                                            @if (!empty($it->selected_addons))
+                                            <span class="font-bold text-stone-800">
+                                                {{ $it->product_name ?? ($it->name ?? '') }}
+                                            </span>
+                                            <span class="text-stone-500 font-bold">(x{{ $it->quantity ?? 1 }})</span>
+
+                                            @if (!empty($selectedAddons) && is_iterable($selectedAddons))
                                                 <div class="text-[10px] text-stone-400">
-                                                    @foreach ($it->selected_addons as $ad)
-                                                        • {{ is_array($ad) ? $ad['name'] ?? '' : $ad }}
+                                                    @foreach ($selectedAddons as $ad)
+                                                        •
+                                                        {{ is_array($ad) ? $ad['name'] ?? '' : (is_object($ad) ? $ad->name ?? '' : $ad) }}
                                                     @endforeach
                                                 </div>
-                                            @elseif(!empty($it->addons))
+                                            @elseif(!empty($addons) && is_iterable($addons))
                                                 <div class="text-[10px] text-stone-400">
-                                                    @foreach ($it->addons as $ad)
-                                                        • {{ is_array($ad) ? $ad['name'] ?? '' : $ad }}
+                                                    @foreach ($addons as $ad)
+                                                        •
+                                                        {{ is_array($ad) ? $ad['name'] ?? '' : (is_object($ad) ? $ad->name ?? '' : $ad) }}
                                                     @endforeach
                                                 </div>
                                             @endif
