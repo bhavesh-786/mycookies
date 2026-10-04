@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 class CustomerAuthController extends Controller
 {
@@ -226,5 +228,69 @@ class CustomerAuthController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    public function sendVerification(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:50',
+        ]);
+
+        // Find or create an unverified customer record for the guest
+        $customer = Customer::firstOrCreate(
+            ['email' => $request->email],
+            [
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'password' => Hash::make(Str::random(16)),
+                'is_verified' => false, // or email_verified_at => null depending on your schema
+            ]
+        );
+
+        // Generate a secure temporary signed verification URL valid for 60 minutes
+        $verificationUrl = URL::temporarySignedRoute(
+            'customer.verify.email',
+            now()->addMinutes(60),
+            ['id' => $customer->id]
+        );
+
+        // Send the verification email
+        try {
+            Mail::raw("Hello {$customer->name},\n\nPlease click the link below to verify your email address and continue your order:\n\n{$verificationUrl}", function ($message) use ($customer) {
+                $message->to($customer->email)
+                    ->subject(__('Verify Your Email Address - Otherwise'));
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Failed to send verification email. Please try again.')
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Verification email sent successfully! Please check your inbox.')
+        ]);
+    }
+
+    public function verifyEmail(Request $request, $id)
+    {
+        // Validate signed URL signature
+        if (!$request->hasValidSignature()) {
+            return redirect('/profile/email-signin?verified=0')->with('error', __('The verification link is invalid or has expired.'));
+        }
+
+        $customer = Customer::findOrFail($id);
+
+        // Mark as verified
+        $customer->forceFill([
+            'is_verified' => true,
+            'email_verified_at' => now(),
+        ])->save();
+
+        // Redirect back to frontend with verified flag (which triggers your initRouter success message)
+        return redirect('/?verified=1');
     }
 }
