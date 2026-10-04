@@ -37,7 +37,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
     Route::post('/reset-password', [CustomerAuthController::class, 'resetPassword'])->name('password.update');
 
     Route::post('/send-verification', [CustomerAuthController::class, 'sendVerification'])->name('sendVerification');
-    Route::get('/verify-email/{id}', [CustomerAuthController::class, 'verifyEmail'])->name('verifyEmail');
+    Route::get('/verify-email/{id}', [CustomerAuthController::class, 'verifyEmail'])->name('verify.email');;
 });
 
 // ==========================================
