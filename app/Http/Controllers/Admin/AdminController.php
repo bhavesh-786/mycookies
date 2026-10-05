@@ -130,11 +130,6 @@ class AdminController extends Controller
         return view('admin.orders.index', compact('orders'));
     }
 
-    use Illuminate\Http\Request;
-    use App\Models\Order;
-    use Illuminate\Support\Facades\DB;
-    use Illuminate\Support\Facades\Schema;
-
     public function updateOrderStatus(Request $request, Order $order)
     {
         // Accept either 'order_status' or 'status'
