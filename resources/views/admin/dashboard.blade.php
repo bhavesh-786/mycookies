@@ -5,25 +5,23 @@
     <div class="space-y-6" x-data="adminDashboard()" x-init="initDashboard()">
 
         <!-- ================= BROWSER AUTOPLAY UNLOCK PROMPT ================= -->
-        <template x-if="audioSuspended">
-            <div x-show="!isAudioUnlocked" x-cloak @click="unlockAudio()"
-                class="cursor-pointer p-3.5 rounded-2xl bg-amber-500/10 border border-amber-300 text-amber-900 flex items-center justify-between shadow-xs transition hover:bg-amber-500/20">
-                <div class="flex items-center space-x-2.5 rtl:space-x-reverse text-xs font-bold">
-                    <span class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0">
-                        <i class="fa-solid fa-volume-xmark text-sm"></i>
-                    </span>
-                    <div>
-                        <p class="font-extrabold">{{ __('Audio notifications are awaiting activation.') }}</p>
-                        <p class="text-[11px] text-amber-700 font-medium">
-                            {{ __('Click anywhere on the dashboard so browser allows the buzzer.') }}</p>
-                    </div>
+        <div x-show="!isAudioUnlocked" x-cloak @click="unlockAudio()"
+            class="cursor-pointer p-3.5 rounded-2xl bg-amber-500/10 border border-amber-300 text-amber-900 flex items-center justify-between shadow-xs transition hover:bg-amber-500/20">
+            <div class="flex items-center space-x-2.5 rtl:space-x-reverse text-xs font-bold">
+                <span class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-volume-xmark text-sm"></i>
+                </span>
+                <div>
+                    <p class="font-extrabold">{{ __('Audio notifications are awaiting activation.') }}</p>
+                    <p class="text-[11px] text-amber-700 font-medium">
+                        {{ __('Click anywhere on the dashboard so the browser allows the buzzer.') }}</p>
                 </div>
-                <button type="button"
-                    class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black rounded-xl shadow-xs transition">
-                    {{ __('Activate Audio') }}
-                </button>
             </div>
-        </template>
+            <button type="button"
+                class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black rounded-xl shadow-xs transition">
+                {{ __('Activate Audio') }}
+            </button>
+        </div>
 
         <!-- ================= STICKY AUDIO ALARM BANNER ================= -->
         <template x-if="unacknowledgedOrders.length > 0">
@@ -59,7 +57,7 @@
             <div
                 class="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/80 shadow-sm flex items-center space-x-4 rtl:space-x-reverse">
                 <div
-                    class="w-12 h-12 rounded-2xl bg-rose-50 text-[#b5122b] flex items-center justify-center text-xl shrink-0">
+                    class="w-12 h-12 rounded-2xl bg-rose-50 text-[#8F966C] flex items-center justify-center text-xl shrink-0">
                     <i class="fa-solid fa-receipt"></i>
                 </div>
                 <div>
@@ -165,7 +163,7 @@
                                         </div>
                                     </template>
                                     <template x-if="!isOrderAlerting(ord.id)">
-                                        <a :href="`{{ url('backend/orders') }}`"
+                                        <a href="{{ route('admin.orders.index') }}"
                                             class="text-stone-400 hover:text-stone-700 font-bold text-xs">
                                             {{ __('Details') }} &rarr;
                                         </a>
@@ -174,8 +172,8 @@
                             </tr>
                         </template>
 
-                        <!-- Static initial blade rows -->
-                        @forelse($recentOrders as $ro)
+                        <!-- Initial Blade rows rendered from server -->
+                        @forelse($recentOrders as$ro)
                             <tr class="hover:bg-stone-50/60 transition" x-show="!isOverridden({{ $ro->id }})">
                                 <td class="py-3.5 px-4 font-bold text-stone-900 whitespace-nowrap">
                                     {{ $ro->order_number }}
@@ -186,7 +184,7 @@
                                 </td>
                                 <td class="py-3.5 px-4 whitespace-nowrap">
                                     <span
-                                        class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase {{ $ro->order_status === 'completed' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700' }}">
+                                        class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase {{ ($ro->order_status ?? $ro->status) === 'completed' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700' }}">
                                         {{ $ro->order_status ?? $ro->status }}
                                     </span>
                                 </td>
@@ -220,7 +218,6 @@
                 isAudioUnlocked: false,
 
                 initDashboard() {
-                    // Listen for any first user gesture to unlock audio cleanly
                     const unlockEvents = ['click', 'touchstart', 'keydown'];
                     const handleFirstGesture = () => {
                         this.unlockAudio();
@@ -241,7 +238,6 @@
                         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
                         if (!AudioContextClass) return;
 
-                        // Only construct or resume AFTER a user gesture
                         if (!this.audioCtx) {
                             this.audioCtx = new AudioContextClass();
                         }
@@ -254,18 +250,51 @@
                             this.isAudioUnlocked = true;
                         }
                     } catch (e) {
-                        console.warn('Audio unlock pending user interaction:', e);
+                        console.warn('Audio unlock pending gesture:', e);
                     }
                 },
 
+                isOverridden(id) {
+                    return this.recentOrdersList.some(o => o.id === id);
+                },
+
+                isOrderAlerting(id) {
+                    return this.unacknowledgedOrders.includes(id);
+                },
+
+                startContinuousAlarm() {
+                    if (this.alarmInterval) return;
+
+                    this.playChimeTone();
+
+                    this.alarmInterval = setInterval(() => {
+                        if (this.unacknowledgedOrders.length === 0) {
+                            this.stopContinuousAlarm();
+                            return;
+                        }
+                        if (!this.isMuted) {
+                            this.playChimeTone();
+                        }
+                    }, 2500);
+                },
+
+                stopContinuousAlarm() {
+                    if (this.alarmInterval) {
+                        clearInterval(this.alarmInterval);
+                        this.alarmInterval = null;
+                    }
+                },
+
+                toggleMute() {
+                    this.isMuted = !this.isMuted;
+                },
+
                 playChimeTone() {
-                    // If the user hasn't clicked yet, try unlocking once
                     if (!this.audioCtx || this.audioCtx.state !== 'running') {
                         this.unlockAudio();
                     }
 
                     if (!this.audioCtx || this.audioCtx.state !== 'running') {
-                        console.warn('AudioContext not running yet. Awaiting staff click.');
                         return;
                     }
 
@@ -294,35 +323,6 @@
                     } catch (e) {
                         console.error('Audio playback error:', e);
                     }
-                },
-
-                startContinuousAlarm() {
-                    if (this.alarmInterval) return;
-
-                    // Play first pulse
-                    this.playChimeTone();
-
-                    // Repeat every 2.5 seconds
-                    this.alarmInterval = setInterval(() => {
-                        if (this.unacknowledgedOrders.length === 0) {
-                            this.stopContinuousAlarm();
-                            return;
-                        }
-                        if (!this.isMuted) {
-                            this.playChimeTone();
-                        }
-                    }, 2500);
-                },
-
-                stopContinuousAlarm() {
-                    if (this.alarmInterval) {
-                        clearInterval(this.alarmInterval);
-                        this.alarmInterval = null;
-                    }
-                },
-
-                toggleMute() {
-                    this.isMuted = !this.isMuted;
                 },
 
                 handleOrderStatus(orderId, newStatus) {
