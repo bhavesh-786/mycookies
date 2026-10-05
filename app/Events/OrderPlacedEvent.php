@@ -41,8 +41,12 @@ class OrderPlacedEvent implements ShouldBroadcastNow
 
     public function broadcastOn(): array
     {
+        // In production: 'production-admin-orders'
+        // In local:      'local-admin-orders'
+        $env = app()->environment();
+
         return [
-            new Channel('admin-orders'),
+            new Channel("{$env}-admin-orders"),
         ];
     }
 }

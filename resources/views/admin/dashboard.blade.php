@@ -316,6 +316,7 @@
 
                     const pusherKey = '{{ config('broadcasting.connections.pusher.key') }}';
                     const cluster = '{{ config('broadcasting.connections.pusher.options.cluster', 'ap2') }}';
+                    const channelName = '{{ app()->environment() }}-admin-orders'; // Dynamic channel
 
                     if (!pusherKey) {
                         console.warn('Pusher key missing');
@@ -327,7 +328,10 @@
                         forceTLS: true
                     });
 
-                    const channel = pusher.subscribe('admin-orders');
+                    // Subscribes only to its own environment's channel
+                    const channel = pusher.subscribe(channelName);
+
+                    channel.pusher.subscribe('admin-orders');
 
                     channel.bind('order.placed', (data) => {
                         const order = data.orderData || data;
