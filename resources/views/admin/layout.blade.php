@@ -25,6 +25,9 @@
             display: none !important;
         }
     </style>
+
+    <!-- Pusher JS Library -->
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 </head>
 
 <body class="bg-stone-50 text-stone-800 antialiased h-screen overflow-hidden" x-data="{ sidebarOpen: false }">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderPlacedEvent;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -67,9 +68,12 @@ class OrderController extends Controller
 
             DB::commit();
 
+            event(new OrderPlacedEvent($order));
+
             return response()->json([
                 'success'      => true,
                 'order_number' => $orderNumber,
+                'message'      => __('Order placed successfully!'),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
