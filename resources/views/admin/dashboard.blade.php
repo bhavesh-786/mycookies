@@ -2,7 +2,27 @@
 @section('title', __('Dashboard Overview'))
 
 @section('content')
-    <div class="space-y-6" x-data="adminDashboard()" x-init="initPusher()">
+    <div class="space-y-6" x-data="adminDashboard()" x-init="initDashboard()">
+
+        <!-- ================= BROWSER AUTOPLAY UNLOCK PROMPT ================= -->
+        <template x-if="audioSuspended">
+            <div @click="unlockAudio()"
+                class="cursor-pointer p-3.5 rounded-2xl bg-amber-500/10 border border-amber-300 text-amber-900 flex items-center justify-between shadow-xs transition hover:bg-amber-500/15">
+                <div class="flex items-center space-x-2.5 rtl:space-x-reverse text-xs font-bold">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-volume-xmark text-sm"></i>
+                    </span>
+                    <div>
+                        <p class="font-extrabold">{{ __('Audio notifications are paused by your browser.') }}</p>
+                        <p class="text-[11px] text-amber-700 font-medium">
+                            {{ __('Click anywhere on the dashboard to enable order alarm sounds.') }}</p>
+                    </div>
+                </div>
+                <button type="button" class="px-3 py-1.5 bg-amber-500 text-white text-xs font-black rounded-xl shadow-xs">
+                    {{ __('Enable Sound') }}
+                </button>
+            </div>
+        </template>
 
         <!-- ================= STICKY AUDIO ALARM BANNER ================= -->
         <template x-if="unacknowledgedOrders.length > 0">
@@ -24,7 +44,6 @@
                 </div>
 
                 <div class="flex items-center space-x-2 rtl:space-x-reverse w-full sm:w-auto">
-                    <!-- Quick Mute Sound Button (Optional emergency mute) -->
                     <button type="button" @click="toggleMute()"
                         class="px-3 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-xs font-bold transition flex items-center space-x-1 rtl:space-x-reverse">
                         <i class="fa-solid" :class="isMuted ? 'fa-volume-xmark' : 'fa-volume-high'"></i>
@@ -131,14 +150,12 @@
                                 <td class="py-3.5 px-4 text-right rtl:text-left whitespace-nowrap">
                                     <template x-if="isOrderAlerting(ord.id)">
                                         <div class="inline-flex items-center space-x-1.5 rtl:space-x-reverse">
-                                            <!-- Approve / Accept Button -->
                                             <button type="button" @click="handleOrderStatus(ord.id, 'preparing')"
                                                 class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] shadow-sm transition active:scale-95 flex items-center space-x-1 rtl:space-x-reverse">
                                                 <i class="fa-solid fa-check text-[10px]"></i>
                                                 <span>{{ __('Accept') }}</span>
                                             </button>
 
-                                            <!-- Cancel / Reject Button -->
                                             <button type="button" @click="handleOrderStatus(ord.id, 'cancelled')"
                                                 class="px-2.5 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-[11px] transition active:scale-95 flex items-center space-x-1 rtl:space-x-reverse">
                                                 <i class="fa-solid fa-xmark text-[10px]"></i>
@@ -157,7 +174,7 @@
                         </template>
 
                         <!-- Static initial blade rows -->
-                        @forelse($recentOrders as $ro)
+                        @forelse($recentOrders as$ro)
                             <tr class="hover:bg-stone-50/60 transition" x-show="!isOverridden({{ $ro->id }})">
                                 <td class="py-3.5 px-4 font-bold text-stone-900 whitespace-nowrap">
                                     {{ $ro->order_number }}
@@ -195,9 +212,51 @@
             return {
                 ordersCount: {{ $ordersCount ?? 0 }},
                 recentOrdersList: [],
-                unacknowledgedOrders: [], // Array of order IDs waiting for action
+                unacknowledgedOrders: [],
                 alarmInterval: null,
                 isMuted: false,
+                audioCtx: null,
+                audioSuspended: true,
+
+                initDashboard() {
+                    this.initAudioContext();
+                    this.initPusher();
+                },
+
+                // Audio System setup
+                initAudioContext() {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioContext) {
+                        this.audioSuspended = false;
+                        return;
+                    }
+
+                    if (!this.audioCtx) {
+                        this.audioCtx = new AudioContext();
+                    }
+
+                    this.audioSuspended = (this.audioCtx.state === 'suspended');
+
+                    // Global listener to unlock audio on first page click/keypress
+                    const unlockHandler = () => {
+                        this.unlockAudio();
+                        window.removeEventListener('click', unlockHandler);
+                        window.removeEventListener('keydown', unlockHandler);
+                    };
+
+                    window.addEventListener('click', unlockHandler);
+                    window.addEventListener('keydown', unlockHandler);
+                },
+
+                unlockAudio() {
+                    if (this.audioCtx && this.audioCtx.state === 'suspended') {
+                        this.audioCtx.resume().then(() => {
+                            this.audioSuspended = false;
+                        }).catch(() => {});
+                    } else {
+                        this.audioSuspended = false;
+                    }
+                },
 
                 isOverridden(id) {
                     return this.recentOrdersList.some(o => o.id === id);
@@ -207,14 +266,14 @@
                     return this.unacknowledgedOrders.includes(id);
                 },
 
-                // Continuous Alarm System
                 startContinuousAlarm() {
-                    if (this.alarmInterval) return; // Already looping
+                    if (this.alarmInterval) return;
 
-                    // Play immediately
+                    // Attempt immediate unlock and playback
+                    this.unlockAudio();
                     this.playChimeTone();
 
-                    // Repeat chime every 2.5 seconds
+                    // Loop alarm chime every 2.5 seconds
                     this.alarmInterval = setInterval(() => {
                         if (this.unacknowledgedOrders.length === 0) {
                             this.stopContinuousAlarm();
@@ -239,37 +298,39 @@
 
                 playChimeTone() {
                     try {
-                        const AudioContext = window.AudioContext || window.webkitAudioContext;
-                        if (!AudioContext) return;
-
-                        const ctx = new AudioContext();
-                        if (ctx.state === 'suspended') {
-                            ctx.resume();
+                        if (!this.audioCtx) {
+                            const AudioContext = window.AudioContext || window.webkitAudioContext;
+                            if (AudioContext) this.audioCtx = new AudioContext();
                         }
 
-                        const now = ctx.currentTime;
+                        if (!this.audioCtx) return;
 
-                        // Helper to trigger a piercing POS alert pulse
+                        if (this.audioCtx.state === 'suspended') {
+                            this.audioCtx.resume();
+                            this.audioSuspended = true;
+                            return;
+                        }
+
+                        const now = this.audioCtx.currentTime;
+
+                        // Piercing double POS buzzer
                         const triggerBeep = (startTime, freq) => {
-                            const osc = ctx.createOscillator();
-                            const gain = ctx.createGain();
+                            const osc = this.audioCtx.createOscillator();
+                            const gain = this.audioCtx.createGain();
 
-                            // 'square' produces a much louder, harsher buzzer sound than 'sine'
                             osc.type = 'square';
                             osc.frequency.setValueAtTime(freq, startTime);
 
-                            // Maximum safe digital volume
                             gain.gain.setValueAtTime(0.85, startTime);
                             gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.22);
 
                             osc.connect(gain);
-                            gain.connect(ctx.destination);
+                            gain.connect(this.audioCtx.destination);
 
                             osc.start(startTime);
                             osc.stop(startTime + 0.22);
                         };
 
-                        // Rapid double beep: Beep 1 (1100 Hz), Beep 2 (1400 Hz)
                         triggerBeep(now, 1100);
                         triggerBeep(now + 0.25, 1400);
 
@@ -277,7 +338,7 @@
                         console.warn('Audio play restricted by browser policy:', e);
                     }
                 },
-                // Accept or Cancel Action
+
                 handleOrderStatus(orderId, newStatus) {
                     fetch(`{{ url('backend/orders') }}/${orderId}/status`, {
                             method: 'POST',
@@ -292,15 +353,12 @@
                         })
                         .then(res => res.json())
                         .then(data => {
-                            // 1. Remove from alert queue
                             this.unacknowledgedOrders = this.unacknowledgedOrders.filter(id => id !== orderId);
 
-                            // 2. Stop alarm if no more orders need review
                             if (this.unacknowledgedOrders.length === 0) {
                                 this.stopContinuousAlarm();
                             }
 
-                            // 3. Update status in table
                             const ord = this.recentOrdersList.find(o => o.id === orderId);
                             if (ord) {
                                 ord.order_status = newStatus;
@@ -316,7 +374,7 @@
 
                     const pusherKey = '{{ config('broadcasting.connections.pusher.key') }}';
                     const cluster = '{{ config('broadcasting.connections.pusher.options.cluster', 'ap2') }}';
-                    const channelName = '{{ app()->environment() }}-admin-orders'; // Dynamic channel
+                    const channelName = '{{ app()->environment() }}-admin-orders';
 
                     if (!pusherKey) {
                         console.warn('Pusher key missing');
@@ -328,26 +386,18 @@
                         forceTLS: true
                     });
 
-                    // Subscribes only to its own environment's channel
                     const channel = pusher.subscribe(channelName);
-
-                    channel.pusher.subscribe('admin-orders');
 
                     channel.bind('order.placed', (data) => {
                         const order = data.orderData || data;
 
-                        // Increment order counter
                         this.ordersCount++;
-
-                        // Insert at top of recent orders
                         this.recentOrdersList.unshift(order);
 
-                        // Add order ID to unacknowledged queue
                         if (!this.unacknowledgedOrders.includes(order.id)) {
                             this.unacknowledgedOrders.push(order.id);
                         }
 
-                        // Start continuous loop alarm
                         this.startContinuousAlarm();
                     });
                 }
