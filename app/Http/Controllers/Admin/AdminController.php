@@ -130,19 +130,22 @@ class AdminController extends Controller
         return view('admin.orders.index', compact('orders'));
     }
 
+    use Illuminate\Http\Request;
+    use App\Models\Order;
+    use Illuminate\Support\Facades\DB;
+    use Illuminate\Support\Facades\Schema;
+
     public function updateOrderStatus(Request $request, Order $order)
     {
-        // $request->validate(['order_status' => 'required']);
-        // $order->update(['order_status' => $request->order_status]);
-        // return back()->with('success', 'Order status updated successfully!');
-
+        // Accept either 'order_status' or 'status'
         $request->validate([
-            'order_status' => 'required|string',
+            'order_status' => 'nullable|string',
+            'status'       => 'nullable|string',
         ]);
 
-        $newStatus = trim($request->input('order_status'));
+        $newStatus = trim($request->input('order_status') ?? $request->input('status') ?? 'preparing');
 
-        // Update whichever column exists directly via DB Query Builder to bypass any model restrictions
+        // Build update payload depending on which columns exist in the table
         $updateData = [];
         if (Schema::hasColumn('orders', 'order_status')) {
             $updateData['order_status'] = $newStatus;
@@ -150,9 +153,25 @@ class AdminController extends Controller
         if (Schema::hasColumn('orders', 'status')) {
             $updateData['status'] = $newStatus;
         }
+        if (Schema::hasColumn('orders', 'updated_at')) {
+            $updateData['updated_at'] = now();
+        }
 
-        DB::table('orders')->where('id', $order->id)->update($updateData);
+        if (!empty($updateData)) {
+            DB::table('orders')->where('id', $order->id)->update($updateData);
+        }
 
+        // Return JSON if triggered by fetch/AJAX from the dashboard
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success'      => true,
+                'order_id'     => $order->id,
+                'order_status' => $newStatus,
+                'message'      => __('Order status updated successfully.'),
+            ]);
+        }
+
+        // Standard redirect back for classic Blade form submissions
         return back()->with('success', __('Order status updated successfully.'));
     }
 }

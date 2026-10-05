@@ -1,8 +1,38 @@
 @extends('admin.layout')
-@section('title', 'Dashboard Overview')
+@section('title', __('Dashboard Overview'))
 
 @section('content')
     <div class="space-y-6" x-data="adminDashboard()" x-init="initPusher()">
+
+        <!-- ================= STICKY AUDIO ALARM BANNER ================= -->
+        <template x-if="unacknowledgedOrders.length > 0">
+            <div
+                class="p-4 rounded-2xl bg-rose-600 text-white shadow-xl shadow-rose-600/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-pulse">
+                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg shrink-0">
+                        <i class="fa-solid fa-bell animate-bounce"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-sm">
+                            {{ __('ATTENTION: Incoming Orders Pending Action!') }}
+                            (<span x-text="unacknowledgedOrders.length"></span>)
+                        </h4>
+                        <p class="text-xs text-rose-100">
+                            {{ __('Alarm will continue playing until staff accepts or cancels the order.') }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2 rtl:space-x-reverse w-full sm:w-auto">
+                    <!-- Quick Mute Sound Button (Optional emergency mute) -->
+                    <button type="button" @click="toggleMute()"
+                        class="px-3 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-xs font-bold transition flex items-center space-x-1 rtl:space-x-reverse">
+                        <i class="fa-solid" :class="isMuted ? 'fa-volume-xmark' : 'fa-volume-high'"></i>
+                        <span x-text="isMuted ? '{{ __('Unmute') }}' : '{{ __('Silence Audio') }}'"></span>
+                    </button>
+                </div>
+            </div>
+        </template>
 
         <!-- Stat Metrics -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -44,29 +74,6 @@
             </div>
         </div>
 
-        <!-- Live Incoming Order Floating Alert Banner -->
-        <template x-if="newOrderAlert">
-            <div x-transition:enter="transition ease-out duration-300 transform"
-                x-transition:enter-start="-translate-y-4 opacity-0" x-transition:enter-end="translate-y-0 opacity-100"
-                class="p-4 rounded-2xl bg-emerald-500 text-white flex items-center justify-between shadow-lg shadow-emerald-500/20">
-                <div class="flex items-center space-x-3 rtl:space-x-reverse">
-                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg animate-bounce">
-                        <i class="fa-solid fa-bell"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-extrabold text-sm"
-                            x-text="`{{ __('New Order Received!') }} #${newOrderAlert.order_number}`"></h4>
-                        <p class="text-xs text-emerald-100"
-                            x-text="`${newOrderAlert.customer_name} • ${newOrderAlert.total} KD`"></p>
-                    </div>
-                </div>
-                <button type="button" @click="newOrderAlert = null"
-                    class="w-8 h-8 rounded-lg hover:bg-white/20 flex items-center justify-center transition">
-                    <i class="fa-solid fa-xmark text-sm"></i>
-                </button>
-            </div>
-        </template>
-
         <!-- Recent Orders Table -->
         <div class="bg-white border border-stone-200/80 rounded-2xl shadow-sm overflow-hidden">
             <div class="p-4 sm:p-5 border-b border-stone-100 flex items-center justify-between">
@@ -75,12 +82,13 @@
                     </h3>
                     <span
                         class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+                        <span
+                            class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 rtl:mr-0 rtl:ml-1.5 animate-pulse"></span>
                         Live
                     </span>
                 </div>
-                <a href="{{ route('admin.orders.index') }}" class="text-xs text-[#b5122b] hover:underline font-bold">
-                    {{ __('View All') }} &rarr;
+                <a href="{{ route('admin.orders.index') }}" class="text-xs text-[#8F966C] hover:underline font-bold">
+                    {{ __('View All Orders') }} &rarr;
                 </a>
             </div>
 
@@ -92,33 +100,70 @@
                             <th class="py-3 px-4">{{ __('Customer') }}</th>
                             <th class="py-3 px-4">{{ __('Total') }}</th>
                             <th class="py-3 px-4">{{ __('Status') }}</th>
+                            <th class="py-3 px-4 text-right rtl:text-left">{{ __('Action') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-stone-100">
                         <!-- Real-time incoming rows -->
                         <template x-for="ord in recentOrdersList" :key="ord.id">
-                            <tr class="hover:bg-stone-50/60 transition bg-emerald-50/30">
-                                <td class="py-3.5 px-4 font-bold text-stone-900 whitespace-nowrap"
-                                    x-text="ord.order_number"></td>
+                            <tr :class="isOrderAlerting(ord.id) ? 'bg-rose-50/50' : 'hover:bg-stone-50/60'"
+                                class="transition">
+                                <td class="py-3.5 px-4 font-bold text-stone-900 whitespace-nowrap">
+                                    <span x-text="ord.order_number"></span>
+                                    <template x-if="isOrderAlerting(ord.id)">
+                                        <span
+                                            class="ml-1 text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-rose-600 text-white animate-pulse">
+                                            NEW
+                                        </span>
+                                    </template>
+                                </td>
                                 <td class="py-3.5 px-4 whitespace-nowrap" x-text="ord.customer_name"></td>
-                                <td class="py-3.5 px-4 font-black text-[#b5122b] whitespace-nowrap"
+                                <td class="py-3.5 px-4 font-black text-[#8F966C] whitespace-nowrap"
                                     x-text="`${ord.total} KD`"></td>
                                 <td class="py-3.5 px-4 whitespace-nowrap">
-                                    <span
-                                        class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-50 text-amber-700"
-                                        x-text="ord.order_status"></span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase"
+                                        :class="ord.order_status === 'completed' || ord.order_status === 'preparing' ?
+                                            'bg-emerald-50 text-emerald-700' : (ord.order_status === 'cancelled' ?
+                                                'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700')"
+                                        x-text="ord.order_status">
+                                    </span>
+                                </td>
+                                <td class="py-3.5 px-4 text-right rtl:text-left whitespace-nowrap">
+                                    <template x-if="isOrderAlerting(ord.id)">
+                                        <div class="inline-flex items-center space-x-1.5 rtl:space-x-reverse">
+                                            <!-- Approve / Accept Button -->
+                                            <button type="button" @click="handleOrderStatus(ord.id, 'preparing')"
+                                                class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] shadow-sm transition active:scale-95 flex items-center space-x-1 rtl:space-x-reverse">
+                                                <i class="fa-solid fa-check text-[10px]"></i>
+                                                <span>{{ __('Accept') }}</span>
+                                            </button>
+
+                                            <!-- Cancel / Reject Button -->
+                                            <button type="button" @click="handleOrderStatus(ord.id, 'cancelled')"
+                                                class="px-2.5 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-[11px] transition active:scale-95 flex items-center space-x-1 rtl:space-x-reverse">
+                                                <i class="fa-solid fa-xmark text-[10px]"></i>
+                                                <span>{{ __('Cancel') }}</span>
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template x-if="!isOrderAlerting(ord.id)">
+                                        <a :href="`{{ url('backend/orders') }}`"
+                                            class="text-stone-400 hover:text-stone-700 font-bold text-xs">
+                                            {{ __('Details') }} &rarr;
+                                        </a>
+                                    </template>
                                 </td>
                             </tr>
                         </template>
 
                         <!-- Static initial blade rows -->
-                        @forelse($recentOrders as $ro)
+                        @forelse($recentOrders as$ro)
                             <tr class="hover:bg-stone-50/60 transition" x-show="!isOverridden({{ $ro->id }})">
                                 <td class="py-3.5 px-4 font-bold text-stone-900 whitespace-nowrap">
                                     {{ $ro->order_number }}
                                 </td>
                                 <td class="py-3.5 px-4 whitespace-nowrap">{{ $ro->customer_name }}</td>
-                                <td class="py-3.5 px-4 font-black text-[#b5122b] whitespace-nowrap">
+                                <td class="py-3.5 px-4 font-black text-[#8F966C] whitespace-nowrap">
                                     {{ number_format($ro->total, 3) }} KD
                                 </td>
                                 <td class="py-3.5 px-4 whitespace-nowrap">
@@ -127,10 +172,16 @@
                                         {{ $ro->order_status ?? $ro->status }}
                                     </span>
                                 </td>
+                                <td class="py-3.5 px-4 text-right rtl:text-left whitespace-nowrap">
+                                    <a href="{{ route('admin.orders.index') }}"
+                                        class="text-stone-400 hover:text-stone-700 font-bold text-xs">
+                                        {{ __('Details') }} &rarr;
+                                    </a>
+                                </td>
                             </tr>
                         @empty
                             <tr x-show="recentOrdersList.length === 0">
-                                <td colspan="4" class="p-6 text-center text-stone-400">{{ __('No orders yet.') }}</td>
+                                <td colspan="5" class="p-6 text-center text-stone-400">{{ __('No orders yet.') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -144,20 +195,54 @@
             return {
                 ordersCount: {{ $ordersCount ?? 0 }},
                 recentOrdersList: [],
-                newOrderAlert: null,
+                unacknowledgedOrders: [], // Array of order IDs waiting for action
+                alarmInterval: null,
+                isMuted: false,
 
                 isOverridden(id) {
                     return this.recentOrdersList.some(o => o.id === id);
                 },
 
-                playAlarmSound() {
+                isOrderAlerting(id) {
+                    return this.unacknowledgedOrders.includes(id);
+                },
+
+                // Continuous Alarm System
+                startContinuousAlarm() {
+                    if (this.alarmInterval) return; // Already looping
+
+                    // Play immediately
+                    this.playChimeTone();
+
+                    // Repeat chime every 2.5 seconds
+                    this.alarmInterval = setInterval(() => {
+                        if (this.unacknowledgedOrders.length === 0) {
+                            this.stopContinuousAlarm();
+                            return;
+                        }
+                        if (!this.isMuted) {
+                            this.playChimeTone();
+                        }
+                    }, 2500);
+                },
+
+                stopContinuousAlarm() {
+                    if (this.alarmInterval) {
+                        clearInterval(this.alarmInterval);
+                        this.alarmInterval = null;
+                    }
+                },
+
+                toggleMute() {
+                    this.isMuted = !this.isMuted;
+                },
+
+                playChimeTone() {
                     try {
                         const AudioContext = window.AudioContext || window.webkitAudioContext;
                         if (!AudioContext) return;
 
                         const ctx = new AudioContext();
-
-                        // Resume AudioContext if browser suspended it due to autoplay restrictions
                         if (ctx.state === 'suspended') {
                             ctx.resume();
                         }
@@ -166,33 +251,66 @@
                         const osc = ctx.createOscillator();
                         const gain = ctx.createGain();
 
-                        osc.type = 'sine';
-                        // Two-tone alert chime (880Hz down to 587Hz)
-                        osc.frequency.setValueAtTime(880, now);
-                        osc.frequency.exponentialRampToValueAtTime(587.33, now + 0.25);
+                        osc.type = 'triangle';
+                        // Alert sound: 950Hz -> 650Hz
+                        osc.frequency.setValueAtTime(950, now);
+                        osc.frequency.exponentialRampToValueAtTime(650, now + 0.35);
 
-                        gain.gain.setValueAtTime(0.4, now);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+                        gain.gain.setValueAtTime(0.5, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
 
                         osc.connect(gain);
                         gain.connect(ctx.destination);
 
                         osc.start(now);
-                        osc.stop(now + 0.8);
+                        osc.stop(now + 0.9);
                     } catch (e) {
-                        console.warn('Audio playback inhibited by browser policy:', e);
+                        console.warn('Audio play restricted by browser policy:', e);
                     }
                 },
 
-                initPusher() {
+                // Accept or Cancel Action
+                handleOrderStatus(orderId, newStatus) {
+                    fetch(`{{ url('backend/orders') }}/${orderId}/status`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                status: newStatus
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            // 1. Remove from alert queue
+                            this.unacknowledgedOrders = this.unacknowledgedOrders.filter(id => id !== orderId);
 
+                            // 2. Stop alarm if no more orders need review
+                            if (this.unacknowledgedOrders.length === 0) {
+                                this.stopContinuousAlarm();
+                            }
+
+                            // 3. Update status in table
+                            const ord = this.recentOrdersList.find(o => o.id === orderId);
+                            if (ord) {
+                                ord.order_status = newStatus;
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Failed to update status:', err);
+                        });
+                },
+
+                initPusher() {
                     Pusher.logToConsole = true;
 
-                    const pusherKey = '{{ env('PUSHER_APP_KEY') }}';
-                    const cluster = '{{ env('PUSHER_APP_CLUSTER', 'mt1') }}';
+                    const pusherKey = '{{ config('broadcasting.connections.pusher.key') }}';
+                    const cluster = '{{ config('broadcasting.connections.pusher.options.cluster', 'ap2') }}';
 
                     if (!pusherKey) {
-                        console.warn('PUSHER_APP_KEY not set in .env');
+                        console.warn('Pusher key missing');
                         return;
                     }
 
@@ -204,25 +322,21 @@
                     const channel = pusher.subscribe('admin-orders');
 
                     channel.bind('order.placed', (data) => {
-                        console.log('Order received via Pusher:', data);
-                        const order = data.orderData;
+                        const order = data.orderData || data;
 
-                        // Increment orders counter
+                        // Increment order counter
                         this.ordersCount++;
 
-                        // Prepend to recent list
+                        // Insert at top of recent orders
                         this.recentOrdersList.unshift(order);
 
-                        // Trigger audio chime
-                        this.playAlarmSound();
+                        // Add order ID to unacknowledged queue
+                        if (!this.unacknowledgedOrders.includes(order.id)) {
+                            this.unacknowledgedOrders.push(order.id);
+                        }
 
-                        // Show floating alert
-                        this.newOrderAlert = order;
-                        setTimeout(() => {
-                            if (this.newOrderAlert && this.newOrderAlert.id === order.id) {
-                                this.newOrderAlert = null;
-                            }
-                        }, 8000);
+                        // Start continuous loop alarm
+                        this.startContinuousAlarm();
                     });
                 }
             };
