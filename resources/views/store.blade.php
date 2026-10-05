@@ -68,14 +68,18 @@
         .animate-subtle-zoom {
             animation: slowZoom 24s ease-in-out infinite;
         }
+
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 16px);
+        }
     </style>
 </head>
 
 <body
-    class="bg-[#F8F7F4] text-[#24261F] antialiased h-screen overflow-hidden selection:bg-[#747D52]/20 selection:text-[#272E1B]"
+    class="bg-[#F8F7F4] text-[#24261F] antialiased h-[100dvh] overflow-hidden selection:bg-[#747D52]/20 selection:text-[#272E1B]"
     x-data="storeApp()" x-init="initRouter()">
 
-    <div class="flex h-screen w-full overflow-hidden">
+    <div class="flex h-[100dvh] w-full overflow-hidden">
         <!-- ================= LEFT INTERACTIVE PANEL (50%) ================= -->
         <main
             class="w-full lg:w-1/2 flex flex-col h-full bg-[#FCFBF9] border-r rtl:border-r-0 rtl:border-l border-stone-200/80 relative z-10 shadow-sm min-w-0 overflow-hidden">
@@ -296,7 +300,7 @@
             </div>
 
             <!-- SCROLLABLE BODY AREA -->
-            <div class="flex-1 min-h-0 overflow-y-auto custom-scroll p-4 sm:p-6 space-y-5 pb-48">
+            <div class="flex-1 min-h-0 overflow-y-auto custom-scroll p-4 sm:p-6 space-y-5 pb-32 lg:pb-12">
 
                 <!-- Delivery / Pickup Switcher & Quick Location Info -->
                 <section class="p-3.5 sm:p-4 bg-white border border-stone-200/60 rounded-2xl shadow-xs shrink-0"
@@ -1454,7 +1458,7 @@
 
             <!-- Sticky Bottom Review Bar -->
             <footer
-                class="p-4 bg-white/95 backdrop-blur-md border-t border-stone-200 sticky bottom-0 z-20 shadow-lg shrink-0"
+                class="fixed lg:sticky bottom-0 left-0 right-0 lg:left-auto lg:right-auto w-full p-4 pb-safe bg-white/95 backdrop-blur-md border-t border-stone-200 z-40 shadow-lg shrink-0"
                 x-show="view !== 'success' && view !== 'profile-menu' && view !== 'email-signin' && view !== 'my-orders'">
                 <template x-if="(view === 'categories-grid' || view === 'category-products') && cart.length > 0">
                     <button @click="navigate('/cart')"
