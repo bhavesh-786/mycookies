@@ -2603,7 +2603,8 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                //'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify(payload)

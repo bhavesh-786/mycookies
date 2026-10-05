@@ -248,27 +248,35 @@
                         }
 
                         const now = ctx.currentTime;
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
 
-                        osc.type = 'triangle';
-                        // Alert sound: 950Hz -> 650Hz
-                        osc.frequency.setValueAtTime(950, now);
-                        osc.frequency.exponentialRampToValueAtTime(650, now + 0.35);
+                        // Helper to trigger a piercing POS alert pulse
+                        const triggerBeep = (startTime, freq) => {
+                            const osc = ctx.createOscillator();
+                            const gain = ctx.createGain();
 
-                        gain.gain.setValueAtTime(0.5, now);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+                            // 'square' produces a much louder, harsher buzzer sound than 'sine'
+                            osc.type = 'square';
+                            osc.frequency.setValueAtTime(freq, startTime);
 
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
+                            // Maximum safe digital volume
+                            gain.gain.setValueAtTime(0.85, startTime);
+                            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.22);
 
-                        osc.start(now);
-                        osc.stop(now + 0.9);
+                            osc.connect(gain);
+                            gain.connect(ctx.destination);
+
+                            osc.start(startTime);
+                            osc.stop(startTime + 0.22);
+                        };
+
+                        // Rapid double beep: Beep 1 (1100 Hz), Beep 2 (1400 Hz)
+                        triggerBeep(now, 1100);
+                        triggerBeep(now + 0.25, 1400);
+
                     } catch (e) {
                         console.warn('Audio play restricted by browser policy:', e);
                     }
                 },
-
                 // Accept or Cancel Action
                 handleOrderStatus(orderId, newStatus) {
                     fetch(`{{ url('backend/orders') }}/${orderId}/status`, {
