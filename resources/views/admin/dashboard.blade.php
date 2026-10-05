@@ -174,7 +174,7 @@
                         </template>
 
                         <!-- Static initial blade rows -->
-                        @forelse($recentOrders as$ro)
+                        @forelse($recentOrders as $ro)
                             <tr class="hover:bg-stone-50/60 transition" x-show="!isOverridden({{ $ro->id }})">
                                 <td class="py-3.5 px-4 font-bold text-stone-900 whitespace-nowrap">
                                     {{ $ro->order_number }}
