@@ -6,20 +6,21 @@
 
         <!-- ================= BROWSER AUTOPLAY UNLOCK PROMPT ================= -->
         <template x-if="audioSuspended">
-            <div @click="unlockAudio()"
-                class="cursor-pointer p-3.5 rounded-2xl bg-amber-500/10 border border-amber-300 text-amber-900 flex items-center justify-between shadow-xs transition hover:bg-amber-500/15">
+            <div x-show="!isAudioUnlocked" x-cloak @click="unlockAudio()"
+                class="cursor-pointer p-3.5 rounded-2xl bg-amber-500/10 border border-amber-300 text-amber-900 flex items-center justify-between shadow-xs transition hover:bg-amber-500/20">
                 <div class="flex items-center space-x-2.5 rtl:space-x-reverse text-xs font-bold">
                     <span class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0">
                         <i class="fa-solid fa-volume-xmark text-sm"></i>
                     </span>
                     <div>
-                        <p class="font-extrabold">{{ __('Audio notifications are paused by your browser.') }}</p>
+                        <p class="font-extrabold">{{ __('Audio notifications are awaiting activation.') }}</p>
                         <p class="text-[11px] text-amber-700 font-medium">
-                            {{ __('Click anywhere on the dashboard to enable order alarm sounds.') }}</p>
+                            {{ __('Click anywhere on the dashboard so browser allows the buzzer.') }}</p>
                     </div>
                 </div>
-                <button type="button" class="px-3 py-1.5 bg-amber-500 text-white text-xs font-black rounded-xl shadow-xs">
-                    {{ __('Enable Sound') }}
+                <button type="button"
+                    class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black rounded-xl shadow-xs transition">
+                    {{ __('Activate Audio') }}
                 </button>
             </div>
         </template>
@@ -216,64 +217,92 @@
                 alarmInterval: null,
                 isMuted: false,
                 audioCtx: null,
-                audioSuspended: true,
+                isAudioUnlocked: false,
 
                 initDashboard() {
-                    this.initAudioContext();
+                    // Listen for any first user gesture to unlock audio cleanly
+                    const unlockEvents = ['click', 'touchstart', 'keydown'];
+                    const handleFirstGesture = () => {
+                        this.unlockAudio();
+                        unlockEvents.forEach(evt => window.removeEventListener(evt, handleFirstGesture));
+                    };
+
+                    unlockEvents.forEach(evt => {
+                        window.addEventListener(evt, handleFirstGesture, {
+                            once: true
+                        });
+                    });
+
                     this.initPusher();
                 },
 
-                // Audio System setup
-                initAudioContext() {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    if (!AudioContext) {
-                        this.audioSuspended = false;
+                unlockAudio() {
+                    try {
+                        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                        if (!AudioContextClass) return;
+
+                        // Only construct or resume AFTER a user gesture
+                        if (!this.audioCtx) {
+                            this.audioCtx = new AudioContextClass();
+                        }
+
+                        if (this.audioCtx.state === 'suspended') {
+                            this.audioCtx.resume().then(() => {
+                                this.isAudioUnlocked = true;
+                            });
+                        } else if (this.audioCtx.state === 'running') {
+                            this.isAudioUnlocked = true;
+                        }
+                    } catch (e) {
+                        console.warn('Audio unlock pending user interaction:', e);
+                    }
+                },
+
+                playChimeTone() {
+                    // If the user hasn't clicked yet, try unlocking once
+                    if (!this.audioCtx || this.audioCtx.state !== 'running') {
+                        this.unlockAudio();
+                    }
+
+                    if (!this.audioCtx || this.audioCtx.state !== 'running') {
+                        console.warn('AudioContext not running yet. Awaiting staff click.');
                         return;
                     }
 
-                    if (!this.audioCtx) {
-                        this.audioCtx = new AudioContext();
+                    try {
+                        const now = this.audioCtx.currentTime;
+
+                        const triggerBeep = (startTime, freq) => {
+                            const osc = this.audioCtx.createOscillator();
+                            const gain = this.audioCtx.createGain();
+
+                            osc.type = 'square';
+                            osc.frequency.setValueAtTime(freq, startTime);
+
+                            gain.gain.setValueAtTime(0.85, startTime);
+                            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.22);
+
+                            osc.connect(gain);
+                            gain.connect(this.audioCtx.destination);
+
+                            osc.start(startTime);
+                            osc.stop(startTime + 0.22);
+                        };
+
+                        triggerBeep(now, 1100);
+                        triggerBeep(now + 0.25, 1400);
+                    } catch (e) {
+                        console.error('Audio playback error:', e);
                     }
-
-                    this.audioSuspended = (this.audioCtx.state === 'suspended');
-
-                    // Global listener to unlock audio on first page click/keypress
-                    const unlockHandler = () => {
-                        this.unlockAudio();
-                        window.removeEventListener('click', unlockHandler);
-                        window.removeEventListener('keydown', unlockHandler);
-                    };
-
-                    window.addEventListener('click', unlockHandler);
-                    window.addEventListener('keydown', unlockHandler);
-                },
-
-                unlockAudio() {
-                    if (this.audioCtx && this.audioCtx.state === 'suspended') {
-                        this.audioCtx.resume().then(() => {
-                            this.audioSuspended = false;
-                        }).catch(() => {});
-                    } else {
-                        this.audioSuspended = false;
-                    }
-                },
-
-                isOverridden(id) {
-                    return this.recentOrdersList.some(o => o.id === id);
-                },
-
-                isOrderAlerting(id) {
-                    return this.unacknowledgedOrders.includes(id);
                 },
 
                 startContinuousAlarm() {
                     if (this.alarmInterval) return;
 
-                    // Attempt immediate unlock and playback
-                    this.unlockAudio();
+                    // Play first pulse
                     this.playChimeTone();
 
-                    // Loop alarm chime every 2.5 seconds
+                    // Repeat every 2.5 seconds
                     this.alarmInterval = setInterval(() => {
                         if (this.unacknowledgedOrders.length === 0) {
                             this.stopContinuousAlarm();
@@ -294,49 +323,6 @@
 
                 toggleMute() {
                     this.isMuted = !this.isMuted;
-                },
-
-                playChimeTone() {
-                    try {
-                        if (!this.audioCtx) {
-                            const AudioContext = window.AudioContext || window.webkitAudioContext;
-                            if (AudioContext) this.audioCtx = new AudioContext();
-                        }
-
-                        if (!this.audioCtx) return;
-
-                        if (this.audioCtx.state === 'suspended') {
-                            this.audioCtx.resume();
-                            this.audioSuspended = true;
-                            return;
-                        }
-
-                        const now = this.audioCtx.currentTime;
-
-                        // Piercing double POS buzzer
-                        const triggerBeep = (startTime, freq) => {
-                            const osc = this.audioCtx.createOscillator();
-                            const gain = this.audioCtx.createGain();
-
-                            osc.type = 'square';
-                            osc.frequency.setValueAtTime(freq, startTime);
-
-                            gain.gain.setValueAtTime(0.85, startTime);
-                            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.22);
-
-                            osc.connect(gain);
-                            gain.connect(this.audioCtx.destination);
-
-                            osc.start(startTime);
-                            osc.stop(startTime + 0.22);
-                        };
-
-                        triggerBeep(now, 1100);
-                        triggerBeep(now + 0.25, 1400);
-
-                    } catch (e) {
-                        console.warn('Audio play restricted by browser policy:', e);
-                    }
                 },
 
                 handleOrderStatus(orderId, newStatus) {
