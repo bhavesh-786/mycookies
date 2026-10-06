@@ -25,7 +25,7 @@
                         <tr>
                             <th class="py-3.5 px-4">{{ __('Order #') }}</th>
                             <th class="py-3.5 px-4">{{ __('Customer') }}</th>
-                            <th class="py-3.5 px-4">{{ __('Type / Area') }}</th>
+                            <th class="py-3.5 px-4">{{ __('Type & Destination') }}</th>
                             <th class="py-3.5 px-4">{{ __('Items & Addons') }}</th>
                             <th class="py-3.5 px-4">{{ __('Total') }}</th>
                             <th class="py-3.5 px-4">{{ __('Status') }}</th>
@@ -45,13 +45,61 @@
                                     <strong class="text-stone-800">{{ $ord->customer_name }}</strong>
                                     <div class="text-[11px] text-stone-400 mt-0.5">{{ $ord->customer_phone }}</div>
                                 </td>
-                                <td class="py-4 px-4 whitespace-nowrap">
-                                    <span
-                                        class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $ord->order_type === 'delivery' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200' }}">
-                                        {{ $ord->order_type }}
-                                    </span>
-                                    <div class="text-stone-500 text-[11px] mt-1">
-                                        {{ $ord->area_name ?? __('Branch Pickup') }}</div>
+                                <td class="py-4 px-4 max-w-xs">
+                                    <div class="flex items-center space-x-1.5 rtl:space-x-reverse mb-1">
+                                        <span
+                                            class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $ord->order_type === 'delivery' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200' }}">
+                                            {{ $ord->order_type }}
+                                        </span>
+                                        @if ($ord->address_type)
+                                            <span
+                                                class="text-[10px] bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded font-semibold">
+                                                {{ $ord->address_type }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    @if ($ord->order_type === 'delivery')
+                                        <div class="text-[11px] text-stone-700 leading-tight space-y-0.5">
+                                            <div class="font-bold text-stone-900">{{ $ord->area_name }}</div>
+                                            <div>
+                                                {{ __('Blk') }} {{ $ord->block }}, {{ __('St') }}
+                                                {{ $ord->street }}
+                                                @if (!empty($ord->avenue))
+                                                    , {{ __('Ave') }} {{ $ord->avenue }}
+                                                @endif
+                                                , {{ __('Bldg') }} {{ $ord->building }}
+                                            </div>
+
+                                            @if (!empty($ord->additional_directions))
+                                                <div class="text-[10px] text-stone-500 italic">
+                                                    {{ __('Note:') }} {{ $ord->additional_directions }}
+                                                </div>
+                                            @endif
+
+                                            @if (!empty($ord->paci))
+                                                <div class="text-[10px] text-stone-500">
+                                                    {{ __('PACI:') }} {{ $ord->paci }}
+                                                </div>
+                                            @endif
+
+                                            <!-- Google Maps Pin Link -->
+                                            @if (!empty($ord->latitude) && !empty($ord->longitude))
+                                                <div class="pt-1">
+                                                    <a href="https://www.google.com/maps?q={{ $ord->latitude }},{{ $ord->longitude }}"
+                                                        target="_blank"
+                                                        class="inline-flex items-center space-x-1 rtl:space-x-reverse text-[10px] font-bold text-[#747D52] hover:underline bg-[#747D52]/10 px-2 py-0.5 rounded-md">
+                                                        <i class="fa-solid fa-map-location-dot"></i>
+                                                        <span>{{ __('Open in Google Maps') }}</span>
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="text-stone-500 text-[11px] mt-1 font-medium">
+                                            {{ $ord->area_name ?? __('Branch Pickup') }}
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="py-4 px-4 space-y-1 max-w-xs">
                                     @php

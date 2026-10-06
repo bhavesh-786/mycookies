@@ -25,6 +25,7 @@ class Order extends Model
         'building',
         'building_or_house',
         'avenue',
+        'additional_directions',
         'paci',
         'paci_number',
         'latitude',
@@ -45,7 +46,7 @@ class Order extends Model
     protected function casts(): array
     {
         return [
-            'items' => 'array', // or 'collection'
+            'items' => 'array',
         ];
     }
 }

@@ -15,6 +15,9 @@
         rel="stylesheet">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS & JS for Interactive Map Selection -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
         body {
@@ -783,7 +786,8 @@
                                 <div x-show="isGovOpen(gov.id)"
                                     class="p-2 space-y-1 divide-y divide-stone-100 border-t border-stone-100">
                                     <template x-for="area in gov.filteredAreas" :key="area.id">
-                                        <button type="button" @click="setDeliveryArea(area.name, area.delivery_fee)"
+                                        <button type="button"
+                                            @click="setDeliveryArea(area.id, area.name, area.delivery_fee)"
                                             class="w-full text-left rtl:text-right py-2.5 px-3 rounded-xl text-xs hover:bg-[#747D52]/10 hover:text-[#272E1B] flex items-center transition"
                                             :class="selectedDeliveryArea?.name === area.name ?
                                                 'bg-[#747D52]/15 text-[#272E1B] font-bold' : 'text-stone-700'">
@@ -801,9 +805,10 @@
 
                     <div x-show="method === 'pickup'" class="space-y-2.5">
                         <template x-for="st in filteredStores" :key="st.id">
-                            <button type="button" @click="setStorePickup(st.name)"
+                            <!-- Change @click to pass the entire store object 'st' -->
+                            <button type="button" @click="setStorePickup(st)"
                                 class="w-full text-left rtl:text-right p-4 rounded-2xl border border-stone-200/80 hover:border-[#747D52] hover:bg-[#747D52]/5 transition bg-white flex justify-between items-center shadow-xs"
-                                :class="selectedPickupStore?.name === st.name ?
+                                :class="selectedPickupStore?.id === st.id ?
                                     'border-[#747D52] bg-[#747D52]/10 ring-1 ring-[#747D52]' : ''">
                                 <div>
                                     <h4 class="font-bold text-xs text-stone-900" x-text="st.name"></h4>
@@ -1329,6 +1334,7 @@
                 </div>
 
                 <!-- SCREEN: KUWAIT ADDRESS DETAILS -->
+                <!-- SCREEN: KUWAIT ADDRESS DETAILS -->
                 <div x-show="view === 'address'" x-cloak class="space-y-4">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="view = 'checkout-details'"
@@ -1337,6 +1343,8 @@
                         </button>
                         <h3 class="font-extrabold text-sm text-stone-900">{{ __('Delivery Address Details') }}</h3>
                     </div>
+
+                    <!-- Address Type Switcher -->
                     <div>
                         <label
                             class="block font-bold text-stone-700 text-xs mb-1.5">{{ __('Address Type *') }}</label>
@@ -1356,6 +1364,31 @@
                         </div>
                     </div>
 
+                    <!-- Map Pinpoint Picker -->
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <label class="block font-bold text-stone-700 text-xs">
+                                <i class="fa-solid fa-location-crosshairs text-[#747D52] mr-1"></i>
+                                {{ __('Pin Exact Location on Map') }}
+                            </label>
+                            <button type="button" @click="detectCurrentLocation()"
+                                class="text-[11px] text-[#747D52] hover:text-[#5A623E] font-bold flex items-center space-x-1 rtl:space-x-reverse">
+                                <i class="fa-solid fa-crosshairs"></i>
+                                <span>{{ __('Use My GPS') }}</span>
+                            </button>
+                        </div>
+                        <div class="rounded-2xl overflow-hidden border border-stone-200/90 shadow-inner relative">
+                            <div id="addressPickerMap" class="w-full h-44 z-0"></div>
+                            <div
+                                class="absolute bottom-2 left-2 right-2 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-lg text-[10px] text-stone-500 font-semibold shadow-xs pointer-events-none flex items-center justify-between">
+                                <span>{{ __('Drag marker to adjust') }}</span>
+                                <span
+                                    x-text="address.latitude ? `${parseFloat(address.latitude).toFixed(4)}, ${parseFloat(address.longitude).toFixed(4)}` : 'Kuwait'"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Block & Street -->
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block font-bold text-stone-700 text-xs mb-1">{{ __('Block *') }}</label>
@@ -1369,12 +1402,32 @@
                         </div>
                     </div>
 
+                    <!-- Avenue & Building/House -->
                     <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-bold text-stone-700 text-xs mb-1">{{ __('Avenue') }} <span
+                                    class="text-stone-400 font-normal text-[11px]">({{ __('Optional') }})</span></label>
+                            <input type="text" x-model="address.avenue" placeholder="{{ __('e.g. Avenue 2') }}"
+                                class="w-full border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 transition shadow-xs">
+                        </div>
                         <div>
                             <label
                                 class="block font-bold text-stone-700 text-xs mb-1">{{ __('Building / House *') }}</label>
                             <input type="text" x-model="address.building"
                                 placeholder="{{ __('e.g. Building 12') }}"
+                                class="w-full border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 transition shadow-xs">
+                        </div>
+                    </div>
+
+                    <!-- Additional Directions & PACI -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label
+                                class="block font-bold text-stone-700 text-xs mb-1">{{ __('Additional Directions') }}
+                                <span
+                                    class="text-stone-400 font-normal text-[11px]">({{ __('Optional') }})</span></label>
+                            <input type="text" x-model="address.additional_directions"
+                                placeholder="{{ __('e.g. Near park / Floor 3 / Apt 12') }}"
                                 class="w-full border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 transition shadow-xs">
                         </div>
                         <div>
@@ -1664,8 +1717,8 @@
                 settings: @json($settings ?? []),
 
                 selectedDeliveryArea: {
-                    id: {{ isset($defaultArea) ? $defaultArea->id : 'null' }},
-                    name: '{{ isset($defaultArea) ? (app()->getLocale() === 'ar' ? $defaultArea->name_ar : $defaultArea->name_en) : (app()->getLocale() === 'ar' ? 'أبو حليفة' : 'Abu Halifa') }}',
+                    id: {{ isset($defaultArea) && $defaultArea ? $defaultArea->id : $governoratesList[0]['areas'][0]['id'] ?? 'null' }},
+                    name: '{{ isset($defaultArea) && $defaultArea ? (app()->getLocale() === 'ar' ? $defaultArea->name_ar : $defaultArea->name_en) : (app()->getLocale() === 'ar' ? 'أبو حليفة' : 'Abu Halifa') }}',
                     fee: parseFloat('{{ $settings['default_delivery_fee'] ?? 0.95 }}')
                 },
                 selectedPickupStore: null,
@@ -1932,9 +1985,15 @@
                     type: 'Home',
                     block: '',
                     street: '',
+                    avenue: '',
                     building: '',
-                    paci: ''
+                    additional_directions: '',
+                    paci: '',
+                    latitude: 29.3759, // Default: Kuwait City
+                    longitude: 47.9774
                 },
+                leafletMap: null,
+                leafletMarker: null,
                 paymentMethod: 'knet',
                 placedOrderNo: '',
 
@@ -1957,6 +2016,7 @@
 
                     if (this.storesList && this.storesList.length > 0 && !this.selectedPickupStore) {
                         this.selectedPickupStore = {
+                            id: this.storesList[0].id, // <-- MUST HAVE ID
                             name: this.storesList[0].name,
                             description: this.storesList[0].description
                         };
@@ -2023,6 +2083,7 @@
                         } else if (parts[1] === 'address') {
                             this.view = 'address';
                             this.setPageTitle('{{ __('Delivery Address Details') }}');
+                            this.initAddressMap();
                         }
                     } else if (parts[0] === 'profile') {
                         if (parts[1] === 'orders') {
@@ -2082,8 +2143,9 @@
                     this.view = 'customizer';
                 },
 
-                setDeliveryArea(name, fee) {
+                setDeliveryArea(id, name, fee) {
                     this.selectedDeliveryArea = {
+                        id: id,
                         name: name,
                         fee: parseFloat(fee || 0.950)
                     };
@@ -2091,11 +2153,11 @@
                     this.navigate('/');
                 },
 
-                setStorePickup(name) {
-                    const st = this.storesList.find(s => s.name === name);
+                setStorePickup(store) {
                     this.selectedPickupStore = {
-                        name: name,
-                        description: st ? st.description : ''
+                        id: store.id,
+                        name: store.name,
+                        description: store.description || ''
                     };
                     this.deliveryFee = 0.000;
                     this.navigate('/');
@@ -2577,12 +2639,26 @@
                         return;
                     }
 
+                    let targetStoreId = null;
+                    let targetAreaId = null;
+
+                    if (this.method === 'pickup') {
+                        targetStoreId = this.selectedPickupStore?.id || (this.storesList.length > 0 ? this.storesList[0]
+                            .id : null);
+                    } else {
+                        targetAreaId = this.selectedDeliveryArea?.id || null;
+                    }
+
                     const chosenLocation = this.method === 'delivery' ?
                         (this.selectedDeliveryArea ? this.selectedDeliveryArea.name : '') :
                         (this.selectedPickupStore ? this.selectedPickupStore.name : '');
 
+                    console.log("Submitting order with Area ID:", targetAreaId, "Store ID:", targetStoreId);
+
                     const payload = {
                         order_type: this.method,
+                        store_id: targetStoreId,
+                        area_id: targetAreaId,
                         customer_name: this.customer.name,
                         customer_email: this.customer.email,
                         customer_phone: this.customer.phone,
@@ -2590,8 +2666,12 @@
                         address_type: this.address.type,
                         block: this.address.block,
                         street: this.address.street,
+                        avenue: this.address.avenue,
                         building: this.address.building,
+                        additional_directions: this.address.additional_directions,
                         paci: this.address.paci,
+                        latitude: this.address.latitude,
+                        longitude: this.address.longitude,
                         subtotal: subtotal,
                         delivery_fee: this.method === 'delivery' ? this.deliveryFee : 0,
                         total: grandTotal,
@@ -2631,7 +2711,64 @@
                         .catch(err => {
                             this.showAlert(err.message);
                         });
-                }
+                },
+
+                initAddressMap() {
+                    this.$nextTick(() => {
+                        const container = document.getElementById('addressPickerMap');
+                        if (!container) return;
+
+                        const defaultLat = this.address.latitude || 29.3759;
+                        const defaultLng = this.address.longitude || 47.9774;
+
+                        if (!this.leafletMap) {
+                            this.leafletMap = L.map('addressPickerMap').setView([defaultLat, defaultLng], 13);
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '&copy; OpenStreetMap contributors'
+                            }).addTo(this.leafletMap);
+
+                            this.leafletMarker = L.marker([defaultLat, defaultLng], {
+                                draggable: true
+                            }).addTo(this.leafletMap);
+
+                            this.leafletMarker.on('dragend', (e) => {
+                                const pos = e.target.getLatLng();
+                                this.address.latitude = pos.lat;
+                                this.address.longitude = pos.lng;
+                            });
+
+                            this.leafletMap.on('click', (e) => {
+                                this.leafletMarker.setLatLng(e.latlng);
+                                this.address.latitude = e.latlng.lat;
+                                this.address.longitude = e.latlng.lng;
+                            });
+                        } else {
+                            this.leafletMap.invalidateSize();
+                            this.leafletMarker.setLatLng([defaultLat, defaultLng]);
+                            this.leafletMap.setView([defaultLat, defaultLng], 13);
+                        }
+                    });
+                },
+
+                detectCurrentLocation() {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            (pos) => {
+                                const lat = pos.coords.latitude;
+                                const lng = pos.coords.longitude;
+                                this.address.latitude = lat;
+                                this.address.longitude = lng;
+                                if (this.leafletMap && this.leafletMarker) {
+                                    this.leafletMarker.setLatLng([lat, lng]);
+                                    this.leafletMap.setView([lat, lng], 15);
+                                }
+                            },
+                            () => {
+                                this.showAlert('{{ __('Could not retrieve your current location.') }}');
+                            }
+                        );
+                    }
+                },
             };
         }
     </script>
