@@ -1495,17 +1495,17 @@
                 </div>
 
                 <!-- SCREEN: CONFIRMATION -->
+                <!-- SCREEN: CONFIRMATION -->
                 <div x-show="view === 'success'" x-cloak class="text-center py-16 space-y-3.5">
-                    <div
-                        class="w-16 h-16 bg-[#747D52]/20 text-[#272E1B] rounded-2xl flex items-center justify-center mx-auto text-2xl mb-2 shadow-sm">
+                    <div class="w-16 h-16 bg-[#747D52]/20 text-[#272E1B] rounded-2xl flex items-center justify-center mx-auto text-2xl mb-2 shadow-sm">
                         <i class="fa-solid fa-check"></i>
                     </div>
-                    <h2 class="font-extrabold text-lg text-stone-900 tracking-tight">{{ __('Order Confirmed!') }}
-                    </h2>
-                    <p class="text-xs text-stone-500">{{ __('Reference:') }} <strong
-                            class="text-stone-900 font-extrabold" x-text="placedOrderNo"></strong></p>
-                    <button @click="navigate('/')"
-                        class="mt-4 bg-[#747D52] hover:bg-[#636C44] text-white px-7 py-3 rounded-xl font-extrabold text-xs shadow-md shadow-[#747D52]/20 active:scale-95 transition">{{ __('Back to Menu') }}</button>
+                    <h2 class="font-extrabold text-lg text-stone-900 tracking-tight">{{ __('Order Confirmed!') }}</h2>
+                    <p class="text-xs text-stone-500">{{ __('Reference:') }} <strong class="text-stone-900 font-extrabold" x-text="placedOrderNo"></strong></p>
+                    <button @click="view = 'categories-grid'; navigate('/')"
+                        class="mt-4 bg-[#747D52] hover:bg-[#636C44] text-white px-7 py-3 rounded-xl font-extrabold text-xs shadow-md shadow-[#747D52]/20 active:scale-95 transition">
+                        {{ __('Back to Menu') }}
+                    </button>
                 </div>
             </div>
 
@@ -1758,6 +1758,18 @@
                     this.modal.open = true;
                 },
 
+                getCsrfToken() {
+                    const meta = document.querySelector('meta[name="csrf-token"]');
+                    return meta ? meta.getAttribute('content') : '{{ csrf_token() }}';
+                },
+
+                updateCsrfToken(newToken) {
+                    if (!newToken) return;
+                    const meta = document.querySelector('meta[name="csrf-token"]');
+                    if (meta) {
+                        meta.setAttribute('content', newToken);
+                    }
+                },
                 toggleSearch() {
                     this.searchOpen = !this.searchOpen;
                     if (this.searchOpen) {
@@ -1999,11 +2011,33 @@
 
                 initRouter() {
                     const urlParams = new URLSearchParams(window.location.search);
+
+                    // 1. Check for MyFatoorah Payment Return FIRST
+                    if (urlParams.get('payment') === 'success') {
+                        const orderNo = urlParams.get('order') || '';
+                        this.placedOrderNo = orderNo;
+                        this.cart = [];
+                        localStorage.removeItem('otherwise_cart');
+                        this.view = 'success';
+                        this.setPageTitle('{{ __('Order Confirmed!') }}');
+
+                        // Clean the URL without reloading the page
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        return; // STOP execution so handlePath() does not overwrite this.view!
+                    }
+
+                    if (urlParams.get('payment') === 'failed') {
+                        const errorMsg = urlParams.get('msg') || '{{ __('Payment was cancelled or failed.') }}';
+                        this.showAlert(errorMsg, '{{ __('Payment Failed') }}');
+                        this.view = 'checkout';
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        return;
+                    }
+
                     if (urlParams.get('verified') === '1') {
                         this.isAuthenticated = true;
                         this.view = 'address';
-                        this.showAlert('{{ __('Email verified successfully! Please enter your delivery address.') }}',
-                            '{{ __('Verified') }}');
+                        this.showAlert('{{ __('Email verified successfully! Please enter your delivery address.') }}', '{{ __('Verified') }}');
                         window.history.replaceState({}, document.title, window.location.pathname);
                     }
 
@@ -2029,6 +2063,9 @@
                 },
 
                 navigate(path, title = null) {
+                    if (this.view === 'success') {
+                        this.view = 'categories-grid';
+                    }
                     if (window.location.pathname !== path) {
                         window.history.pushState({}, '', path);
                     }
@@ -2038,6 +2075,12 @@
                 handlePath(path, customTitle = null) {
                     const clean = path.replace(/^\/|\/$/g, '');
                     const parts = clean.split('/');
+
+                    // if (this.view === 'success') {
+                    //     return;
+                    // }
+
+                   
 
                     if (!clean || clean === '') {
                         this.view = 'categories-grid';
@@ -2286,7 +2329,7 @@
                 },
 
                 // ------------------ AUTH LOGIC ------------------
-                submitSignIn() {
+              submitSignIn() {
                     this.authError = '';
                     this.authSuccess = '';
 
@@ -2297,39 +2340,45 @@
                     this.authLoading = true;
 
                     fetch('{{ route('customer.login') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify(this.authForm)
-                        })
-                        .then(async res => {
-                            const data = await res.json();
-                            if (!res.ok) throw new Error(data.message || 'Login failed');
-                            return data;
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                this.currentUser = data.user;
-                                this.customer.name = data.user.name;
-                                this.customer.email = data.user.email;
-                                this.customer.phone = data.user.phone;
-                                this.isAuthenticated = true;
-                                this.authForm = {
-                                    email: '',
-                                    password: ''
-                                };
-                                this.navigate('/profile', '{{ __('Profile') }}');
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.getCsrfToken(),
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(this.authForm)
+                    })
+                    .then(async res => {
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok) {
+                            if (res.status === 419) {
+                                throw new Error('{{ __('Session expired. Please try logging in again.') }}');
                             }
-                        })
-                        .catch(err => {
-                            this.authError = err.message;
-                        })
-                        .finally(() => {
-                            this.authLoading = false;
-                        });
+                            throw new Error(data.message || 'Login failed');
+                        }
+                        return data;
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Update CSRF token if returned by backend
+                            if (data.csrf_token) {
+                                this.updateCsrfToken(data.csrf_token);
+                            }
+                            this.currentUser = data.user;
+                            this.customer.name = data.user.name;
+                            this.customer.email = data.user.email;
+                            this.customer.phone = data.user.phone;
+                            this.isAuthenticated = true;
+                            this.authForm = { email: '', password: '' };
+                            this.navigate('/profile', '{{ __('Profile') }}');
+                        }
+                    })
+                    .catch(err => {
+                        this.authError = err.message;
+                    })
+                    .finally(() => {
+                        this.authLoading = false;
+                    });
                 },
 
                 submitSignUp() {
@@ -2340,47 +2389,47 @@
                         this.authError = '{{ __('Please fill all required fields') }}';
                         return;
                     }
-
                     this.authLoading = true;
 
                     fetch('{{ route('customer.register') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify(this.regForm)
-                        })
-                        .then(async res => {
-                            const data = await res.json();
-                            if (!res.ok) {
-                                if (data.errors) {
-                                    const firstError = Object.values(data.errors)[0][0];
-                                    throw new Error(firstError);
-                                }
-                                throw new Error(data.message || 'Registration failed');
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.getCsrfToken(),
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(this.regForm)
+                    })
+                    .then(async res => {
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok) {
+                            if (res.status === 419) {
+                                throw new Error('{{ __('Session expired. Please try again.') }}');
                             }
-                            return data;
-                        })
-                        .then(data => {
-                            if (data.requires_verify) {
-                                this.regForm = {
-                                    name: '',
-                                    email: '',
-                                    phone: '',
-                                    password: ''
-                                };
-                                this.authTab = 'login';
-                                this.authSuccess = data.message;
+                            if (data.errors) {
+                                const firstError = Object.values(data.errors)[0][0];
+                                throw new Error(firstError);
                             }
-                        })
-                        .catch(err => {
-                            this.authError = err.message;
-                        })
-                        .finally(() => {
-                            this.authLoading = false;
-                        });
+                            throw new Error(data.message || 'Registration failed');
+                        }
+                        return data;
+                    })
+                    .then(data => {
+                        if (data.csrf_token) {
+                            this.updateCsrfToken(data.csrf_token);
+                        }
+                        if (data.requires_verify) {
+                            this.regForm = { name: '', email: '', phone: '', password: '' };
+                            this.authTab = 'login';
+                            this.authSuccess = data.message;
+                        }
+                    })
+                    .catch(err => {
+                        this.authError = err.message;
+                    })
+                    .finally(() => {
+                        this.authLoading = false;
+                    });
                 },
 
                 submitForgotPassword() {
@@ -2398,7 +2447,7 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'X-CSRF-TOKEN': this.getCsrfToken(),
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify({
@@ -2473,22 +2522,26 @@
 
                 signOut() {
                     fetch('{{ route('customer.logout') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(() => {
-                            this.isAuthenticated = false;
-                            this.currentUser = {
-                                name: '',
-                                email: '',
-                                phone: ''
-                            };
-                            this.navigate('/', '{{ __('otherwise') }}');
-                        });
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.getCsrfToken(),
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(res => res.json().catch(() => ({})))
+                    .then(data => {
+                        if (data.csrf_token) {
+                            this.updateCsrfToken(data.csrf_token);
+                        }
+                        this.isAuthenticated = false;
+                        this.currentUser = { name: '', email: '', phone: '' };
+                        this.navigate('/', '{{ __('otherwise') }}');
+                    })
+                    .catch(() => {
+                        this.isAuthenticated = false;
+                        this.navigate('/', '{{ __('otherwise') }}');
+                    });
                 },
 
                 deleteAccount() {
@@ -2700,6 +2753,13 @@
                         })
                         .then(res => {
                             if (res.success) {
+                                if (res.redirect_url) {
+                                    // MyFatoorah gateway redirection
+                                    window.location.href = res.redirect_url;
+                                    return;
+                                }
+
+                                // Cash flow: Complete order immediately
                                 this.placedOrderNo = res.order_number;
                                 this.cart = [];
                                 localStorage.removeItem('otherwise_cart');

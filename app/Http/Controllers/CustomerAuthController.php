@@ -142,6 +142,7 @@ class CustomerAuthController extends Controller
                     'email' => $user->email,
                     'phone' => $user->phone ?? '',
                 ],
+                'csrf_token' => csrf_token(), // Refresh token on client
             ]);
         }
 
@@ -215,7 +216,10 @@ class CustomerAuthController extends Controller
     public function logout(Request $request)
     {
         Auth::guard('customer')->logout();
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'csrf_token' => csrf_token(), // Refresh token on client 
+        ]);
     }
 
     public function deleteAccount(Request $request)

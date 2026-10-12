@@ -8,10 +8,11 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use MyFatoorah\Library\API\Payment\MyFatoorahPayment;
 
 class OrderController extends Controller
 {
-    public function placeOrder(Request $request)
+   public function placeOrder(Request $request)
     {
         $validated = $request->validate([
             'order_type'            => 'required|string',
@@ -37,6 +38,9 @@ class OrderController extends Controller
             $orderNumber = 'ORD-' . strtoupper(uniqid());
             $customerId = Auth::guard('customer')->id() ?? null;
 
+            // For online payments, order is awaiting payment, not confirmed yet
+            $initialStatus = ($request->payment_method === 'cash') ? 'pending' : 'awaiting_payment';
+
             $order = Order::create([
                 'order_number'          => $orderNumber,
                 'user_id'               => $customerId,
@@ -60,7 +64,7 @@ class OrderController extends Controller
                 'subtotal'              => $request->subtotal,
                 'delivery_fee'          => $request->delivery_fee ?? 0.000,
                 'total'                 => $request->total,
-                'status'                => 'pending',
+                'status'                => $initialStatus,
                 'special_remarks'       => $request->special_remarks ?? null,
             ]);
 
@@ -78,6 +82,45 @@ class OrderController extends Controller
 
             DB::commit();
 
+            // ---------------- MYFATOORAH INTEGRATION ----------------
+            if ($request->payment_method !== 'cash') {
+                $mfPayment = new MyFatoorahPayment([
+                    'apiKey'      => config('myfatoorah.api_key'),
+                    'isTest'      => config('myfatoorah.is_test'),
+                    'countryCode' => config('myfatoorah.vc_code'),
+                ]);
+
+                $postFields = [
+                    'NotificationOption' => 'LNK',
+                    'InvoiceValue'       => $order->total,
+                    'CustomerName'       => $order->customer_name,
+                    'CustomerEmail'      => $order->customer_email,
+                    'CustomerMobile'     => $order->customer_phone,
+                    'DisplayCurrencyIso' => 'KWD',
+                    'CustomerReference'  => $order->order_number,
+                    'CallBackUrl'        => route('myfatoorah.callback'),
+                    'ErrorUrl'           => route('myfatoorah.error'),
+                    'Language'           => app()->getLocale() === 'ar' ? 'ar' : 'en',
+                ];
+
+                $mfData = $mfPayment->getInvoiceURL($postFields, 0);
+
+                // Save the invoice ID to the order for tracking
+                if (isset($mfData['invoiceId'])) {
+                    $order->update(['payment_id' => $mfData['invoiceId']]);
+                }
+
+                // DO NOT broadcast event here! Wait for successful callback.
+
+                return response()->json([
+                    'success'      => true,
+                    'redirect_url' => $mfData['invoiceURL'],
+                    'order_number' => $orderNumber,
+                ]);
+            }
+
+            // ---------------- CASH ON DELIVERY FLOW ONLY ----------------
+            // Cash orders are placed immediately without payment gateway
             event(new OrderPlacedEvent($order));
 
             return response()->json([
@@ -85,6 +128,7 @@ class OrderController extends Controller
                 'order_number' => $orderNumber,
                 'message'      => __('Order placed successfully!'),
             ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

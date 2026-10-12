@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\GovernorateController;
 use App\Http\Controllers\Admin\PickStoreController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\MyFatoorahController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +49,14 @@ Route::post('/api/customer/orders/{id}/cancel', [OrderController::class, 'cancel
 
 Route::post('/api/auth/send-code', [StoreController::class, 'sendAuthCode']);
 Route::post('/api/auth/verify-code', [StoreController::class, 'verifyAuthCode']);
+
+
+
+
+Route::get('myfatoorah', [MyFatoorahController::class, 'index']);
+Route::get('myfatoorah/callback', [MyFatoorahController::class, 'callback'])->name('myfatoorah.callback');
+Route::get('myfatoorah/checkout', [MyFatoorahController::class, 'checkout']);
+Route::get('/myfatoorah/error', [MyFatoorahController::class, 'error'])->name('myfatoorah.error');
 
 // ==========================================
 // 3. Language & Verification Utilities
