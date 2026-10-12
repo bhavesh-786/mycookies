@@ -36,6 +36,8 @@ class Order extends Model
         'total',
         'status',
         'special_remarks',
+        'payment_status',
+        'transaction_id',
     ];
 
     public function items(): HasMany
