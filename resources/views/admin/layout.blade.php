@@ -15,17 +15,28 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: {{ app()->getLocale() === 'ar' ? "'Cairo', sans-serif" : "'Plus Jakarta Sans', sans-serif" }};
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
         }
-        [x-cloak] { display: none !important; }
+    </script>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
 
-<body class="bg-stone-50 text-stone-800 antialiased h-screen overflow-hidden" 
-      x-data="adminGlobal()" 
-      x-init="initGlobal()">
+<body class="bg-stone-50 text-stone-800 antialiased h-screen overflow-hidden {{ app()->getLocale() === 'ar' ? 'font-cairo' : 'font-sans' }}"
+    x-data="adminGlobal()"
+    x-init="initGlobal()">
 
     <!-- Mobile Backdrop Overlay -->
     <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
@@ -69,87 +80,87 @@
                     </a>
 
                     @can('manage-orders')
-                        <a href="{{ route('admin.orders.index') }}"
-                            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.orders.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                            <div class="flex items-center space-x-3 rtl:space-x-reverse">
-                                <i class="fa-solid fa-receipt w-4 text-center"></i>
-                                <span>{{ __('Orders') }}</span>
-                            </div>
-                            <template x-if="unacknowledgedOrders.length > 0">
-                                <span class="bg-rose-600 text-white text-[10px] px-2 py-0.5 rounded-full font-black animate-pulse"
-                                      x-text="unacknowledgedOrders.length"></span>
-                            </template>
-                        </a>
+                    <a href="{{ route('admin.orders.index') }}"
+                        class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.orders.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                            <i class="fa-solid fa-receipt w-4 text-center"></i>
+                            <span>{{ __('Orders') }}</span>
+                        </div>
+                        <template x-if="unacknowledgedOrders.length > 0">
+                            <span class="bg-rose-600 text-white text-[10px] px-2 py-0.5 rounded-full font-black animate-pulse"
+                                x-text="unacknowledgedOrders.length"></span>
+                        </template>
+                    </a>
                     @endcan
 
                     @can('manage-products')
-                        <a href="{{ route('admin.products.index') }}"
-                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.products.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                            <i class="fa-solid fa-cookie w-4 text-center"></i>
-                            <span>{{ __('Products & Addons') }}</span>
-                        </a>
+                    <a href="{{ route('admin.products.index') }}"
+                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.products.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        <i class="fa-solid fa-cookie w-4 text-center"></i>
+                        <span>{{ __('Products & Addons') }}</span>
+                    </a>
                     @endcan
 
                     @can('manage-categories')
-                        <a href="{{ route('admin.categories.index') }}"
-                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.categories.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                            <i class="fa-solid fa-layer-group w-4 text-center"></i>
-                            <span>{{ __('Categories') }}</span>
-                        </a>
+                    <a href="{{ route('admin.categories.index') }}"
+                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.categories.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        <i class="fa-solid fa-layer-group w-4 text-center"></i>
+                        <span>{{ __('Categories') }}</span>
+                    </a>
                     @endcan
 
                     @can('manage-customers')
-                        <a href="{{ route('admin.customers.index') }}"
-                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.customers.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                            <i class="fa-solid fa-users w-4 text-center"></i>
-                            <span>{{ __('Customers') }}</span>
-                        </a>
+                    <a href="{{ route('admin.customers.index') }}"
+                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.customers.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        <i class="fa-solid fa-users w-4 text-center"></i>
+                        <span>{{ __('Customers') }}</span>
+                    </a>
                     @endcan
 
                     @can('manage-governorates')
-                        <a href="{{ route('admin.governorates.index') }}"
-                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.governorates.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                            <i class="fa-solid fa-map-location-dot w-4 text-center"></i>
-                            <span>{{ __('Governorates') }}</span>
-                        </a>
+                    <a href="{{ route('admin.governorates.index') }}"
+                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.governorates.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        <i class="fa-solid fa-map-location-dot w-4 text-center"></i>
+                        <span>{{ __('Governorates') }}</span>
+                    </a>
                     @endcan
 
                     @can('manage-areas')
-                        <a href="{{ route('admin.areas.index') }}"
-                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.areas.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                            <i class="fa-solid fa-truck-ramp-box w-4 text-center"></i>
-                            <span>{{ __('Areas') }}</span>
-                        </a>
+                    <a href="{{ route('admin.areas.index') }}"
+                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.areas.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        <i class="fa-solid fa-truck-ramp-box w-4 text-center"></i>
+                        <span>{{ __('Areas') }}</span>
+                    </a>
                     @endcan
 
                     @can('manage-stores')
-                        <a href="{{ route('admin.pickstores.index') }}"
-                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.pickstores.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                            <i class="fa-solid fa-store w-4 text-center"></i>
-                            <span>{{ __('Stores') }}</span>
-                        </a>
+                    <a href="{{ route('admin.pickstores.index') }}"
+                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.pickstores.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        <i class="fa-solid fa-store w-4 text-center"></i>
+                        <span>{{ __('Stores') }}</span>
+                    </a>
                     @endcan
 
                     @can('manage-users')
-                        <a href="{{ route('admin.users.index') }}"
-                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.users.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                            <i class="fa-solid fa-user-gear w-4 text-center"></i>
-                            <span>{{ __('Users') }}</span>
-                        </a>
+                    <a href="{{ route('admin.users.index') }}"
+                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.users.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        <i class="fa-solid fa-user-gear w-4 text-center"></i>
+                        <span>{{ __('Users') }}</span>
+                    </a>
 
-                        <a href="{{ route('admin.roles.index') }}"
-                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.roles.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                            <i class="fa-solid fa-shield-halved w-4 text-center"></i>
-                            <span>{{ __('Roles') }}</span>
-                        </a>
+                    <a href="{{ route('admin.roles.index') }}"
+                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.roles.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        <i class="fa-solid fa-shield-halved w-4 text-center"></i>
+                        <span>{{ __('Roles') }}</span>
+                    </a>
                     @endcan
 
                     @can('manage-settings')
-                        <a href="{{ route('admin.settings.index') }}"
-                            class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.settings.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
-                            <i class="fa-solid fa-sliders w-4 text-center"></i>
-                            <span>{{ __('Settings') }}</span>
-                        </a>
+                    <a href="{{ route('admin.settings.index') }}"
+                        class="flex items-center space-x-3 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.settings.*') ? 'bg-[#8F966C] text-white shadow-sm' : 'text-stone-400 hover:bg-stone-800 hover:text-stone-200' }}">
+                        <i class="fa-solid fa-sliders w-4 text-center"></i>
+                        <span>{{ __('Settings') }}</span>
+                    </a>
                     @endcan
                 </nav>
             </div>
@@ -193,7 +204,7 @@
                         <i class="fa-solid fa-bell text-sm" :class="unacknowledgedOrders.length > 0 ? 'animate-bounce text-rose-600' : ''"></i>
                         <template x-if="unacknowledgedOrders.length > 0">
                             <span class="absolute -top-1 -right-1 rtl:right-auto rtl:-left-1 bg-rose-600 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse shadow-sm"
-                                  x-text="unacknowledgedOrders.length"></span>
+                                x-text="unacknowledgedOrders.length"></span>
                         </template>
                     </a>
 
@@ -219,86 +230,86 @@
             </header>
 
             <!-- Alert Banners Wrapper -->
-<div class="px-4 sm:px-6 lg:px-8 pt-4 space-y-3 shrink-0" 
-     x-show="!$store.admin.isAudioUnlocked || $store.admin.unacknowledgedOrders.length > 0" 
-     x-cloak>
+            <div class="px-4 sm:px-6 lg:px-8 pt-4 space-y-3 shrink-0"
+                x-show="!$store.admin.isAudioUnlocked || $store.admin.unacknowledgedOrders.length > 0"
+                x-cloak>
 
-    <!-- 1. Audio Permission Banner -->
-    <div x-show="!$store.admin.isAudioUnlocked"
-        @click="$store.admin.unlockAudio()"
-        class="cursor-pointer p-3 sm:p-3.5 bg-amber-50 border border-amber-200/80 rounded-2xl flex items-center justify-between shadow-sm hover:bg-amber-100/60 transition">
-        <div class="flex items-center space-x-3 rtl:space-x-reverse min-w-0">
-            <span class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-700 flex items-center justify-center shrink-0">
-                <i class="fa-solid fa-volume-xmark text-xs"></i>
-            </span>
-            <div class="text-xs min-w-0">
-                <p class="font-extrabold text-amber-900 leading-tight">
-                    {{ __('Audio alarm is inactive.') }}
-                </p>
-                <p class="text-[11px] text-amber-700/90 font-medium truncate mt-0.5">
-                    {{ __('Click anywhere on the screen to enable real-time alarm sounds.') }}
-                </p>
-            </div>
-        </div>
-        <button type="button" 
-            class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-xs shadow-xs transition shrink-0 ml-3 rtl:ml-0 rtl:mr-3">
-            {{ __('Enable') }}
-        </button>
-    </div>
-
-    <!-- 2. High-Priority Order Alarm Banner -->
-    <div x-show="$store.admin.unacknowledgedOrders.length > 0"
-        class="p-3.5 sm:p-4 bg-gradient-to-r from-rose-600 to-rose-700 text-white rounded-2xl flex items-center justify-between shadow-lg shadow-rose-600/20 border border-rose-500/40">
-        <div class="flex items-center space-x-3.5 rtl:space-x-reverse min-w-0">
-            <span class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0 animate-bounce">
-                <i class="fa-solid fa-bell text-sm"></i>
-            </span>
-            <div class="min-w-0">
-                <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                    <h4 class="font-black text-xs sm:text-sm tracking-tight truncate">
-                        {{ __('NEW ORDER ALERT') }}
-                    </h4>
-                    <span class="bg-white/20 text-white text-[10px] font-black px-2 py-0.5 rounded-full border border-white/25">
-                        <span x-text="$store.admin.unacknowledgedOrders.length"></span> {{ __('pending') }}
-                    </span>
+                <!-- 1. Audio Permission Banner -->
+                <div x-show="!$store.admin.isAudioUnlocked"
+                    @click="$store.admin.unlockAudio()"
+                    class="cursor-pointer p-3 sm:p-3.5 bg-amber-50 border border-amber-200/80 rounded-2xl flex items-center justify-between shadow-sm hover:bg-amber-100/60 transition">
+                    <div class="flex items-center space-x-3 rtl:space-x-reverse min-w-0">
+                        <span class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-700 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-volume-xmark text-xs"></i>
+                        </span>
+                        <div class="text-xs min-w-0">
+                            <p class="font-extrabold text-amber-900 leading-tight">
+                                {{ __('Audio alarm is inactive.') }}
+                            </p>
+                            <p class="text-[11px] text-amber-700/90 font-medium truncate mt-0.5">
+                                {{ __('Click anywhere on the screen to enable real-time alarm sounds.') }}
+                            </p>
+                        </div>
+                    </div>
+                    <button type="button"
+                        class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-xs shadow-xs transition shrink-0 ml-3 rtl:ml-0 rtl:mr-3">
+                        {{ __('Enable') }}
+                    </button>
                 </div>
-                <p class="text-[11px] text-rose-100/90 font-medium mt-0.5 truncate">
-                    {{ __('Alarm rings continuously until an action (Accept or Cancel) is taken.') }}
-                </p>
+
+                <!-- 2. High-Priority Order Alarm Banner -->
+                <div x-show="$store.admin.unacknowledgedOrders.length > 0"
+                    class="p-3.5 sm:p-4 bg-gradient-to-r from-rose-600 to-rose-700 text-white rounded-2xl flex items-center justify-between shadow-lg shadow-rose-600/20 border border-rose-500/40">
+                    <div class="flex items-center space-x-3.5 rtl:space-x-reverse min-w-0">
+                        <span class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0 animate-bounce">
+                            <i class="fa-solid fa-bell text-sm"></i>
+                        </span>
+                        <div class="min-w-0">
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                <h4 class="font-black text-xs sm:text-sm tracking-tight truncate">
+                                    {{ __('NEW ORDER ALERT') }}
+                                </h4>
+                                <span class="bg-white/20 text-white text-[10px] font-black px-2 py-0.5 rounded-full border border-white/25">
+                                    <span x-text="$store.admin.unacknowledgedOrders.length"></span> {{ __('pending') }}
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-rose-100/90 font-medium mt-0.5 truncate">
+                                {{ __('Alarm rings continuously until an action (Accept or Cancel) is taken.') }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2 rtl:space-x-reverse shrink-0 ml-3 rtl:ml-0 rtl:mr-3">
+                        @if (!request()->routeIs('admin.dashboard'))
+                        <a href="{{ route('admin.dashboard') }}"
+                            class="px-3 py-1.5 bg-white text-rose-700 hover:bg-rose-50 rounded-xl text-xs font-black transition shadow-xs">
+                            {{ __('Review') }} &rarr;
+                        </a>
+                        @endif
+                        <button type="button" @click="$store.admin.toggleMute()"
+                            class="w-8 h-8 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center text-xs transition"
+                            title="{{ __('Mute sound') }}">
+                            <i class="fa-solid" :class="$store.admin.isMuted ? 'fa-volume-xmark' : 'fa-volume-high'"></i>
+                        </button>
+                    </div>
+                </div>
+
             </div>
-        </div>
-
-        <div class="flex items-center space-x-2 rtl:space-x-reverse shrink-0 ml-3 rtl:ml-0 rtl:mr-3">
-            @if (!request()->routeIs('admin.dashboard'))
-                <a href="{{ route('admin.dashboard') }}"
-                    class="px-3 py-1.5 bg-white text-rose-700 hover:bg-rose-50 rounded-xl text-xs font-black transition shadow-xs">
-                    {{ __('Review') }} &rarr;
-                </a>
-            @endif
-            <button type="button" @click="$store.admin.toggleMute()"
-                class="w-8 h-8 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center text-xs transition"
-                title="{{ __('Mute sound') }}">
-                <i class="fa-solid" :class="$store.admin.isMuted ? 'fa-volume-xmark' : 'fa-volume-high'"></i>
-            </button>
-        </div>
-    </div>
-
-</div>
 
             <!-- Dynamic Content Body -->
             <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
                 @if (session('success'))
-                    <div class="mb-5 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl text-xs font-bold flex items-center shadow-xs">
-                        <i class="fa-solid fa-circle-check mr-2 rtl:mr-0 rtl:ml-2 text-emerald-600 text-sm"></i>
-                        <span>{{ session('success') }}</span>
-                    </div>
+                <div class="mb-5 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl text-xs font-bold flex items-center shadow-xs">
+                    <i class="fa-solid fa-circle-check mr-2 rtl:mr-0 rtl:ml-2 text-emerald-600 text-sm"></i>
+                    <span>{{ session('success') }}</span>
+                </div>
                 @endif
 
                 @if (session('error'))
-                    <div class="mb-5 bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-2xl text-xs font-bold flex items-center shadow-xs">
-                        <i class="fa-solid fa-circle-exclamation mr-2 rtl:mr-0 rtl:ml-2 text-rose-600 text-sm"></i>
-                        <span>{{ session('error') }}</span>
-                    </div>
+                <div class="mb-5 bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-2xl text-xs font-bold flex items-center shadow-xs">
+                    <i class="fa-solid fa-circle-exclamation mr-2 rtl:mr-0 rtl:ml-2 text-rose-600 text-sm"></i>
+                    <span>{{ session('error') }}</span>
+                </div>
                 @endif
 
                 @yield('content')
@@ -307,13 +318,12 @@
         </div>
     </div>
 
-    <!-- Global Pusher & Audio Controller -->
     <!-- Global Pusher & Audio Controller with Alpine Store -->
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.store('admin', {
                 unacknowledgedOrders: JSON.parse(localStorage.getItem('admin_unack_orders') || '[]'),
-                isAudioUnlocked: false,
+                isAudioUnlocked: localStorage.getItem('admin_audio_unlocked') === 'true',
                 isMuted: false,
                 alarmInterval: null,
                 audioCtx: null,
@@ -323,12 +333,18 @@
                 },
 
                 init() {
+                    // Try to restore/unlock audio automatically if previously approved
+                    this.unlockAudio();
+
+                    // Keep passive listener so the user's very first click anywhere silently un-suspends the AudioContext
                     const unlockEvents = ['click', 'touchstart', 'keydown'];
                     const handleGesture = () => {
                         this.unlockAudio();
                         unlockEvents.forEach(evt => window.removeEventListener(evt, handleGesture));
                     };
-                    unlockEvents.forEach(evt => window.addEventListener(evt, handleGesture, { once: true }));
+                    unlockEvents.forEach(evt => window.addEventListener(evt, handleGesture, {
+                        once: true
+                    }));
 
                     if (this.unacknowledgedOrders.length > 0) {
                         this.startContinuousAlarm();
@@ -349,9 +365,15 @@
                         if (this.audioCtx.state === 'suspended') {
                             this.audioCtx.resume().then(() => {
                                 this.isAudioUnlocked = true;
+                                localStorage.setItem('admin_audio_unlocked', 'true');
+                            }).catch(() => {
+                                // Browser blocked autoplay on reload without gesture;
+                                // We keep isAudioUnlocked true in storage so the banner doesn't bug the user,
+                                // and the next click un-suspends it seamlessly.
                             });
                         } else if (this.audioCtx.state === 'running') {
                             this.isAudioUnlocked = true;
+                            localStorage.setItem('admin_audio_unlocked', 'true');
                         }
                     } catch (e) {
                         console.warn('Audio gesture pending:', e);
@@ -423,8 +445,9 @@
                 },
 
                 initPusher() {
-                    const pusherKey = '{{ config('broadcasting.connections.pusher.key') }}';
-                    const cluster = '{{ config('broadcasting.connections.pusher.options.cluster', 'ap2') }}';
+                    const pusherKey = "{{ config('broadcasting.connections.pusher.key') }}";
+                    const cluster = "{{ config('broadcasting.connections.pusher.options.cluster', 'ap2') }}";
+
                     const channelName = '{{ app()->environment() }}-admin-orders';
 
                     if (!pusherKey) return;
@@ -444,7 +467,9 @@
                             this.saveOrders();
                         }
 
-                        window.dispatchEvent(new CustomEvent('new-order-received', { detail: order }));
+                        window.dispatchEvent(new CustomEvent('new-order-received', {
+                            detail: order
+                        }));
                         this.startContinuousAlarm();
                     });
                 }
@@ -452,6 +477,5 @@
         });
     </script>
 </body>
-</html>
-</body>
+
 </html>
