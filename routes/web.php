@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\GovernorateController;
 use App\Http\Controllers\Admin\PickStoreController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\CustomerAddressController;
 use App\Http\Controllers\MyFatoorahController;
 
 /*
@@ -38,6 +39,12 @@ Route::prefix('customer')->name('customer.')->group(function () {
     Route::post('/reset-password', [CustomerAuthController::class, 'resetPassword'])->name('password.update');
     Route::post('/send-verification', [CustomerAuthController::class, 'sendVerification'])->name('sendVerification');
     Route::get('/verify-email/{id}', [CustomerAuthController::class, 'verifyEmail'])->name('verify.email');
+
+    // Customer Address Book APIs (Open with session & email/phone fallback)
+    Route::get('/addresses', [CustomerAddressController::class, 'getAddresses'])->name('addresses');
+    Route::post('/addresses/save', [CustomerAddressController::class, 'saveAddress'])->name('addresses.save');
+    Route::post('/addresses/{id}/default', [CustomerAddressController::class, 'setDefaultAddress'])->name('addresses.default');
+    Route::delete('/addresses/{id}', [CustomerAddressController::class, 'deleteAddress'])->name('addresses.delete');
 });
 
 // ==========================================

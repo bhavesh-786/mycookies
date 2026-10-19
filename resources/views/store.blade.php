@@ -171,7 +171,7 @@
                 </div>
             </div>
 
-            <!-- ================= SIDEBAR DRAWER ================= -->
+            <!-- ================= SIDEBAR DRAWER (FILTER & SORT) ================= -->
             <div x-show="showFilterModal" x-cloak class="relative z-50">
                 <div class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity" x-show="showFilterModal"
                     @click="showFilterModal = false"></div>
@@ -347,7 +347,8 @@
                             <span
                                 class="text-[11px] font-semibold text-stone-600 bg-white px-2 py-0.5 rounded-lg border border-stone-200/60 shadow-2xs"
                                 x-text="method === 'delivery' ? '{{ __('~1 h') }}' : '{{ __('~30 min') }}'"></span>
-                            <button @click="navigate('/select-location')"
+                            <button
+                                @click="navigate(method === 'delivery' && savedAddresses.length > 0 ? '/checkout/address' : '/select-location')"
                                 class="text-[#747D52] font-black text-[11px] hover:underline">{{ __('Change') }}</button>
                         </div>
                     </div>
@@ -569,7 +570,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN 3: PRODUCT ADDON CUSTOMIZER -->
+                <!-- SCREEN 3: PRODUCT ADDON CUSTOMIZER WITH PRODUCT REMARKS -->
                 <div x-show="view === 'customizer'" x-cloak class="space-y-5 max-w-xl mx-auto pb-6">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse">
                         <button @click="navigate('/category/' + (activeCategory?.slug || ''))"
@@ -580,7 +581,7 @@
                         </h2>
                     </div>
 
-                    <!-- Immersive Full-Width Product Showcase Card -->
+                    <!-- Product Showcase Card -->
                     <div class="bg-white rounded-3xl overflow-hidden border border-stone-200/80 shadow-md">
                         <div
                             class="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-stone-900 overflow-hidden group">
@@ -602,7 +603,6 @@
                             </div>
                         </div>
 
-                        <!-- Product Description & Info -->
                         <div class="p-4 sm:p-5 space-y-2 border-b border-stone-100"
                             x-show="activeProduct?.description">
                             <p class="text-xs text-stone-500 leading-relaxed font-medium"
@@ -689,6 +689,19 @@
                             </div>
                         </div>
                     </template>
+
+                    <!-- PRODUCT SPECIAL REMARKS/INSTRUCTIONS CARD[cite: 1] -->
+                    <div class="border border-stone-200/80 rounded-2xl p-4 bg-white space-y-2 shadow-xs">
+                        <label
+                            class="block font-extrabold text-xs text-stone-900 flex items-center space-x-1.5 rtl:space-x-reverse">
+                            <i class="fa-regular fa-comment-dots text-[#747D52]"></i>
+                            <span>{{ __('Special Remarks / Instructions') }}</span>
+                            <span class="text-stone-400 font-normal text-[10px]">({{ __('Optional') }})</span>
+                        </label>
+                        <textarea x-model="itemRemarks" rows="2"
+                            placeholder="{{ __('e.g., Less sugar, extra sauce on the side, allergies...') }}"
+                            class="w-full border border-stone-200 rounded-xl p-3 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 transition shadow-inner resize-none"></textarea>
+                    </div>
                 </div>
 
                 <!-- SCREEN 4: SHOPPING CART -->
@@ -720,7 +733,7 @@
                         <template x-for="(item, idx) in cart" :key="idx">
                             <div
                                 class="p-3.5 rounded-2xl border border-stone-200/80 bg-white flex justify-between items-start shadow-xs hover:border-stone-300 transition">
-                                <div>
+                                <div class="min-w-0 pr-2">
                                     <h4 class="font-bold text-xs text-stone-900" x-text="item.name"></h4>
                                     <div class="mt-1 space-y-0.5">
                                         <template x-for="add in item.addons">
@@ -728,11 +741,18 @@
                                                 x-text="`${add.name} (+ ${add.price.toFixed(3)} {{ __('KD') }})`">
                                             </p>
                                         </template>
+                                        <template x-if="item.notes">
+                                            <p
+                                                class="text-[11px] text-[#747D52] font-semibold italic flex items-center space-x-1 rtl:space-x-reverse pt-0.5">
+                                                <i class="fa-solid fa-pen-nib text-[9px]"></i>
+                                                <span x-text="item.notes"></span>
+                                            </p>
+                                        </template>
                                     </div>
                                     <span class="inline-block mt-2 font-extrabold text-xs text-[#747D52]"
                                         x-text="`${item.total_price.toFixed(3)} {{ __('KD') }}`"></span>
                                 </div>
-                                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                                <div class="flex items-center space-x-3 rtl:space-x-reverse shrink-0">
                                     <div
                                         class="flex items-center space-x-1.5 rtl:space-x-reverse bg-stone-100 p-1 rounded-xl">
                                         <button @click="decreaseQty(idx)"
@@ -805,7 +825,6 @@
 
                     <div x-show="method === 'pickup'" class="space-y-2.5">
                         <template x-for="st in filteredStores" :key="st.id">
-                            <!-- Change @click to pass the entire store object 'st' -->
                             <button type="button" @click="setStorePickup(st)"
                                 class="w-full text-left rtl:text-right p-4 rounded-2xl border border-stone-200/80 hover:border-[#747D52] hover:bg-[#747D52]/5 transition bg-white flex justify-between items-center shadow-xs"
                                 :class="selectedPickupStore?.id === st.id ?
@@ -861,7 +880,9 @@
                                         class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider"
                                         :class="{
                                             'bg-emerald-50 text-emerald-700': ord.status === 'delivered',
-                                            'bg-amber-50 text-amber-700': ['pending', 'placed', 'preparing'].includes(
+                                            'bg-amber-50 text-amber-700': ['pending', 'placed', 'preparing',
+                                                'awaiting_payment'
+                                            ].includes(
                                                 ord.status),
                                             'bg-blue-50 text-blue-700': ord.status === 'shipped',
                                             'bg-rose-50 text-rose-700': ord.status === 'cancelled'
@@ -900,13 +921,17 @@
                                         <div class="py-1.5 flex justify-between items-start">
                                             <div>
                                                 <span class="font-bold text-stone-800"
-                                                    x-text="`${item.name} x${item.quantity}`"></span>
+                                                    x-text="`${item.name || item.product_name} x${item.quantity}`"></span>
                                                 <template x-if="item.addons && item.addons.length > 0">
                                                     <div class="text-[10px] text-stone-400">
                                                         <template x-for="ad in item.addons">
                                                             <span x-text="`${ad.name}, `"></span>
                                                         </template>
                                                     </div>
+                                                </template>
+                                                <template x-if="item.notes">
+                                                    <div class="text-[10px] text-[#747D52] italic"
+                                                        x-text="`Note: ${item.notes}`"></div>
                                                 </template>
                                             </div>
                                             <span class="font-bold text-stone-700"
@@ -937,7 +962,7 @@
                     </div>
                 </div>
 
-                <!-- SCREEN: CHECKOUT DETAILS -->
+                <!-- SCREEN: CHECKOUT DETAILS (GUEST / REGISTER) -->
                 <div x-show="view === 'checkout-details'" x-cloak class="space-y-5">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
                         <button @click="navigate('/cart')"
@@ -1018,9 +1043,9 @@
                         </div>
                         <button @click="proceedGuestToAddress()" :disabled="guestVerificationLoading"
                             class="w-full bg-stone-900 hover:bg-black text-white font-extrabold py-3.5 rounded-xl text-xs transition active:scale-[0.98] mt-2 shadow-sm flex items-center justify-center space-x-2">
-                            <span x-show="!guestVerificationLoading">{{ __('Next (Verify Email)') }}</span>
+                            <span x-show="!guestVerificationLoading">{{ __('Next (Continue to Address)') }}</span>
                             <span x-show="guestVerificationLoading"><i class="fa-solid fa-circle-notch fa-spin"></i>
-                                Sending verification email...</span>
+                                Processing...</span>
                         </button>
                     </div>
                 </div>
@@ -1090,7 +1115,7 @@
                                 <span class="font-semibold">{{ __('My orders') }}</span>
                             </button>
 
-                            <button @click="view = 'address'"
+                            <button @click="manageAddressesFromProfile()"
                                 class="w-full flex items-center space-x-3 rtl:space-x-reverse py-3.5 text-stone-700 hover:text-[#747D52] transition group">
                                 <span
                                     class="w-7 h-7 rounded-lg bg-stone-100 flex items-center justify-center text-stone-500 group-hover:text-[#747D52] group-hover:bg-[#747D52]/10 transition">
@@ -1125,22 +1150,6 @@
                                         <i class="fa-solid fa-envelope text-xs"></i>
                                     </span>
                                     <span class="font-semibold">{{ __('Email') }}</span>
-                                </button>
-                                <button
-                                    class="w-full flex items-center space-x-3 rtl:space-x-reverse py-3.5 text-stone-700 hover:text-stone-900 transition">
-                                    <span
-                                        class="w-7 h-7 rounded-lg bg-stone-100 flex items-center justify-center text-stone-800">
-                                        <i class="fa-brands fa-apple text-sm"></i>
-                                    </span>
-                                    <span class="font-semibold">Apple</span>
-                                </button>
-                                <button
-                                    class="w-full flex items-center space-x-3 rtl:space-x-reverse py-3.5 text-stone-700 hover:text-stone-900 transition">
-                                    <span
-                                        class="w-7 h-7 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500">
-                                        <i class="fa-brands fa-google text-xs"></i>
-                                    </span>
-                                    <span class="font-semibold">Google</span>
                                 </button>
                             </div>
                         </div>
@@ -1333,38 +1342,239 @@
                     </div>
                 </div>
 
-                <!-- SCREEN: KUWAIT ADDRESS DETAILS -->
-                <!-- SCREEN: KUWAIT ADDRESS DETAILS -->
-                <div x-show="view === 'address'" x-cloak class="space-y-4">
-                    <div class="flex items-center space-x-3 rtl:space-x-reverse pb-2.5 border-b border-stone-100">
-                        <button @click="view = 'checkout-details'"
-                            class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95">
-                            <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                <!-- ================= SCREEN: DEDICATED SAVED ADDRESSES MANAGER ================= -->
+                <div x-show="view === 'select-saved-address'" x-cloak class="space-y-4">
+                    <div class="flex items-center justify-between pb-2.5 border-b border-stone-100">
+                        <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                            <button type="button" @click="navigate(addressBackRoute)"
+                                class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95 shadow-2xs">
+                                <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                            </button>
+                            <h2 class="font-extrabold text-sm text-stone-900">{{ __('My Saved Addresses') }}</h2>
+                        </div>
+                        <button type="button" @click="createNewAddress()"
+                            class="text-xs text-[#747D52] hover:text-[#5A623E] font-black flex items-center space-x-1 rtl:space-x-reverse">
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                            <span>{{ __('Add New') }}</span>
                         </button>
-                        <h3 class="font-extrabold text-sm text-stone-900">{{ __('Delivery Address Details') }}</h3>
                     </div>
 
-                    <!-- Address Type Switcher -->
+                    <!-- Loading State -->
+                    <div x-show="addressLoading" class="text-center py-10 text-stone-400 text-xs">
+                        <i class="fa-solid fa-circle-notch fa-spin text-xl mb-2 text-[#747D52]"></i>
+                        <p>{{ __('Loading addresses...') }}</p>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div x-show="!addressLoading && savedAddresses.length === 0"
+                        class="text-center py-16 text-stone-400">
+                        <div
+                            class="w-14 h-14 rounded-2xl bg-stone-100 flex items-center justify-center mx-auto text-stone-400 text-2xl mb-3">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </div>
+                        <p class="text-xs font-bold text-stone-600">{{ __('No saved addresses found.') }}</p>
+                        <button type="button" @click="createNewAddress()"
+                            class="mt-3 text-xs text-[#747D52] font-bold underline hover:text-[#636C44]">
+                            {{ __('Add your first address') }}
+                        </button>
+                    </div>
+
+                    <!-- Address Cards List -->
+                    <div class="space-y-3" x-show="!addressLoading && savedAddresses.length > 0">
+                        <template x-for="addr in savedAddresses" :key="addr.id">
+                            <div class="border rounded-2xl p-4 bg-white shadow-xs transition hover:border-[#747D52]/40"
+                                :class="selectedAddressId === addr.id ?
+                                    'border-[#747D52] ring-2 ring-[#747D52]/20 bg-[#747D52]/5' : 'border-stone-200/80'">
+
+                                <!-- Top Row: Label, Badges & Action Buttons -->
+                                <div class="flex items-center justify-between border-b border-stone-100 pb-2.5 mb-2.5">
+                                    <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                        <span
+                                            class="w-7 h-7 rounded-lg bg-stone-100 flex items-center justify-center text-xs text-[#747D52]">
+                                            <i class="fa-solid"
+                                                :class="addr.type === 'Office' ? 'fa-briefcase' : (addr
+                                                    .type === 'Friend' ? 'fa-user-group' : 'fa-house')"></i>
+                                        </span>
+                                        <h4 class="font-extrabold text-xs text-stone-900" x-text="addr.type"></h4>
+                                        <template x-if="addr.is_default">
+                                            <span
+                                                class="text-[9px] font-black uppercase tracking-wider bg-[#747D52] text-white px-2 py-0.5 rounded-full shadow-2xs">
+                                                {{ __('Default') }}
+                                            </span>
+                                        </template>
+                                    </div>
+
+                                    <div class="flex items-center space-x-1.5 rtl:space-x-reverse">
+                                        <button type="button" @click="editSavedAddress(addr)"
+                                            class="w-7 h-7 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 flex items-center justify-center text-xs transition"
+                                            title="Edit">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button type="button" @click="deleteSavedAddress(addr.id)"
+                                            class="w-7 h-7 rounded-lg hover:bg-rose-50 text-stone-400 hover:text-rose-600 flex items-center justify-center text-xs transition"
+                                            title="Delete">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Middle Row: Formatted Address Details -->
+                                <div class="text-xs text-stone-600 leading-relaxed space-y-0.5">
+                                    <p class="font-bold text-stone-800"
+                                        x-text="`Block ${addr.block}, Street ${addr.street}${addr.avenue ? ', Ave ' + addr.avenue : ''}, Building ${addr.building}`">
+                                    </p>
+                                    <p class="text-[11px] text-stone-400" x-show="addr.floor || addr.flat_no"
+                                        x-text="`${addr.floor ? 'Floor: ' + addr.floor : ''}${addr.floor && addr.flat_no ? ' | ' : ''}${addr.flat_no ? 'Flat/Office: ' + addr.flat_no : ''}`">
+                                    </p>
+                                    <p class="text-[11px] text-stone-400" x-show="addr.additional_directions"
+                                        x-text="addr.additional_directions"></p>
+                                </div>
+
+                                <!-- Bottom Row: Controls -->
+                                <div class="flex items-center justify-between pt-3 mt-3 border-t border-stone-100">
+                                    <button type="button" @click="markAsDefaultAddress(addr.id)"
+                                        class="text-[11px] font-bold transition flex items-center space-x-1.5 rtl:space-x-reverse"
+                                        :class="addr.is_default ? 'text-[#747D52] pointer-events-none' :
+                                            'text-stone-400 hover:text-stone-700'">
+                                        <i class="fa-regular"
+                                            :class="addr.is_default ? 'fa-circle-check text-[#747D52]' : 'fa-circle'"></i>
+                                        <span
+                                            x-text="addr.is_default ? '{{ __('Default Address') }}' : '{{ __('Set as Default') }}'"></span>
+                                    </button>
+
+                                    <button type="button" @click="applyAddressAndProceed(addr)"
+                                        class="bg-[#747D52] hover:bg-[#636C44] text-white text-xs font-bold px-4 py-2 rounded-xl transition active:scale-95 shadow-xs flex items-center space-x-1 rtl:space-x-reverse">
+                                        <span>{{ __('Deliver Here') }}</span>
+                                        <i class="fa-solid fa-arrow-right text-[10px] rtl:rotate-180"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- ================= SCREEN: KUWAIT ADDRESS FORM (CREATE & EDIT) ================= -->
+                <div x-show="view === 'address'" x-cloak class="space-y-4">
+
+                    <!-- 1. HEADER WITH EXPLICIT "SAVED ADDRESSES" BUTTON -->
+                    <div class="flex items-center justify-between pb-3 border-b border-stone-100">
+                        <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                            <button type="button" @click="navigate(addressBackRoute)"
+                                class="w-8 h-8 rounded-xl border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-xs text-stone-600 transition active:scale-95">
+                                <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                            </button>
+                            <h3 class="font-extrabold text-sm text-stone-900"
+                                x-text="selectedAddressId ? '{{ __('Edit Delivery Address') }}' : '{{ __('Delivery Address Details') }}'">
+                            </h3>
+                        </div>
+
+                        <!-- ALWAYS VISIBLE SELECTION BUTTON -->
+                        <button type="button"
+                            @click="view = 'select-saved-address'; setPageTitle('{{ __('Select Delivery Address') }}')"
+                            class="inline-flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-1.5 rounded-xl border border-[#747D52]/40 bg-[#747D52]/10 hover:bg-[#747D52]/20 text-[#272E1B] text-xs font-extrabold transition shadow-2xs active:scale-95">
+                            <i class="fa-solid fa-map-location-dot text-[#747D52] text-xs"></i>
+                            <span>{{ __('Choose Saved Address') }}</span>
+                            <span
+                                class="bg-[#747D52] text-white text-[10px] w-4 h-4 rounded-full inline-flex items-center justify-center font-bold"
+                                x-text="savedAddresses.length"></span>
+                        </button>
+                    </div>
+
+                    <!-- 2. QUICK ADDRESS SELECTOR PILLS (SHOWS SAVED ADDRESSES DIRECTLY HERE) -->
+                    <div x-show="savedAddresses.length > 0"
+                        class="bg-stone-50/90 p-3 rounded-2xl border border-stone-200/70 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span
+                                class="text-xs font-bold text-stone-700 flex items-center space-x-1 rtl:space-x-reverse">
+                                <i class="fa-solid fa-clock-rotate-left text-[#747D52] text-xs"></i>
+                                <span>{{ __('Select Existing Address:') }}</span>
+                            </span>
+                            <button type="button" @click="resetAddressForm()"
+                                class="text-[11px] text-[#747D52] hover:underline font-bold">
+                                {{ __('+ Enter New Address') }}
+                            </button>
+                        </div>
+
+                        <!-- Horizontal scrollable address cards -->
+                        <div class="flex space-x-2 rtl:space-x-reverse overflow-x-auto no-scrollbar py-1">
+                            <template x-for="saved in savedAddresses" :key="saved.id">
+                                <button type="button" @click="selectSavedAddress(saved)"
+                                    class="p-2.5 rounded-xl border text-left rtl:text-right shrink-0 min-w-[170px] max-w-[210px] transition active:scale-95"
+                                    :class="selectedAddressId === saved.id ?
+                                        'border-[#747D52] bg-[#747D52]/15 ring-1 ring-[#747D52]' :
+                                        'border-stone-200 bg-white hover:border-stone-400'">
+
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span
+                                            class="text-xs font-extrabold text-stone-900 flex items-center space-x-1 rtl:space-x-reverse">
+                                            <i class="fa-solid text-[10px] text-[#747D52]"
+                                                :class="saved.type === 'Office' ? 'fa-briefcase' : (saved
+                                                    .type === 'Friend' ? 'fa-user-group' : 'fa-house')"></i>
+                                            <span x-text="saved.type"></span>
+                                        </span>
+                                        <template x-if="saved.is_default">
+                                            <span
+                                                class="text-[9px] font-black uppercase tracking-wider bg-[#747D52] text-white px-1.5 py-0.2 rounded">
+                                                {{ __('Default') }}
+                                            </span>
+                                        </template>
+                                    </div>
+
+                                    <p class="text-[10px] text-stone-500 truncate"
+                                        x-text="`Blk ${saved.block}, St ${saved.street}, Bld ${saved.building}`"></p>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- 3. Address Type Switcher -->
                     <div>
                         <label
-                            class="block font-bold text-stone-700 text-xs mb-1.5">{{ __('Address Type *') }}</label>
+                            class="block font-bold text-stone-700 text-xs mb-1.5">{{ __('Address Label / Type *') }}</label>
                         <div class="grid grid-cols-3 gap-2">
                             <button type="button" @click="address.type = 'Home'"
                                 :class="address.type === 'Home' ? 'bg-[#747D52] text-white shadow-xs' :
                                     'border border-stone-200 text-stone-600 hover:bg-stone-50'"
-                                class="py-2.5 rounded-xl text-xs font-bold transition">{{ __('Home') }}</button>
-                            <button type="button" @click="address.type = 'Apartment'"
-                                :class="address.type === 'Apartment' ? 'bg-[#747D52] text-white shadow-xs' :
-                                    'border border-stone-200 text-stone-600 hover:bg-stone-50'"
-                                class="py-2.5 rounded-xl text-xs font-bold transition">{{ __('Apartment') }}</button>
+                                class="py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 rtl:space-x-reverse">
+                                <i class="fa-solid fa-house text-[11px]"></i>
+                                <span>{{ __('Home') }}</span>
+                            </button>
                             <button type="button" @click="address.type = 'Office'"
                                 :class="address.type === 'Office' ? 'bg-[#747D52] text-white shadow-xs' :
                                     'border border-stone-200 text-stone-600 hover:bg-stone-50'"
-                                class="py-2.5 rounded-xl text-xs font-bold transition">{{ __('Office') }}</button>
+                                class="py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 rtl:space-x-reverse">
+                                <i class="fa-solid fa-briefcase text-[11px]"></i>
+                                <span>{{ __('Office') }}</span>
+                            </button>
+                            <button type="button" @click="address.type = 'Friend'"
+                                :class="address.type === 'Friend' ? 'bg-[#747D52] text-white shadow-xs' :
+                                    'border border-stone-200 text-stone-600 hover:bg-stone-50'"
+                                class="py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 rtl:space-x-reverse">
+                                <i class="fa-solid fa-user-group text-[11px]"></i>
+                                <span>{{ __('Friend') }}</span>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Map Pinpoint Picker -->
+                    <!-- 4. Paste Google Maps Link or Coordinates Input -->
+                    <div class="bg-stone-50/80 p-3 rounded-2xl border border-stone-200/70 space-y-1.5">
+                        <label
+                            class="block font-bold text-stone-700 text-xs flex items-center space-x-1 rtl:space-x-reverse">
+                            <i class="fa-solid fa-paste text-[#747D52]"></i>
+                            <span>{{ __('Paste Google Maps Link or Coordinates') }}</span>
+                        </label>
+                        <div class="flex space-x-2 rtl:space-x-reverse">
+                            <input type="text" x-model="pastedMapUrl"
+                                placeholder="{{ __('Paste link or lat, lng') }}"
+                                class="flex-1 bg-white border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 transition shadow-inner">
+                            <button type="button" @click="applyPastedLocation()"
+                                class="bg-[#747D52] hover:bg-[#636C44] text-white px-3.5 rounded-xl text-xs font-bold transition active:scale-95 shadow-xs shrink-0">
+                                {{ __('Locate') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 5. Map Pinpoint Picker -->
                     <div class="space-y-1.5">
                         <div class="flex items-center justify-between">
                             <label class="block font-bold text-stone-700 text-xs">
@@ -1388,7 +1598,7 @@
                         </div>
                     </div>
 
-                    <!-- Block & Street -->
+                    <!-- 6. Block & Street -->
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block font-bold text-stone-700 text-xs mb-1">{{ __('Block *') }}</label>
@@ -1402,7 +1612,7 @@
                         </div>
                     </div>
 
-                    <!-- Avenue & Building/House -->
+                    <!-- 7. Avenue & Building/House -->
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block font-bold text-stone-700 text-xs mb-1">{{ __('Avenue') }} <span
@@ -1419,7 +1629,24 @@
                         </div>
                     </div>
 
-                    <!-- Additional Directions & PACI -->
+                    <!-- 8. Floor & Flat / Office No. -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-bold text-stone-700 text-xs mb-1">{{ __('Floor') }} <span
+                                    class="text-stone-400 font-normal text-[11px]">({{ __('Optional') }})</span></label>
+                            <input type="text" x-model="address.floor" placeholder="{{ __('e.g. Floor 3') }}"
+                                class="w-full border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 transition shadow-xs">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-stone-700 text-xs mb-1">{{ __('Flat / Office No.') }}
+                                <span
+                                    class="text-stone-400 font-normal text-[11px]">({{ __('Optional') }})</span></label>
+                            <input type="text" x-model="address.flat_no" placeholder="{{ __('e.g. Flat 12') }}"
+                                class="w-full border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 transition shadow-xs">
+                        </div>
+                    </div>
+
+                    <!-- 9. Additional Directions & PACI -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label
@@ -1427,7 +1654,7 @@
                                 <span
                                     class="text-stone-400 font-normal text-[11px]">({{ __('Optional') }})</span></label>
                             <input type="text" x-model="address.additional_directions"
-                                placeholder="{{ __('e.g. Near park / Floor 3 / Apt 12') }}"
+                                placeholder="{{ __('e.g. Near park / Basement parking') }}"
                                 class="w-full border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 transition shadow-xs">
                         </div>
                         <div>
@@ -1435,6 +1662,24 @@
                                     class="text-stone-400 font-normal text-[11px]">({{ __('Optional') }})</span></label>
                             <input type="text" x-model="address.paci" placeholder="{{ __('8-digit number') }}"
                                 class="w-full border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 transition shadow-xs">
+                        </div>
+                    </div>
+
+                    <!-- 10. Save Address Checkbox Options -->
+                    <div class="p-3.5 bg-stone-50/70 border border-stone-200/80 rounded-2xl space-y-2">
+                        <label class="flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
+                            <input type="checkbox" x-model="saveAddressToBook"
+                                class="w-4 h-4 text-[#747D52] rounded border-stone-300 focus:ring-[#747D52]">
+                            <span
+                                class="text-xs font-bold text-stone-800">{{ __('Save this address to my profile') }}</span>
+                        </label>
+                        <div x-show="saveAddressToBook" class="pl-6 rtl:pl-0 rtl:pr-6">
+                            <label class="flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
+                                <input type="checkbox" x-model="setAsDefaultAddress"
+                                    class="w-3.5 h-3.5 text-[#747D52] rounded border-stone-300 focus:ring-[#747D52]">
+                                <span
+                                    class="text-[11px] font-semibold text-stone-600">{{ __('Set as default delivery address') }}</span>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -1473,6 +1718,19 @@
                         </label>
                     </div>
 
+                    <!-- General Order Special Remarks / Delivery Notes -->
+                    <div class="space-y-1.5 pt-1">
+                        <label
+                            class="block font-bold text-xs text-stone-800 flex items-center space-x-1.5 rtl:space-x-reverse">
+                            <i class="fa-regular fa-clipboard text-[#747D52]"></i>
+                            <span>{{ __('General Order / Driver Note') }}</span>
+                            <span class="text-stone-400 font-normal text-[10px]">({{ __('Optional') }})</span>
+                        </label>
+                        <input type="text" x-model="orderSpecialRemarks"
+                            placeholder="{{ __('e.g., Please leave outside door, do not ring bell...') }}"
+                            class="w-full border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:border-[#747D52] focus:ring-2 focus:ring-[#747D52]/20 transition shadow-inner">
+                    </div>
+
                     <div
                         class="border-t border-stone-100 pt-4 space-y-2.5 text-xs bg-stone-50/70 p-4 rounded-2xl border border-stone-200/60">
                         <div class="flex justify-between text-stone-500">
@@ -1495,13 +1753,15 @@
                 </div>
 
                 <!-- SCREEN: CONFIRMATION -->
-                <!-- SCREEN: CONFIRMATION -->
                 <div x-show="view === 'success'" x-cloak class="text-center py-16 space-y-3.5">
-                    <div class="w-16 h-16 bg-[#747D52]/20 text-[#272E1B] rounded-2xl flex items-center justify-center mx-auto text-2xl mb-2 shadow-sm">
+                    <div
+                        class="w-16 h-16 bg-[#747D52]/20 text-[#272E1B] rounded-2xl flex items-center justify-center mx-auto text-2xl mb-2 shadow-sm">
                         <i class="fa-solid fa-check"></i>
                     </div>
-                    <h2 class="font-extrabold text-lg text-stone-900 tracking-tight">{{ __('Order Confirmed!') }}</h2>
-                    <p class="text-xs text-stone-500">{{ __('Reference:') }} <strong class="text-stone-900 font-extrabold" x-text="placedOrderNo"></strong></p>
+                    <h2 class="font-extrabold text-lg text-stone-900 tracking-tight">{{ __('Order Confirmed!') }}
+                    </h2>
+                    <p class="text-xs text-stone-500">{{ __('Reference:') }} <strong
+                            class="text-stone-900 font-extrabold" x-text="placedOrderNo"></strong></p>
                     <button @click="view = 'categories-grid'; navigate('/')"
                         class="mt-4 bg-[#747D52] hover:bg-[#636C44] text-white px-7 py-3 rounded-xl font-extrabold text-xs shadow-md shadow-[#747D52]/20 active:scale-95 transition">
                         {{ __('Back to Menu') }}
@@ -1512,7 +1772,7 @@
             <!-- Sticky Bottom Review Bar -->
             <footer
                 class="fixed lg:sticky bottom-0 left-0 right-0 lg:left-auto lg:right-auto w-full p-4 pb-safe bg-white/95 backdrop-blur-md border-t border-stone-200 z-40 shadow-lg shrink-0"
-                x-show="view !== 'success' && view !== 'profile-menu' && view !== 'email-signin' && view !== 'my-orders'">
+                x-show="view !== 'success' && view !== 'profile-menu' && view !== 'email-signin' && view !== 'my-orders' && view !== 'select-saved-address'">
                 <template x-if="(view === 'categories-grid' || view === 'category-products') && cart.length > 0">
                     <button @click="navigate('/cart')"
                         class="w-full bg-[#747D52] hover:bg-[#636C44] text-white font-extrabold py-3.5 px-4 rounded-xl flex items-center justify-between text-xs transition shadow-md shadow-[#747D52]/25 active:scale-[0.98]">
@@ -1547,7 +1807,7 @@
                 <template x-if="view === 'address'">
                     <button @click="validateAndProceedAddress()"
                         class="w-full bg-[#747D52] hover:bg-[#636C44] text-white font-extrabold py-3.5 rounded-xl text-xs transition active:scale-[0.98] shadow-md shadow-[#747D52]/25">
-                        {{ __('Next') }}
+                        {{ __('Save & Proceed') }}
                     </button>
                 </template>
 
@@ -1565,14 +1825,14 @@
         <aside
             class="hidden lg:flex lg:w-1/2 h-full relative overflow-hidden bg-[#24261F] select-none min-w-0 flex-col justify-between p-8 xl:p-10 group">
 
-            <!-- 1. The Core Photographic Asset with Smooth Hover Zoom & Cinematic Depth -->
+            <!-- Core Photographic Asset -->
             <div class="absolute inset-0 z-0 overflow-hidden">
                 <img src="{{ asset('images/otherwise-banner-new.jpeg') }}"
                     alt="otherwise - Choose well. Drink well."
                     class="w-full h-full object-cover object-[50%_40%] group-hover:scale-105 transition-transform duration-700 ease-out brightness-[0.98]">
             </div>
 
-            <!-- 2. Subtle Cinematic Top & Bottom Gradients -->
+            <!-- Gradients -->
             <div
                 class="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/50 to-transparent z-10">
             </div>
@@ -1580,9 +1840,8 @@
                 class="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10">
             </div>
 
-            <!-- 3. TOP ROW: Clean Minimalist Status Pill -->
+            <!-- Top Row -->
             <div class="relative z-20 flex items-center justify-between w-full">
-                <!-- Live Status Pill -->
                 <div
                     class="inline-flex items-center space-x-2.5 rtl:space-x-reverse bg-black/40 backdrop-blur-xl border border-white/20 px-4 py-2 rounded-2xl shadow-xl">
                     <span class="relative flex h-2 w-2">
@@ -1595,7 +1854,6 @@
                     </span>
                 </div>
 
-                <!-- Operating Hours Pill -->
                 <div
                     class="inline-flex items-start space-x-2 rtl:space-x-reverse bg-black/40 backdrop-blur-xl border border-white/15 px-3.5 py-2.5 rounded-2xl text-stone-200 text-[11px] font-bold shadow-lg">
                     <i class="fa-regular fa-clock text-[#B5BF8A] mt-0.5"></i>
@@ -1629,13 +1887,11 @@
                 </div>
             </div>
 
-            <!-- 4. CENTER -->
             <div class="relative z-20 my-auto pointer-events-none"></div>
 
-            <!-- 5. BOTTOM DOCK -->
+            <!-- Bottom Dock -->
             <div
                 class="relative z-20 flex items-center justify-between bg-white/90 backdrop-blur-2xl border border-white/50 px-5 py-3.5 rounded-2xl shadow-2xl w-full">
-                <!-- Left: Live Order Status -->
                 <div class="flex items-center space-x-3 rtl:space-x-reverse">
                     <div
                         class="w-8 h-8 rounded-xl bg-[#747D52] text-white flex items-center justify-center text-xs font-black shadow-sm">
@@ -1649,7 +1905,6 @@
                     </div>
                 </div>
 
-                <!-- Right: Instagram Link -->
                 <a href="https://www.instagram.com/{{ ltrim($settings['instagram_handle'] ?? 'otherwisekw', '@') }}/"
                     target="_blank"
                     class="group/ig inline-flex items-center space-x-2 text-stone-900 hover:text-[#747D52] transition-colors font-black text-xs">
@@ -1733,6 +1988,17 @@
                 maxPriceFilter: 25.000,
                 guestVerificationLoading: false,
 
+                // Remarks & Address Management
+                itemRemarks: '',
+                orderSpecialRemarks: '',
+                pastedMapUrl: '',
+                selectedAddressId: null,
+                saveAddressToBook: true,
+                setAsDefaultAddress: false,
+                savedAddresses: [],
+                addressLoading: false,
+                addressBackRoute: '/checkout/details',
+
                 // Pretty Modal State
                 modal: {
                     open: false,
@@ -1770,6 +2036,7 @@
                         meta.setAttribute('content', newToken);
                     }
                 },
+
                 toggleSearch() {
                     this.searchOpen = !this.searchOpen;
                     if (this.searchOpen) {
@@ -1816,7 +2083,6 @@
                     }
                 },
 
-                // Cart local persistence
                 cart: JSON.parse(localStorage.getItem('otherwise_cart') || '[]'),
                 saveCart() {
                     localStorage.setItem('otherwise_cart', JSON.stringify(this.cart));
@@ -1830,7 +2096,6 @@
                 governoratesList: @json($governoratesList),
                 storesList: @json($storesList),
 
-                // Dynamic Categories Filter
                 get displayedCategories() {
                     let list = [...this.categoriesList];
                     const query = this.productSearch.toLowerCase().trim();
@@ -1864,7 +2129,6 @@
                     return list;
                 },
 
-                // Dynamic Products Filter
                 get displayedProducts() {
                     if (!this.activeCategory || !this.activeCategory.products) return [];
                     let list = [...this.activeCategory.products];
@@ -1993,15 +2257,18 @@
                 saveCustomer() {
                     localStorage.setItem('otherwise_customer', JSON.stringify(this.customer));
                 },
+
                 address: {
                     type: 'Home',
                     block: '',
                     street: '',
                     avenue: '',
                     building: '',
+                    floor: '',
+                    flat_no: '',
                     additional_directions: '',
                     paci: '',
-                    latitude: 29.3759, // Default: Kuwait City
+                    latitude: 29.3759,
                     longitude: 47.9774
                 },
                 leafletMap: null,
@@ -2012,7 +2279,6 @@
                 initRouter() {
                     const urlParams = new URLSearchParams(window.location.search);
 
-                    // 1. Check for MyFatoorah Payment Return FIRST
                     if (urlParams.get('payment') === 'success') {
                         const orderNo = urlParams.get('order') || '';
                         this.placedOrderNo = orderNo;
@@ -2020,10 +2286,8 @@
                         localStorage.removeItem('otherwise_cart');
                         this.view = 'success';
                         this.setPageTitle('{{ __('Order Confirmed!') }}');
-
-                        // Clean the URL without reloading the page
                         window.history.replaceState({}, document.title, window.location.pathname);
-                        return; // STOP execution so handlePath() does not overwrite this.view!
+                        return;
                     }
 
                     if (urlParams.get('payment') === 'failed') {
@@ -2037,7 +2301,8 @@
                     if (urlParams.get('verified') === '1') {
                         this.isAuthenticated = true;
                         this.view = 'address';
-                        this.showAlert('{{ __('Email verified successfully! Please enter your delivery address.') }}', '{{ __('Verified') }}');
+                        this.showAlert('{{ __('Email verified successfully! Please enter your delivery address.') }}',
+                            '{{ __('Verified') }}');
                         window.history.replaceState({}, document.title, window.location.pathname);
                     }
 
@@ -2050,11 +2315,14 @@
 
                     if (this.storesList && this.storesList.length > 0 && !this.selectedPickupStore) {
                         this.selectedPickupStore = {
-                            id: this.storesList[0].id, // <-- MUST HAVE ID
+                            id: this.storesList[0].id,
                             name: this.storesList[0].name,
                             description: this.storesList[0].description
                         };
                     }
+
+                    // Fetch saved addresses from DB
+                    this.fetchAddressesFromDb();
 
                     window.addEventListener('popstate', () => {
                         this.handlePath(window.location.pathname);
@@ -2075,12 +2343,6 @@
                 handlePath(path, customTitle = null) {
                     const clean = path.replace(/^\/|\/$/g, '');
                     const parts = clean.split('/');
-
-                    // if (this.view === 'success') {
-                    //     return;
-                    // }
-
-                   
 
                     if (!clean || clean === '') {
                         this.view = 'categories-grid';
@@ -2124,9 +2386,15 @@
                             this.view = 'checkout-details';
                             this.setPageTitle('{{ __('Contact Information') }}');
                         } else if (parts[1] === 'address') {
-                            this.view = 'address';
-                            this.setPageTitle('{{ __('Delivery Address Details') }}');
-                            this.initAddressMap();
+                            this.addressBackRoute = this.isAuthenticated ? '/cart' : '/checkout/details';
+                            if (this.savedAddresses.length > 0 && !this.selectedAddressId) {
+                                this.view = 'select-saved-address';
+                                this.setPageTitle('{{ __('Select Delivery Address') }}');
+                            } else {
+                                this.view = 'address';
+                                this.setPageTitle('{{ __('Delivery Address Details') }}');
+                                this.initAddressMap();
+                            }
                         }
                     } else if (parts[0] === 'profile') {
                         if (parts[1] === 'orders') {
@@ -2168,6 +2436,7 @@
                 setupCustomizer(product) {
                     this.activeProduct = product;
                     this.itemQuantity = 1;
+                    this.itemRemarks = '';
                     this.userSelections = {};
 
                     if (product.addon_groups) {
@@ -2211,38 +2480,277 @@
                         this.showAlert('{{ __('Please fill all required fields') }}');
                         return;
                     }
-                    this.saveCustomer(); // Save customer details so they persist after verification redirect
-                    this.guestVerificationLoading = true;
+                    this.saveCustomer();
+                    this.addressBackRoute = '/checkout/details';
+                    this.view = 'address';
+                    this.initAddressMap();
+                },
 
-                    fetch('/customer/send-verification', {
+                // ------------------ DB & LOCAL ADDRESS MANAGEMENT ------------------
+                fetchAddressesFromDb() {
+                    this.addressLoading = true;
+                    const email = this.currentUser?.email || this.customer?.email || '';
+                    const phone = this.currentUser?.phone || this.customer?.phone || '';
+
+                    const params = new URLSearchParams();
+                    if (email) params.append('email', email);
+                    if (phone) params.append('phone', phone);
+
+                    fetch(`/customer/addresses?${params.toString()}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.getCsrfToken()
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.addresses && data.addresses.length > 0) {
+                                this.savedAddresses = data.addresses;
+                                const defaultAddr = this.savedAddresses.find(a => a.is_default) || this.savedAddresses[
+                                    0];
+                                if (defaultAddr && !this.selectedAddressId) {
+                                    this.selectSavedAddress(defaultAddr, false);
+                                }
+                            } else {
+                                this.savedAddresses = JSON.parse(localStorage.getItem('otherwise_saved_addresses') ||
+                                    '[]');
+                            }
+                        })
+                        .catch(() => {
+                            this.savedAddresses = JSON.parse(localStorage.getItem('otherwise_saved_addresses') || '[]');
+                        })
+                        .finally(() => {
+                            this.addressLoading = false;
+                        });
+                },
+
+                manageAddressesFromProfile() {
+                    this.addressBackRoute = '/profile';
+                    this.view = 'select-saved-address';
+                    this.setPageTitle('{{ __('Delivery Addresses') }}');
+                },
+
+                createNewAddress() {
+                    this.resetAddressForm();
+                    this.view = 'address';
+                    this.setPageTitle('{{ __('Add Delivery Address') }}');
+                    this.initAddressMap();
+                },
+
+                editSavedAddress(addr) {
+                    this.selectedAddressId = addr.id;
+                    this.address = {
+                        type: addr.type || 'Home',
+                        block: addr.block || '',
+                        street: addr.street || '',
+                        avenue: addr.avenue || '',
+                        building: addr.building || '',
+                        floor: addr.floor || '',
+                        flat_no: addr.flat_no || '',
+                        additional_directions: addr.additional_directions || '',
+                        paci: addr.paci || '',
+                        latitude: parseFloat(addr.latitude || 29.3759),
+                        longitude: parseFloat(addr.longitude || 47.9774)
+                    };
+                    this.setAsDefaultAddress = !!addr.is_default;
+                    this.view = 'address';
+                    this.setPageTitle('{{ __('Edit Address') }}');
+                    this.initAddressMap();
+                    this.updateMapPosition(this.address.latitude, this.address.longitude);
+                },
+
+                resetAddressForm() {
+                    this.selectedAddressId = null;
+                    this.address = {
+                        type: 'Home',
+                        block: '',
+                        street: '',
+                        avenue: '',
+                        building: '',
+                        floor: '',
+                        flat_no: '',
+                        additional_directions: '',
+                        paci: '',
+                        latitude: 29.3759,
+                        longitude: 47.9774
+                    };
+                    this.pastedMapUrl = '';
+                    this.setAsDefaultAddress = false;
+                    this.updateMapPosition(29.3759, 47.9774);
+                },
+
+                selectSavedAddress(saved, notify = true) {
+                    this.selectedAddressId = saved.id;
+                    this.address = {
+                        type: saved.type || 'Home',
+                        block: saved.block || '',
+                        street: saved.street || '',
+                        avenue: saved.avenue || '',
+                        building: saved.building || '',
+                        floor: saved.floor || '',
+                        flat_no: saved.flat_no || '',
+                        additional_directions: saved.additional_directions || '',
+                        paci: saved.paci || '',
+                        latitude: parseFloat(saved.latitude || 29.3759),
+                        longitude: parseFloat(saved.longitude || 47.9774)
+                    };
+                    this.setAsDefaultAddress = !!saved.is_default;
+                    this.updateMapPosition(this.address.latitude, this.address.longitude);
+                    if (notify) {
+                        this.showAlert(
+                            `{{ __('Selected address:') }} ${saved.type} (Block ${saved.block}, Street ${saved.street})`
+                            );
+                    }
+                },
+
+                applyAddressAndProceed(addr) {
+                    this.selectSavedAddress(addr, false);
+                    this.view = 'checkout';
+                    this.setPageTitle('{{ __('Payment Option') }}');
+                },
+
+                saveCurrentAddressToStorage() {
+                    const email = this.currentUser?.email || this.customer?.email || '';
+                    const phone = this.currentUser?.phone || this.customer?.phone || '';
+                    const name = this.currentUser?.name || this.customer?.name || '';
+
+                    const payload = {
+                        id: this.selectedAddressId,
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        type: this.address.type || 'Home',
+                        block: this.address.block,
+                        street: this.address.street,
+                        avenue: this.address.avenue,
+                        building: this.address.building,
+                        floor: this.address.floor,
+                        flat_no: this.address.flat_no,
+                        additional_directions: this.address.additional_directions,
+                        paci: this.address.paci,
+                        latitude: this.address.latitude,
+                        longitude: this.address.longitude,
+                        is_default: this.setAsDefaultAddress
+                    };
+
+                    fetch('/customer/addresses/save', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'X-CSRF-TOKEN': this.getCsrfToken(),
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.fetchAddressesFromDb();
+                            }
+                        })
+                        .catch(() => {
+                            const itemToSave = {
+                                ...payload,
+                                id: this.selectedAddressId || Date.now()
+                            };
+                            const idx = this.savedAddresses.findIndex(a => a.id === itemToSave.id);
+                            if (idx > -1) this.savedAddresses[idx] = itemToSave;
+                            else this.savedAddresses.unshift(itemToSave);
+                            localStorage.setItem('otherwise_saved_addresses', JSON.stringify(this.savedAddresses));
+                        });
+                },
+
+                markAsDefaultAddress(id) {
+                    const email = this.currentUser?.email || this.customer?.email || '';
+
+                    fetch(`/customer/addresses/${id}/default`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': this.getCsrfToken(),
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify({
-                                email: this.customer.email,
-                                name: this.customer.name,
-                                phone: this.customer.phone
+                                email: email
                             })
                         })
-                        .then(async res => {
-                            const data = await res.json();
-                            if (!res.ok) throw new Error(data.message || 'Verification email dispatch failed');
-                            return data;
-                        })
+                        .then(res => res.json())
                         .then(data => {
-                            this.showAlert(data.message ||
-                                '{{ __('Verification email sent! Please check your inbox and verify before continuing.') }}'
-                            );
+                            if (data.success) {
+                                this.showAlert(data.message);
+                                this.fetchAddressesFromDb();
+                            }
                         })
-                        .catch(err => {
-                            this.showAlert(err.message);
-                        })
-                        .finally(() => {
-                            this.guestVerificationLoading = false;
+                        .catch(() => {
+                            this.savedAddresses.forEach(a => a.is_default = (a.id === id));
+                            localStorage.setItem('otherwise_saved_addresses', JSON.stringify(this.savedAddresses));
+                            this.showAlert('{{ __('Default address updated.') }}');
                         });
+                },
+
+                deleteSavedAddress(id) {
+                    this.showConfirm('{{ __('Delete this saved address?') }}', () => {
+                        const email = this.currentUser?.email || this.customer?.email || '';
+
+                        fetch(`/customer/addresses/${id}?email=${encodeURIComponent(email)}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': this.getCsrfToken(),
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    if (this.selectedAddressId === id) this.resetAddressForm();
+                                    this.fetchAddressesFromDb();
+                                }
+                            })
+                            .catch(() => {
+                                this.savedAddresses = this.savedAddresses.filter(a => a.id !== id);
+                                localStorage.setItem('otherwise_saved_addresses', JSON.stringify(this
+                                    .savedAddresses));
+                                if (this.selectedAddressId === id) this.resetAddressForm();
+                            });
+                    });
+                },
+
+                applyPastedLocation() {
+                    if (!this.pastedMapUrl.trim()) return;
+
+                    let lat = null;
+                    let lng = null;
+
+                    const coordsMatch = this.pastedMapUrl.match(/(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
+                    if (coordsMatch) {
+                        lat = parseFloat(coordsMatch[1]);
+                        lng = parseFloat(coordsMatch[2]);
+                    } else {
+                        const urlMatch = this.pastedMapUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/) ||
+                            this.pastedMapUrl.match(/q=(-?\d+\.\d+),(-?\d+\.\d+)/) ||
+                            this.pastedMapUrl.match(/ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
+                        if (urlMatch) {
+                            lat = parseFloat(urlMatch[1]);
+                            lng = parseFloat(urlMatch[2]);
+                        }
+                    }
+
+                    if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+                        this.address.latitude = lat;
+                        this.address.longitude = lng;
+                        this.updateMapPosition(lat, lng);
+                        this.showAlert(`{{ __('Coordinates set:') }} ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+                    } else {
+                        this.showAlert('{{ __('Could not detect coordinates from link. Please drag pin manually.') }}');
+                    }
+                },
+
+                updateMapPosition(lat, lng) {
+                    if (this.leafletMap && this.leafletMarker) {
+                        this.leafletMarker.setLatLng([lat, lng]);
+                        this.leafletMap.setView([lat, lng], 15);
+                    }
                 },
 
                 validateAndProceedAddress() {
@@ -2252,7 +2760,13 @@
                         );
                         return;
                     }
+
+                    if (this.saveAddressToBook) {
+                        this.saveCurrentAddressToStorage();
+                    }
+
                     this.view = 'checkout';
+                    this.setPageTitle('{{ __('Payment Option') }}');
                 },
 
                 // ------------------ ORDERS HISTORY & 5-MIN CANCEL ------------------
@@ -2265,7 +2779,7 @@
                     if (email) params.append('email', email);
                     if (phone) params.append('phone', phone);
 
-                    fetch(`/customer/orders?${params.toString()}`, {
+                    fetch(`/api/customer/orders?${params.toString()}`, {
                             headers: {
                                 'Accept': 'application/json'
                             }
@@ -2309,7 +2823,7 @@
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                    'X-CSRF-TOKEN': this.getCsrfToken(),
                                     'Accept': 'application/json'
                                 }
                             })
@@ -2329,7 +2843,7 @@
                 },
 
                 // ------------------ AUTH LOGIC ------------------
-              submitSignIn() {
+                submitSignIn() {
                     this.authError = '';
                     this.authSuccess = '';
 
@@ -2340,45 +2854,48 @@
                     this.authLoading = true;
 
                     fetch('{{ route('customer.login') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.getCsrfToken(),
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(this.authForm)
-                    })
-                    .then(async res => {
-                        const data = await res.json().catch(() => ({}));
-                        if (!res.ok) {
-                            if (res.status === 419) {
-                                throw new Error('{{ __('Session expired. Please try logging in again.') }}');
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': this.getCsrfToken(),
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(this.authForm)
+                        })
+                        .then(async res => {
+                            const data = await res.json().catch(() => ({}));
+                            if (!res.ok) {
+                                if (res.status === 419) {
+                                    throw new Error('{{ __('Session expired. Please try logging in again.') }}');
+                                }
+                                throw new Error(data.message || 'Login failed');
                             }
-                            throw new Error(data.message || 'Login failed');
-                        }
-                        return data;
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            // Update CSRF token if returned by backend
-                            if (data.csrf_token) {
-                                this.updateCsrfToken(data.csrf_token);
+                            return data;
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                if (data.csrf_token) {
+                                    this.updateCsrfToken(data.csrf_token);
+                                }
+                                this.currentUser = data.user;
+                                this.customer.name = data.user.name;
+                                this.customer.email = data.user.email;
+                                this.customer.phone = data.user.phone;
+                                this.isAuthenticated = true;
+                                this.authForm = {
+                                    email: '',
+                                    password: ''
+                                };
+                                this.fetchAddressesFromDb();
+                                this.navigate('/profile', '{{ __('Profile') }}');
                             }
-                            this.currentUser = data.user;
-                            this.customer.name = data.user.name;
-                            this.customer.email = data.user.email;
-                            this.customer.phone = data.user.phone;
-                            this.isAuthenticated = true;
-                            this.authForm = { email: '', password: '' };
-                            this.navigate('/profile', '{{ __('Profile') }}');
-                        }
-                    })
-                    .catch(err => {
-                        this.authError = err.message;
-                    })
-                    .finally(() => {
-                        this.authLoading = false;
-                    });
+                        })
+                        .catch(err => {
+                            this.authError = err.message;
+                        })
+                        .finally(() => {
+                            this.authLoading = false;
+                        });
                 },
 
                 submitSignUp() {
@@ -2392,44 +2909,49 @@
                     this.authLoading = true;
 
                     fetch('{{ route('customer.register') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.getCsrfToken(),
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(this.regForm)
-                    })
-                    .then(async res => {
-                        const data = await res.json().catch(() => ({}));
-                        if (!res.ok) {
-                            if (res.status === 419) {
-                                throw new Error('{{ __('Session expired. Please try again.') }}');
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': this.getCsrfToken(),
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(this.regForm)
+                        })
+                        .then(async res => {
+                            const data = await res.json().catch(() => ({}));
+                            if (!res.ok) {
+                                if (res.status === 419) {
+                                    throw new Error('{{ __('Session expired. Please try again.') }}');
+                                }
+                                if (data.errors) {
+                                    const firstError = Object.values(data.errors)[0][0];
+                                    throw new Error(firstError);
+                                }
+                                throw new Error(data.message || 'Registration failed');
                             }
-                            if (data.errors) {
-                                const firstError = Object.values(data.errors)[0][0];
-                                throw new Error(firstError);
+                            return data;
+                        })
+                        .then(data => {
+                            if (data.csrf_token) {
+                                this.updateCsrfToken(data.csrf_token);
                             }
-                            throw new Error(data.message || 'Registration failed');
-                        }
-                        return data;
-                    })
-                    .then(data => {
-                        if (data.csrf_token) {
-                            this.updateCsrfToken(data.csrf_token);
-                        }
-                        if (data.requires_verify) {
-                            this.regForm = { name: '', email: '', phone: '', password: '' };
-                            this.authTab = 'login';
-                            this.authSuccess = data.message;
-                        }
-                    })
-                    .catch(err => {
-                        this.authError = err.message;
-                    })
-                    .finally(() => {
-                        this.authLoading = false;
-                    });
+                            if (data.requires_verify) {
+                                this.regForm = {
+                                    name: '',
+                                    email: '',
+                                    phone: '',
+                                    password: ''
+                                };
+                                this.authTab = 'login';
+                                this.authSuccess = data.message;
+                            }
+                        })
+                        .catch(err => {
+                            this.authError = err.message;
+                        })
+                        .finally(() => {
+                            this.authLoading = false;
+                        });
                 },
 
                 submitForgotPassword() {
@@ -2522,26 +3044,31 @@
 
                 signOut() {
                     fetch('{{ route('customer.logout') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.getCsrfToken(),
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(res => res.json().catch(() => ({})))
-                    .then(data => {
-                        if (data.csrf_token) {
-                            this.updateCsrfToken(data.csrf_token);
-                        }
-                        this.isAuthenticated = false;
-                        this.currentUser = { name: '', email: '', phone: '' };
-                        this.navigate('/', '{{ __('otherwise') }}');
-                    })
-                    .catch(() => {
-                        this.isAuthenticated = false;
-                        this.navigate('/', '{{ __('otherwise') }}');
-                    });
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': this.getCsrfToken(),
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(res => res.json().catch(() => ({})))
+                        .then(data => {
+                            if (data.csrf_token) {
+                                this.updateCsrfToken(data.csrf_token);
+                            }
+                            this.isAuthenticated = false;
+                            this.currentUser = {
+                                name: '',
+                                email: '',
+                                phone: ''
+                            };
+                            this.savedAddresses = [];
+                            this.navigate('/', '{{ __('otherwise') }}');
+                        })
+                        .catch(() => {
+                            this.isAuthenticated = false;
+                            this.navigate('/', '{{ __('otherwise') }}');
+                        });
                 },
 
                 deleteAccount() {
@@ -2644,7 +3171,8 @@
                         quantity: this.itemQuantity,
                         unit_price: this.customizerPrice,
                         total_price: this.customizerPrice * this.itemQuantity,
-                        addons: flattenedAddons
+                        addons: flattenedAddons,
+                        notes: this.itemRemarks ? this.itemRemarks.trim() : null
                     });
 
                     this.saveCart();
@@ -2683,9 +3211,8 @@
                 placeOrderNow() {
                     const minOrderAmount = parseFloat('{{ $settings['min_order'] ?? 3.75 }}');
                     const subtotal = this.calculateSubtotal();
-                    const grandTotal = this.calculateGrandTotal(); // Use grand total for the check
+                    const grandTotal = this.calculateGrandTotal();
 
-                    // Check against grandTotal instead of subtotal
                     if (grandTotal < minOrderAmount) {
                         this.showAlert(
                             `{{ __('Minimum order amount is') }} ${minOrderAmount.toFixed(3)} {{ __('KD') }}`);
@@ -2706,8 +3233,6 @@
                         (this.selectedDeliveryArea ? this.selectedDeliveryArea.name : '') :
                         (this.selectedPickupStore ? this.selectedPickupStore.name : '');
 
-                    console.log("Submitting order with Area ID:", targetAreaId, "Store ID:", targetStoreId);
-
                     const payload = {
                         order_type: this.method,
                         store_id: targetStoreId,
@@ -2721,6 +3246,8 @@
                         street: this.address.street,
                         avenue: this.address.avenue,
                         building: this.address.building,
+                        floor: this.address.floor,
+                        flat_no: this.address.flat_no,
                         additional_directions: this.address.additional_directions,
                         paci: this.address.paci,
                         latitude: this.address.latitude,
@@ -2729,6 +3256,9 @@
                         delivery_fee: this.method === 'delivery' ? this.deliveryFee : 0,
                         total: grandTotal,
                         payment_method: this.paymentMethod,
+                        special_remarks: this.orderSpecialRemarks || null,
+                        save_address_to_db: this.saveAddressToBook,
+                        set_default_address: this.setAsDefaultAddress,
                         items: this.cart
                     };
 
@@ -2736,8 +3266,7 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                //'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-CSRF-TOKEN': this.getCsrfToken(),
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify(payload)
@@ -2754,12 +3283,10 @@
                         .then(res => {
                             if (res.success) {
                                 if (res.redirect_url) {
-                                    // MyFatoorah gateway redirection
                                     window.location.href = res.redirect_url;
                                     return;
                                 }
 
-                                // Cash flow: Complete order immediately
                                 this.placedOrderNo = res.order_number;
                                 this.cart = [];
                                 localStorage.removeItem('otherwise_cart');
@@ -2774,6 +3301,11 @@
                 },
 
                 initAddressMap() {
+                    // Fetch addresses if empty
+                    if (this.savedAddresses.length === 0) {
+                        this.fetchAddressesFromDb();
+                    }
+
                     this.$nextTick(() => {
                         const container = document.getElementById('addressPickerMap');
                         if (!container) return;
@@ -2818,10 +3350,7 @@
                                 const lng = pos.coords.longitude;
                                 this.address.latitude = lat;
                                 this.address.longitude = lng;
-                                if (this.leafletMap && this.leafletMarker) {
-                                    this.leafletMarker.setLatLng([lat, lng]);
-                                    this.leafletMap.setView([lat, lng], 15);
-                                }
+                                this.updateMapPosition(lat, lng);
                             },
                             () => {
                                 this.showAlert('{{ __('Could not retrieve your current location.') }}');

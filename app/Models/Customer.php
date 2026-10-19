@@ -65,4 +65,14 @@ class Customer extends Authenticatable implements MustVerifyEmail
             }
         });
     }
+
+    public function addresses()
+    {
+        return $this->hasMany(\App\Models\CustomerAddress::class, 'customer_id');
+    }
+
+    public function defaultAddress()
+    {
+        return $this->hasOne(\App\Models\CustomerAddress::class, 'customer_id')->where('is_default', true);
+    }
 }

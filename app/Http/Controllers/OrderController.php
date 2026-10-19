@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\OrderPlacedEvent;
+use App\Models\CustomerAddress;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -12,7 +13,7 @@ use MyFatoorah\Library\API\Payment\MyFatoorahPayment;
 
 class OrderController extends Controller
 {
-   public function placeOrder(Request $request)
+    public function placeOrder(Request $request)
     {
         $validated = $request->validate([
             'order_type'            => 'required|string',
@@ -26,10 +27,20 @@ class OrderController extends Controller
             'total'                 => 'required|numeric',
             'payment_method'        => 'required|string',
             'items'                 => 'required|array|min:1',
+            'address_type'          => 'nullable|string',
+            'block'                 => 'nullable|string',
+            'street'                => 'nullable|string',
+            'building'              => 'nullable|string',
+            'floor'                 => 'nullable|string',
+            'flat_no'               => 'nullable|string',
             'avenue'                => 'nullable|string',
             'additional_directions' => 'nullable|string',
+            'paci'                  => 'nullable|string',
             'latitude'              => 'nullable|numeric',
             'longitude'             => 'nullable|numeric',
+            'special_remarks'       => 'nullable|string',
+            'save_address_to_db'    => 'nullable|boolean',
+            'set_default_address'   => 'nullable|boolean',
         ]);
 
         try {
@@ -37,9 +48,36 @@ class OrderController extends Controller
 
             $orderNumber = 'ORD-' . strtoupper(uniqid());
             $customerId = Auth::guard('customer')->id() ?? null;
-
-            // For online payments, order is awaiting payment, not confirmed yet
             $initialStatus = ($request->payment_method === 'cash') ? 'pending' : 'awaiting_payment';
+
+            // If user is authenticated and checked "save address", persist to customer_addresses table
+            if ($customerId && $request->boolean('save_address_to_db') && $request->order_type === 'delivery') {
+                if ($request->boolean('set_default_address')) {
+                    CustomerAddress::where('customer_id', $customerId)->update(['is_default' => false]);
+                }
+
+                CustomerAddress::updateOrCreate(
+                    [
+                        'customer_id' => $customerId,
+                        'type'        => $request->address_type ?? 'Home',
+                        'block'       => $request->block,
+                        'street'      => $request->street,
+                        'building'    => $request->building,
+                    ],
+                    [
+                        'area_id'               => $request->area_id,
+                        'area_name'             => $request->area_name,
+                        'avenue'                => $request->avenue,
+                        'floor'                 => $request->floor,
+                        'flat_no'               => $request->flat_no,
+                        'additional_directions' => $request->additional_directions,
+                        'paci'                  => $request->paci,
+                        'latitude'              => $request->latitude,
+                        'longitude'             => $request->longitude,
+                        'is_default'            => $request->boolean('set_default_address'),
+                    ]
+                );
+            }
 
             $order = Order::create([
                 'order_number'          => $orderNumber,
@@ -55,6 +93,8 @@ class OrderController extends Controller
                 'block'                 => $request->block,
                 'street'                => $request->street,
                 'building'              => $request->building,
+                'floor'                 => $request->floor ?? null,
+                'flat_no'               => $request->flat_no ?? null,
                 'avenue'                => $request->avenue ?? null,
                 'additional_directions' => $request->additional_directions ?? null,
                 'paci'                  => $request->paci ?? null,
@@ -72,17 +112,17 @@ class OrderController extends Controller
                 OrderItem::create([
                     'order_id'        => $order->id,
                     'product_id'      => $item['product_id'] ?? null,
-                    'name'            => $item['name'] ?? '',
+                    'product_name'    => $item['name'] ?? '', // matching your DB column 'product_name'
                     'quantity'        => $item['quantity'],
                     'unit_price'      => $item['unit_price'],
                     'total_price'     => $item['total_price'],
                     'selected_addons' => !empty($item['addons']) ? json_encode($item['addons']) : null,
+                    'notes'           => $item['notes'] ?? null,
                 ]);
             }
 
             DB::commit();
 
-            // ---------------- MYFATOORAH INTEGRATION ----------------
             if ($request->payment_method !== 'cash') {
                 $mfPayment = new MyFatoorahPayment([
                     'apiKey'      => config('myfatoorah.api_key'),
@@ -105,12 +145,9 @@ class OrderController extends Controller
 
                 $mfData = $mfPayment->getInvoiceURL($postFields, 0);
 
-                // Save the invoice ID to the order for tracking
                 if (isset($mfData['invoiceId'])) {
                     $order->update(['payment_id' => $mfData['invoiceId']]);
                 }
-
-                // DO NOT broadcast event here! Wait for successful callback.
 
                 return response()->json([
                     'success'      => true,
@@ -119,8 +156,6 @@ class OrderController extends Controller
                 ]);
             }
 
-            // ---------------- CASH ON DELIVERY FLOW ONLY ----------------
-            // Cash orders are placed immediately without payment gateway
             event(new OrderPlacedEvent($order));
 
             return response()->json([
@@ -128,7 +163,6 @@ class OrderController extends Controller
                 'order_number' => $orderNumber,
                 'message'      => __('Order placed successfully!'),
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
