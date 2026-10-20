@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\CategoriesController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\GovernorateController;
 use App\Http\Controllers\Admin\PickStoreController;
+use App\Http\Controllers\Admin\SalesReportController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\CustomerAddressController;
 use App\Http\Controllers\MyFatoorahController;
@@ -56,9 +57,6 @@ Route::post('/api/customer/orders/{id}/cancel', [OrderController::class, 'cancel
 
 Route::post('/api/auth/send-code', [StoreController::class, 'sendAuthCode']);
 Route::post('/api/auth/verify-code', [StoreController::class, 'verifyAuthCode']);
-
-
-
 
 Route::get('myfatoorah', [MyFatoorahController::class, 'index']);
 Route::get('myfatoorah/callback', [MyFatoorahController::class, 'callback'])->name('myfatoorah.callback');
@@ -121,6 +119,12 @@ Route::prefix('backend')->name('admin.')->middleware('auth')->group(function () 
     Route::middleware(['can:manage-orders'])->group(function () {
         Route::get('/orders', [AdminController::class, 'orders'])->name('orders.index');
         Route::post('/orders/{order}/status', [AdminController::class, 'updateOrderStatus'])->name('orders.status');
+    });
+
+    // --- Reports Management (Fixed naming prefix) ---
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/sales-by-branch', [SalesReportController::class, 'index'])->name('sales_by_branch');
+        Route::get('/sales-by-branch/export/{type}', [SalesReportController::class, 'export'])->name('sales_by_branch.export');
     });
 
     // --- Products Management ---
